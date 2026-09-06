@@ -179,6 +179,11 @@ def main() -> None:
             "source carries a contest ID; roughly 6% of team-matches drop out, mostly "
             "same-day repeat pairings in tournaments.",
             "The grade describes a match; it is not a forecast of the next one.",
+            "The 2025 source data is incomplete upstream: 34 teams present in 2024 have "
+            "no rows at all, including the entire Sun Belt (14), 9 WCC, and 7 WAC. Teams "
+            "that are present have full schedules, and 5.2% of 2025 matches are against a "
+            "missing team, so those opponents inform other teams' ratings but receive none "
+            "themselves. See JeffreyRStevens/ncaavolleyballr issue #24.",
         ],
     }
     (args.out_dir / "meta.json").write_text(json.dumps(meta, indent=2))

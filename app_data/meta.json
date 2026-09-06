@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-09-06T17:28:53.503874+00:00",
+  "built_at": "2026-09-06T18:12:34.108398+00:00",
   "source": "NCAA play-by-play and box scores via JeffreyRStevens/ncaavolleyballr",
   "sport": "women's volleyball",
   "division": "D1",
@@ -24,6 +24,7 @@
   "caveats": [
     "Thresholds are calibrated on women's D1; men's and D2/D3 need recalibration.",
     "Matches join pbp to box scores on (date, unordered team pair) because neither source carries a contest ID; roughly 6% of team-matches drop out, mostly same-day repeat pairings in tournaments.",
-    "The grade describes a match; it is not a forecast of the next one."
+    "The grade describes a match; it is not a forecast of the next one.",
+    "The 2025 source data is incomplete upstream: 34 teams present in 2024 have no rows at all, including the entire Sun Belt (14), 9 WCC, and 7 WAC. Teams that are present have full schedules, and 5.2% of 2025 matches are against a missing team, so those opponents inform other teams' ratings but receive none themselves. See JeffreyRStevens/ncaavolleyballr issue #24."
   ]
 }
