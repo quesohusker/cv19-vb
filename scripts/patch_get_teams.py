@@ -84,6 +84,47 @@ PATCHES = [
       rvest::html_text()
 """,
     ),
+    (
+        "de-duplicate conferences and teams",
+        """  conference_df <- data.frame(
+    conference = conference_names,
+    conference_id = conference_ids
+  )
+""",
+        f"""  conference_df <- data.frame(
+    conference = conference_names,
+    conference_id = conference_ids
+  )
+  {MARKER}
+  # A rendered DOM is not the raw server HTML, and the conference list is picked by
+  # positional index (.level2[[4]]), so the browser path can pick up a doubled menu.
+  # That doubles every team row, and a duplicated row makes find_team_id() return a
+  # length-2 vector, which chromote rejects with "string value expected at position 12".
+  conference_df <- unique(conference_df)
+"""
+    ),
+    (
+        "de-duplicate the returned team table",
+        """    dplyr::select(
+      "team_id",
+      "team_name",
+      "conference_id",
+      "conference",
+      "div",
+      "yr"
+    )
+}""",
+        """    dplyr::select(
+      "team_id",
+      "team_name",
+      "conference_id",
+      "conference",
+      "div",
+      "yr"
+    ) |>
+    dplyr::distinct()
+}"""
+    ),
 ]
 
 
