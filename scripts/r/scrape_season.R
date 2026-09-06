@@ -16,12 +16,40 @@ suppressPackageStartupMessages({
   library(ncaavolleyballr)
 })
 
+# --- transport hardening -------------------------------------------------
+# stats.ncaa.org is behind Akamai, which blocks on client fingerprint rather
+# than headers: a genuine Chrome user-agent over plain HTTP still gets 403.
+# What gets through is a real browser that does not look automated. Four levers,
+# all reachable from R:
+#
+#   1. Microsoft Edge instead of bundled Chromium -- different TLS/JA3.
+#   2. Not headless. chromote always appends a --headless flag and offers no way
+#      to omit it, so CHROMOTE_CHROME points at chrome-shim.sh, which strips it.
+#   3. --disable-blink-features=AutomationControlled, added by the same shim.
+#   4. A generous navigation timeout. chromote defaults to 10s, which is where
+#      the "timed out waiting for response to command Page.navigate" storm comes
+#      from -- NCAA pages under Akamai routinely take longer.
+#
+# Set VB_NO_SHIM=1 to skip this and use plain headless chromote.
+shim <- file.path(dirname(dirname(normalizePath(
+  sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE)[1]),
+  mustWork = FALSE))), "chrome-shim.sh")
+if (!nzchar(Sys.getenv("VB_NO_SHIM")) && file.exists(shim)) {
+  Sys.setenv(CHROMOTE_CHROME = shim)
+  cat("browser: via shim ->", Sys.getenv("VB_BROWSER",
+      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"), "\n")
+} else {
+  cat("browser: default chromote (headless)\n")
+}
+options(chromote.timeout = as.numeric(Sys.getenv("VB_CHROMOTE_TIMEOUT", "60")))
+cat("chromote timeout:", getOption("chromote.timeout"), "s\n")
+
 args     <- commandArgs(trailingOnly = TRUE)
 year     <- as.integer(if (length(args) >= 1) args[1] else 2026)
 division <- as.integer(if (length(args) >= 2) args[2] else 1)
 sport    <- if (length(args) >= 3) args[3] else "WVB"
 outdir   <- if (length(args) >= 4) args[4] else "data/ncaavolleyballr/data-csv"
-delay    <- as.numeric(if (length(args) >= 5) args[5] else 3)
+delay    <- as.numeric(if (length(args) >= 5) args[5] else 6)
 chunk_sz <- as.integer(if (length(args) >= 6) args[6] else 10)
 limit    <- if (length(args) >= 7) as.integer(args[7]) else NA_integer_
 
@@ -50,8 +78,8 @@ if (!is.na(limit) && limit < length(team_names)) {
   dir.create(ckpt_dir, recursive = TRUE, showWarnings = FALSE)
 }
 chunks <- split(team_names, ceiling(seq_along(team_names) / chunk_sz))
-cat(sprintf("%d teams in %d chunks of up to %d, delay %.1fs\n",
-            length(team_names), length(chunks), chunk_sz, delay))
+cat(sprintf("%d teams in %d chunks of up to %d, delay %.1f-%.1fs\n",
+            length(team_names), length(chunks), chunk_sz, delay, delay * 2.3))
 
 scrape_level <- function(level) {
   cat(sprintf("\n=== %s ===\n", level))
@@ -64,9 +92,11 @@ scrape_level <- function(level) {
       next
     }
     cat(sprintf("  [%d/%d] %s ... ", i, length(chunks), chunks[[i]][1]))
+    # jitter the throttle: a fixed interval is itself a signature
+    this_delay <- stats::runif(1, delay, delay * 2.3)
     res <- tryCatch(
       group_stats(teams = chunks[[i]], year = year, level = level,
-                  sport = sport, delay = delay),
+                  sport = sport, delay = this_delay),
       error = function(e) {
         cat(sprintf("FAILED (%s)\n", conditionMessage(e)))
         NULL

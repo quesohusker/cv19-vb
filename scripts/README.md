@@ -63,6 +63,39 @@ light up the entire app, so if you stop early you still have something usable.
 
 Delete the checkpoints only once the CSVs look right.
 
+## Getting past Akamai
+
+stats.ncaa.org is behind Akamai, which blocks on **client fingerprint**, not
+headers -- a genuine Chrome user-agent over plain HTTP still returns 403. What
+gets through is a browser that does not look automated. Four levers, all applied
+automatically by `scrape_season.R`:
+
+| Lever | How |
+|---|---|
+| **Microsoft Edge, not bundled Chromium** | Different TLS/JA3 fingerprint. `chrome-shim.sh` execs Edge. |
+| **Not headless** | Headless is itself a signal. chromote always appends `--headless` and gives no way to omit it, so `CHROMOTE_CHROME` points at the shim, which strips the flag. |
+| **`--disable-blink-features=AutomationControlled`** | Hides `navigator.webdriver`. Added by the shim. |
+| **60s navigation timeout** | chromote defaults to 10s. That default is the source of the "timed out waiting for response to command Page.navigate" storm -- NCAA pages under Akamai routinely take longer. |
+
+Plus a **jittered throttle**: the delay you pass is a floor, and each chunk waits a
+random multiple of it up to 2.3x, because a fixed interval is its own signature.
+
+A browser window will open and stay open for the run. That is deliberate; do not
+close it.
+
+Overrides:
+
+```bash
+export VB_BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"  # if no Edge
+export VB_CHROMOTE_TIMEOUT=90    # slower connection
+export VB_NO_SHIM=1              # fall back to plain headless chromote
+```
+
+Credit where due: this configuration is derived from the approach in
+[jpitel24/volleyball-gis](https://github.com/jpitel24/volleyball-gis), whose
+Playwright pipeline solved the same block first. The technique is reimplemented
+here against chromote; no code was copied.
+
 ## Check coverage before trusting a scrape
 
 When a team page times out, `ncaavolleyballr` warns and returns `invisible()` for
