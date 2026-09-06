@@ -86,12 +86,15 @@ def main() -> int:
     missing = sorted(prior_teams - set(per_team))
 
     print(f"\n  present in {prior_year}, absent in {args.year}: {len(missing)}")
+    wiped = False
     if missing:
         by_conf = Counter(conf.get(t, "?") for t in missing)
         prior_conf = Counter(conf.get(t, "?") for t in prior_teams)
         print("\n  by conference (marked WIPED when the whole conference is gone):")
         for c, n in by_conf.most_common():
-            flag = "  <-- WIPED" if prior_conf.get(c) == n else ""
+            is_wiped = prior_conf.get(c) == n
+            wiped = wiped or is_wiped
+            flag = "  <-- WIPED" if is_wiped else ""
             print(f"    {c:<22} {n:>3} of {prior_conf.get(c, '?')}{flag}")
         print(f"\n  teams: {', '.join(missing[:20])}"
               f"{' ...' if len(missing) > 20 else ''}")
@@ -100,7 +103,9 @@ def main() -> int:
         print("  chunks are deliberately left uncached so they are retried.")
     else:
         print("  Nothing missing. Safe to run the pipeline.")
-    return 0
+    # exit 2 signals a conference-shaped gap, so a driver can stop before
+    # rebuilding the app on data that is missing whole conferences
+    return 2 if wiped else 0
 
 
 if __name__ == "__main__":

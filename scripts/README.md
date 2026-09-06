@@ -1,5 +1,20 @@
 # Fetching a season the package does not ship yet
 
+## Just run this
+
+```bash
+scripts/update_season.sh 2026
+```
+
+Scrapes the season, verifies coverage, rebuilds the rally tables, match metrics
+and `app_data/`, and tells you what to commit. It stops before rebuilding if the
+coverage check finds a conference-shaped gap, since that means the scrape died
+mid-conference and the fix is to re-run it (checkpoints resume) rather than
+publish a hole. `FORCE=1` overrides.
+
+Everything below is the detail behind that one command.
+
+
 `ncaavolleyballr` publishes scraped CSVs only after a season completes, and it gates
 every scrape on a hardcoded `most_recent_season()` that the maintainer bumps by hand
 each year. Its bundled team-ID table stops at the same season. So an in-progress
