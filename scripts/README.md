@@ -63,6 +63,27 @@ light up the entire app, so if you stop early you still have something usable.
 
 Delete the checkpoints only once the CSVs look right.
 
+## Check coverage before trusting a scrape
+
+When a team page times out, `ncaavolleyballr` warns and returns `invisible()` for
+that team, and the surrounding chunk still succeeds. A scrape can therefore print
+`ok` the entire way through and still be missing teams. That is not hypothetical --
+it is how the shipped 2025 D1 data ended up missing 34 teams in conference-shaped
+blocks while every team present had a full schedule.
+
+Chromote timeouts during the run (`timed out waiting for response to command
+Page.navigate`) are retried internally and are usually harmless, but they are the
+mechanism by which this happens. So always check:
+
+```bash
+python scripts/check_coverage.py 2026
+```
+
+It reports row and team counts, flags teams with suspiciously few matches, and
+diffs against the prior season -- marking any conference that vanished entirely.
+Conference-shaped gaps mean the scrape died inside those conferences; re-run the
+same fetch command and the checkpoints will resume and retry the failed chunks.
+
 ## Output
 
 Files land in `data/ncaavolleyballr/data-csv/` named exactly as the Python pipeline
