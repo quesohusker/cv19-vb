@@ -12,6 +12,13 @@ scripts/fetch_season.sh 2026            # women's D1, 3s delay, chunks of 10
 scripts/fetch_season.sh 2026 1 WVB 5 5  # gentler: 5s delay, chunks of 5
 ```
 
+Smoke-test the chain on a few teams before an hours-long run, to confirm the
+season returns the columns the pipeline expects:
+
+```bash
+Rscript scripts/r/scrape_season.R 2026 1 WVB /tmp/vb-smoke 3 4 4
+```
+
 Stages: clone the package, patch the gate, install, discover the season's team IDs
 live from stats.ncaa.org, rebuild the team table, reinstall, then scrape.
 

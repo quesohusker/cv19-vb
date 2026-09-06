@@ -7,7 +7,10 @@
 # at team 300 loses everything, so this walks teams in chunks and checkpoints each one.
 # Re-run it after a failure and it picks up where it stopped.
 #
-# Usage:  Rscript scrape_season.R [year] [division] [sport] [outdir] [delay] [chunk]
+# Usage:  Rscript scrape_season.R [year] [division] [sport] [outdir] [delay] [chunk] [limit]
+#
+# `limit` caps how many teams are scraped -- use it for a smoke test before an
+# hours-long run, to confirm the season's columns match what the pipeline expects.
 
 suppressPackageStartupMessages({
   library(ncaavolleyballr)
@@ -20,6 +23,7 @@ sport    <- if (length(args) >= 3) args[3] else "WVB"
 outdir   <- if (length(args) >= 4) args[4] else "data/ncaavolleyballr/data-csv"
 delay    <- as.numeric(if (length(args) >= 5) args[5] else 3)
 chunk_sz <- as.integer(if (length(args) >= 6) args[6] else 10)
+limit    <- if (length(args) >= 7) as.integer(args[7]) else NA_integer_
 
 ckpt_dir <- file.path(outdir, "..", "checkpoints", paste0(tolower(sport), "_", year))
 dir.create(outdir,   recursive = TRUE, showWarnings = FALSE)
@@ -37,6 +41,14 @@ if (nrow(teams) == 0) {
     "No %s teams found for %d division %d. Run the discovery stage first -- the\n  bundled team table has no IDs for this season yet.", sport, year, division))
 }
 team_names <- sort(unique(trimws(teams$team_name)))
+if (!is.na(limit) && limit < length(team_names)) {
+  team_names <- team_names[seq_len(limit)]
+  cat(sprintf("SMOKE TEST: limited to %d teams. Output is partial -- do not feed it\n",
+              limit),
+      "  to the pipeline; re-run without a limit for the real scrape.\n", sep = "")
+  ckpt_dir <- file.path(ckpt_dir, sprintf("smoke%d", limit))
+  dir.create(ckpt_dir, recursive = TRUE, showWarnings = FALSE)
+}
 chunks <- split(team_names, ceiling(seq_along(team_names) / chunk_sz))
 cat(sprintf("%d teams in %d chunks of up to %d, delay %.1fs\n",
             length(team_names), length(chunks), chunk_sz, delay))
