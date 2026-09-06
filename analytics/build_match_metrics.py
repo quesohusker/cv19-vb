@@ -183,6 +183,13 @@ def main() -> None:
         frames.append(df)
         print(f"{year}: {len(df):,} team-match rows  (box rows {len(box_scores(box_path)):,})")
 
+    if not frames:
+        raise SystemExit(
+            "No seasons could be built. Every requested year was missing its rally "
+            "parquet or team-match CSV.\n"
+            "Scrape the season first (see scripts/README.md), then run "
+            "analytics/rally_engine.py on the new pbp file.")
+
     out = pd.concat(frames, ignore_index=True)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     out.to_parquet(args.out, compression="zstd")
