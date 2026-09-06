@@ -46,13 +46,13 @@ perl -0ne 'print $1 if /most_recent_season <- function\(\)\s*\{\s*(\d{4})/s' "${
 
 echo "=== stage 3: install patched package ==="
 Rscript -e 'if (!requireNamespace("devtools", quietly=TRUE)) install.packages("devtools", repos="https://cloud.r-project.org")'
-Rscript -e "devtools::install('${PKG_DIR}', upgrade='never', quick=TRUE)"
+Rscript -e "devtools::install('${PKG_DIR}', upgrade = FALSE, quick = TRUE)"
 
 echo "=== stage 4: discover ${YEAR} team IDs ==="
 Rscript "${REPO_ROOT}/scripts/r/discover_teams.R" "${PKG_DIR}" "${YEAR}" "${SPORT}"
 
 echo "=== stage 5: reinstall with the new team table ==="
-Rscript -e "devtools::install('${PKG_DIR}', upgrade='never', quick=TRUE)"
+Rscript -e "devtools::install('${PKG_DIR}', upgrade = FALSE, quick = TRUE)"
 
 echo "=== stage 6: scrape (resumable -- safe to re-run) ==="
 Rscript "${REPO_ROOT}/scripts/r/scrape_season.R" \
