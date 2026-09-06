@@ -35,7 +35,10 @@ from benchmarks import CONTEXT_METRICS, VOLLEYBALL_7, score
 
 GRADED = [m for m, *_ in VOLLEYBALL_7]
 CONTEXT = [m for m, *_ in CONTEXT_METRICS]
-PERCENTILE_METRICS = GRADED + CONTEXT + ["rally_win_pct"]
+# first20_share rides along for display: it is the readable form of sets_first20,
+# comparable across 3-, 4- and 5-set matches, but sets_first20 is what carries a flag
+EXTRA_DISPLAY = ["rally_win_pct", "first20_share"]
+PERCENTILE_METRICS = GRADED + CONTEXT + EXTRA_DISPLAY
 
 IDENTITY = ["season_label", "date", "team", "conference", "opponent", "location",
             "won", "sets_for", "sets_against"]
@@ -50,12 +53,13 @@ def build_matches(metrics_parquet: Path) -> pd.DataFrame:
     df["season"] = df.season_label
     df["match_date"] = pd.to_datetime(df.date, format="%m/%d/%Y", errors="coerce")
     df["grade"] = df.bench_hit
+    df["graded_on"] = df.bench_of
 
     flags = [f"b_{m}" for m in GRADED + CONTEXT]
     mirrors = [c for c in df.columns if c.startswith("opp_")]
     keep = (["season", "match_date", "team", "conference", "opponent", "location",
-             "won", "sets_for", "sets_against", "grade"]
-            + GRADED + CONTEXT + ["rally_win_pct"] + mirrors + flags)
+             "won", "sets_for", "sets_against", "grade", "graded_on"]
+            + GRADED + CONTEXT + EXTRA_DISPLAY + mirrors + flags)
     keep = list(dict.fromkeys(keep))
     out = df[[c for c in keep if c in df.columns]].copy()
     return out.sort_values(["season", "match_date", "team"]).reset_index(drop=True)

@@ -9,13 +9,13 @@
     "flag_column": "b_sideout_pct"
   },
   {
-    "metric": "fbso_pct",
-    "label": "First-ball side-out % >= 32.5%",
-    "phase": "in-system offense",
+    "metric": "won_set1",
+    "label": "Won set 1",
+    "phase": "set control",
     "graded": true,
     "direction": "higher_is_better",
-    "threshold": 0.3247,
-    "flag_column": "b_fbso_pct"
+    "threshold": 0.5,
+    "flag_column": "b_won_set1"
   },
   {
     "metric": "hit_pct",
@@ -61,6 +61,24 @@
     "direction": "higher_is_better",
     "threshold": 0.0,
     "flag_column": "b_hit_margin"
+  },
+  {
+    "metric": "fbso_pct",
+    "label": "First-ball side-out % >= 32.5%",
+    "phase": "in-system offense",
+    "graded": false,
+    "direction": "higher_is_better",
+    "threshold": 0.3247,
+    "flag_column": "b_fbso_pct"
+  },
+  {
+    "metric": "sets_first20",
+    "label": "First to 20 in 2+ sets",
+    "phase": "set control",
+    "graded": false,
+    "direction": "higher_is_better",
+    "threshold": 2.0,
+    "flag_column": "b_sets_first20"
   },
   {
     "metric": "trans_so_pct",

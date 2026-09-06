@@ -71,6 +71,73 @@ def rally_metrics(parquet: Path) -> pd.DataFrame:
     """).df()
 
 
+def set_context(parquet: Path) -> pd.DataFrame:
+    """Per team per match: sets played, sets reached 20 in first, and who won set 1.
+
+    Everything here reads the `score_away` / `score_home` columns rather than counting
+    rallies won, because those two signals disagree on about 10% of sets and the score
+    is the trustworthy one. rally_engine drops malformed and abandoned rallies (~0.2%
+    of rows), so a rally count silently undercounts, while the score column is absolute
+    and carries the points from rallies that never made it into the table.
+
+    The score is recorded BEFORE each rally, so a set's final score is the last row's
+    score plus the point awarded on that last rally.
+
+    Counting instead produces nonsense on the affected matches: one 2024 set totals
+    33-33 across 66 rallies with the lead alternating every rally, which cannot happen
+    under rally scoring. Score-based, 99.2% of set 1s resolve to a winner; the rest are
+    left null rather than guessed at.
+    """
+    con = duckdb.connect()
+    return con.sql(f"""
+        WITH r AS (
+            SELECT date, away_team, home_team, set_no, rally_no, winner,
+                   score_away, score_home,
+                   row_number() OVER (PARTITION BY date, away_team, home_team, set_no
+                                      ORDER BY rally_no DESC) AS from_end
+            FROM read_parquet('{parquet}')
+            WHERE set_no IS NOT NULL
+        ),
+        finals AS (   -- final score of each set
+            SELECT date, away_team, home_team, set_no,
+                   score_away + CASE WHEN winner = away_team THEN 1 ELSE 0 END AS a_final,
+                   score_home + CASE WHEN winner = home_team THEN 1 ELSE 0 END AS h_final
+            FROM r WHERE from_end = 1
+        ),
+        at20 AS (     -- first rally at which each side is shown holding 20 points
+            SELECT date, away_team, home_team, set_no,
+                   min(CASE WHEN score_away >= 20 THEN rally_no END) AS a_at20,
+                   min(CASE WHEN score_home >= 20 THEN rally_no END) AS h_at20
+            FROM r GROUP BY 1,2,3,4
+        ),
+        tagged AS (
+            SELECT f.date, f.away_team, f.home_team, f.set_no,
+                   CASE WHEN t.a_at20 IS NOT NULL
+                             AND (t.h_at20 IS NULL OR t.a_at20 < t.h_at20) THEN f.away_team
+                        WHEN t.h_at20 IS NOT NULL
+                             AND (t.a_at20 IS NULL OR t.h_at20 < t.a_at20) THEN f.home_team
+                   END AS first20_team,
+                   CASE WHEN f.a_final > f.h_final THEN f.away_team
+                        WHEN f.h_final > f.a_final THEN f.home_team
+                   END AS set_winner
+            FROM finals f JOIN at20 t USING (date, away_team, home_team, set_no)
+        ),
+        long AS (
+            SELECT date, away_team, home_team, away_team AS team, set_no,
+                   first20_team, set_winner FROM tagged
+            UNION ALL
+            SELECT date, away_team, home_team, home_team AS team, set_no,
+                   first20_team, set_winner FROM tagged
+        )
+        SELECT date, away_team, home_team, team,
+               count(*) AS sets_played,
+               sum(CASE WHEN first20_team = team THEN 1 ELSE 0 END) AS sets_first20,
+               max(CASE WHEN set_no = 1 AND set_winner IS NOT NULL
+                        THEN CASE WHEN set_winner = team THEN 1 ELSE 0 END END) AS won_set1
+        FROM long GROUP BY 1,2,3,4
+    """).df()
+
+
 def box_scores(csv_path: Path) -> pd.DataFrame:
     rows = []
     with open(csv_path, newline="") as f:
@@ -103,7 +170,9 @@ def box_scores(csv_path: Path) -> pd.DataFrame:
 
 
 def build(pbp_parquet: Path, teammatch_csv: Path, season_label: str) -> pd.DataFrame:
-    rally = rally_metrics(pbp_parquet)
+    rally = rally_metrics(pbp_parquet).merge(
+        set_context(pbp_parquet),
+        on=["date", "away_team", "home_team", "team"], how="left")
     box = box_scores(teammatch_csv)
 
     # unordered-pair join key: neither source has a contest ID
@@ -138,6 +207,9 @@ def build(pbp_parquet: Path, teammatch_csv: Path, season_label: str) -> pd.DataF
     d["rally_win_pct"] = (d.so_won + d.ps_won) / (d.recv_rallies + d.serve_rallies)
     # transition sideout: sideouts won after the first ball failed
     d["trans_so_pct"] = (d.so_won - d.fbso_won) / (d.recv_rallies - d.fbso_won).replace(0, pd.NA)
+    # set-level context: won_set1 arrives as 0/1, first20_share as a rate so it
+    # compares across 3-, 4- and 5-set matches
+    d["first20_share"] = d.sets_first20 / d.sets_played.replace(0, pd.NA)
     return d
 
 

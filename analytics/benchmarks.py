@@ -3,6 +3,40 @@
 Each benchmark is a binary test a team clears or misses in a match. Counting them
 gives a 0-7 match grade; averaging over a season grades the team.
 
+SET 1 REPLACED FIRST-BALL SIDE-OUT (2026)
+-----------------------------------------
+Two things forced this slot open, one practical and one measured.
+
+  * PRACTICAL. stats.ncaa.org began returning Access Denied for every /teams/<id>
+    path, which is where all four scrape levels started. The replacement feed
+    (ncaa-api, mirroring ncaa.com) carries point-summary play-by-play: the event
+    that ended each rally, and nothing between. Serve, reception, set, dig and
+    first-ball-kill rows are simply absent, so fbso_pct has no 2026 source.
+    Side-out % and point-score % survive because serve order is reconstructible --
+    the winner of a rally serves the next one, and aces and service errors anchor
+    which team opened each set. Reconstructed serve counts matched the box score
+    exactly on the validation match, 74/74 and 54/54.
+
+  * MEASURED. Losing it costs almost nothing, which was not obvious until tested.
+    Over 1,662 team-seasons the other six explain R2 = 0.8767 of season win%;
+    adding FBSO back moves that to 0.8769, a gain of +0.0002. At match level over
+    44,932 team-matches the gain is +0.0005. It correlates 0.923 with side-out %
+    and 0.912 with hitting efficiency -- it was already near-redundant with two
+    benchmarks it sat beside.
+
+Won set 1 takes the slot. It is a weaker discriminator than the six on its own
+(r = +0.526 with match win, AUC 0.765, against 0.962 for hitting margin) and its
+incremental contribution is also small, +0.0030 at both season and match level.
+It is more outcome-flavored than the rest: P(win match | won set 1) = 0.763, so it
+partly restates the result rather than diagnosing it. It earns its place on being
+computable everywhere, legible to a reader, and independent of the box score --
+and its 50.0% hit rate is by construction, since exactly one team wins set 1.
+
+First-to-20 was considered for the same slot and rejected as too tautological:
+P(win match | first to 20 in every set) = 0.993, r = 0.930 with hitting margin and
+0.953 with the fitted six-metric prediction. It is kept as a context metric, where
+being close to the result is a feature rather than a defect.
+
 WHY SEVEN AND NOT FOURTEEN
 --------------------------
 This started as a 14-benchmark set modeled on football scorecards. Volleyball does
@@ -131,7 +165,7 @@ import pandas as pd
 VOLLEYBALL_7 = [
     # --- side-out phase: what you do when they serve ---
     ("sideout_pct",     +1, 0.5833, "Side-out % >= 58.3%",            "side-out"),
-    ("fbso_pct",        +1, 0.3247, "First-ball side-out % >= 32.5%", "in-system offense"),
+    ("won_set1",        +1, 0.5000, "Won set 1",                      "set control"),
     ("hit_pct",         +1, 0.1987, "Hitting efficiency >= .199",     "attack"),
     # --- serve phase: what you do when you serve ---
     ("point_score_pct", +1, 0.4189, "Point-score % >= 41.9%",         "serve phase"),
@@ -148,6 +182,8 @@ VOLLEYBALL_6 = VOLLEYBALL_7[:6]
 # redundant with a graded benchmark (the identities above), or too weak a discriminator
 # to earn equal weight with one. Displaying them costs nothing; scoring them dilutes.
 CONTEXT_METRICS = [
+    ("fbso_pct",         +1, 0.3247, "First-ball side-out % >= 32.5%",  "in-system offense"),
+    ("sets_first20",     +1, 2.0000, "First to 20 in 2+ sets",          "set control"),
     ("trans_so_pct",     +1, 0.4416, "Transition side-out % >= 44.2%",  "scramble offense"),
     ("kill_pct",         +1, 0.3662, "Kill % of attacks >= 36.6%",      "attack"),
     ("att_err_pct",      -1, 0.1687, "Attack error rate <= 16.9%",      "attack"),
@@ -171,10 +207,12 @@ def _apply(df: pd.DataFrame, spec) -> tuple[pd.DataFrame, list[str]]:
 
 
 def score(df: pd.DataFrame, include_context: bool = False) -> pd.DataFrame:
-    """Add a b_<metric> column per benchmark plus `bench_hit` (0-7) to a match table.
+    """Add a b_<metric> column per benchmark, `bench_hit` (0-7) and `bench_of` to a match.
 
     `hit_margin` is derived here if absent, so callers only need hit_pct and
-    opp_hit_pct. With include_context=True the context metrics are also flagged
+    opp_hit_pct. `won_set1` arrives as 0/1 from build_match_metrics.set_context()
+    and is null (~0.8% of matches) when set 1's final score is tied in the source,
+    which means the set's last rallies are missing rather than that it was drawn. With include_context=True the context metrics are also flagged
     (as b_ columns) for display, but they never enter `bench_hit`.
     """
     df = df.copy()
@@ -183,6 +221,11 @@ def score(df: pd.DataFrame, include_context: bool = False) -> pd.DataFrame:
             df["opp_hit_pct"], errors="coerce")
     out, graded = _apply(df, VOLLEYBALL_7)
     out["bench_hit"] = out[graded].sum(axis=1, min_count=1)
+    # A benchmark is null when its input is missing -- no attacks recorded, or a set 1
+    # whose closing rallies never made it into the feed. Summing would then quietly
+    # grade the match out of six while the app labelled it out of seven, so the
+    # denominator travels with the count.
+    out["bench_of"] = out[graded].notna().sum(axis=1)
     if include_context:
         out, _ = _apply(out, CONTEXT_METRICS)
     return out

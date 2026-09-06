@@ -32,6 +32,9 @@ STAT_CATALOG = [
     ("Ace % of serves",       "ace_pct",         "opp_ace_pct",         "pct1"),
     ("Reception error rate",  "rec_err_pct",     "opp_rec_err_pct",     "pct1"),
     ("Rally win %",           "rally_win_pct",   None,                  "pct1"),
+    # set-level context: the last-match cell reads as Yes/No, the season cell as a rate
+    ("Won set 1",             "won_set1",        None,                  ("yn", "pct1")),
+    ("First to 20 (share of sets)", "first20_share", None,              "pct1"),
 ]
 # rows where a LOWER value is better
 LOWER_IS_BETTER = {"Attack error rate", "Reception error rate"}
@@ -40,6 +43,8 @@ LOWER_IS_BETTER = {"Attack error rate", "Reception error rate"}
 def fmt(value, kind: str) -> str:
     if value is None or pd.isna(value):
         return "&mdash;"
+    if kind == "yn":
+        return "Yes" if value >= 0.5 else "No"
     if kind == "pct1":
         return f"{value * 100:.1f}%"
     if kind == "dec3":
@@ -77,6 +82,8 @@ def page_comparison(season: str, home: str, away: str) -> None:
 
     rows = []
     for label, own, opp_col, kind in STAT_CATALOG:
+        # a metric may format its match cell differently from its season cell
+        last_kind, season_kind = kind if isinstance(kind, tuple) else (kind, kind)
         variants = [("off", own)] + ([("def / allowed", opp_col)] if opp_col else [])
         for suffix, col in variants:
             if col not in h_avg.index or col not in a_avg.index:
@@ -91,8 +98,10 @@ def page_comparison(season: str, home: str, away: str) -> None:
                 h_better, a_better = hs < as_, as_ < hs
             else:
                 h_better, a_better = hs > as_, as_ > hs
-            rows.append((row_label, fmt(h_last.get(col), kind), fmt(hs, kind), h_better,
-                         fmt(a_last.get(col), kind), fmt(as_, kind), a_better))
+            rows.append((row_label, fmt(h_last.get(col), last_kind),
+                         fmt(hs, season_kind), h_better,
+                         fmt(a_last.get(col), last_kind),
+                         fmt(as_, season_kind), a_better))
 
     html = ['<table class="cmp"><thead>',
             f'<tr><th></th><th class="grp" colspan="2">{T.chip(home)}</th>'
@@ -139,6 +148,8 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
         kind = "dec3" if "efficiency" in b["label"] or "margin" in metric else "pct1"
         if metric in ("ace_to_err",):
             kind = "dec2"
+        if metric == "won_set1":
+            kind = "yn"   # the match cell is a result, not a rate
         cells = []
         for team in (home, away):
             avg, last, _ = frames[team]
@@ -154,7 +165,9 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
     totals = []
     for team in (home, away):
         avg, last, _ = frames[team]
-        totals.append((f"{int(last.grade)} / {GRADE_MAX}", f"{avg.grade:.2f} / {GRADE_MAX}"))
+        # a benchmark with a missing input is not graded; show what it was graded out of
+        of = int(last.graded_on) if pd.notna(last.get("graded_on")) else GRADE_MAX
+        totals.append((f"{int(last.grade)} / {of}", f"{avg.grade:.2f} / {GRADE_MAX}"))
     html.append(f'<tr><td class="lab"><b>Met (of {GRADE_MAX})</b></td>'
                 f'<td class="num"><b>{totals[0][0]}</b></td><td class="num"><b>{totals[0][1]}</b></td>'
                 f'<td class="num sep"><b>{totals[1][0]}</b></td>'
