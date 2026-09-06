@@ -22,7 +22,8 @@ suppressPackageStartupMessages({
 # What gets through is a real browser that does not look automated. Four levers,
 # all reachable from R:
 #
-#   1. Microsoft Edge instead of bundled Chromium -- different TLS/JA3.
+#   1. A real installed browser rather than a bundled automation build -- Edge if
+#      present, otherwise Chrome/Brave/Chromium. Different TLS/JA3 fingerprint.
 #   2. Not headless. chromote always appends a --headless flag and offers no way
 #      to omit it, so CHROMOTE_CHROME points at chrome-shim.sh, which strips it.
 #   3. --disable-blink-features=AutomationControlled, added by the same shim.
@@ -36,8 +37,7 @@ shim <- file.path(dirname(dirname(normalizePath(
   mustWork = FALSE))), "chrome-shim.sh")
 if (!nzchar(Sys.getenv("VB_NO_SHIM")) && file.exists(shim)) {
   Sys.setenv(CHROMOTE_CHROME = shim)
-  cat("browser: via shim ->", Sys.getenv("VB_BROWSER",
-      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"), "\n")
+  cat("browser: via shim (real browser, headless stripped)\n")
 } else {
   cat("browser: default chromote (headless)\n")
 }

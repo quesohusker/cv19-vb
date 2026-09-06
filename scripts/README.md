@@ -72,7 +72,7 @@ automatically by `scrape_season.R`:
 
 | Lever | How |
 |---|---|
-| **Microsoft Edge, not bundled Chromium** | Different TLS/JA3 fingerprint. `chrome-shim.sh` execs Edge. |
+| **A real installed browser** | `chrome-shim.sh` auto-detects Edge, then Chrome, Brave, Chromium. Any installed browser beats a bundled automation build on fingerprint. |
 | **Not headless** | Headless is itself a signal. chromote always appends `--headless` and gives no way to omit it, so `CHROMOTE_CHROME` points at the shim, which strips the flag. |
 | **`--disable-blink-features=AutomationControlled`** | Hides `navigator.webdriver`. Added by the shim. |
 | **60s navigation timeout** | chromote defaults to 10s. That default is the source of the "timed out waiting for response to command Page.navigate" storm -- NCAA pages under Akamai routinely take longer. |
@@ -86,7 +86,7 @@ close it.
 Overrides:
 
 ```bash
-export VB_BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"  # if no Edge
+export VB_BROWSER="/Applications/Firefox.app/..."   # only if auto-detect picks wrong
 export VB_CHROMOTE_TIMEOUT=90    # slower connection
 export VB_NO_SHIM=1              # fall back to plain headless chromote
 ```

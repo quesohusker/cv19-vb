@@ -7,20 +7,42 @@
 # automation-flag suppression, then execs the real browser. Point chromote at it
 # with CHROMOTE_CHROME and chromote is none the wiser.
 #
-# Defaults to Microsoft Edge because its TLS/JA3 fingerprint differs from
-# bundled Chromium, which is the single biggest difference between a scrape that
-# gets through and one that collects 403s. Override with VB_BROWSER.
+# Prefers a real, installed browser over any bundled automation build, since a
+# bundled Chromium-for-testing has a recognizable fingerprint. Edge first only
+# because it is the least common automation choice; installed Chrome is fine and
+# is what most people will land on. Override with VB_BROWSER.
 
 set -euo pipefail
 
-BROWSER="${VB_BROWSER:-/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge}"
+pick_browser() {
+  if [ -n "${VB_BROWSER:-}" ]; then printf '%s' "$VB_BROWSER"; return; fi
+  local candidates=(
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
+    "/Applications/Chromium.app/Contents/MacOS/Chromium"
+    "/usr/bin/microsoft-edge"
+    "/usr/bin/google-chrome"
+    "/usr/bin/chromium"
+    "/usr/bin/chromium-browser"
+  )
+  local c
+  for c in "${candidates[@]}"; do
+    [ -x "$c" ] && { printf '%s' "$c"; return; }
+  done
+}
 
-if [ ! -x "$BROWSER" ]; then
-  echo "chrome-shim: browser not found or not executable: $BROWSER" >&2
-  echo "  set VB_BROWSER to your browser binary, e.g." >&2
+BROWSER="$(pick_browser)"
+
+if [ -z "$BROWSER" ] || [ ! -x "$BROWSER" ]; then
+  echo "chrome-shim: no usable browser found." >&2
+  echo "  Looked for Edge, Chrome, Brave and Chromium in the usual places." >&2
+  echo "  Set VB_BROWSER to your browser binary, e.g." >&2
   echo "  export VB_BROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'" >&2
   exit 127
 fi
+
+[ -n "${VB_SHIM_VERBOSE:-}" ] && echo "chrome-shim: using $BROWSER" >&2
 
 args=()
 for a in "$@"; do
