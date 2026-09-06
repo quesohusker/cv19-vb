@@ -47,6 +47,10 @@ echo -n "  now returns: "
 perl -0ne 'print $1 if /most_recent_season <- function\(\)\s*\{\s*(\d{4})/s' "${GATE_FILE}"; echo
 
 echo "=== stage 2b: route get_teams() through headless Chrome ==="
+# Always patch from pristine upstream. The clone persists between runs, so a
+# get_teams.R carrying an older version of the patch would be left in place --
+# the patcher is idempotent and skips a file it has already marked.
+git -C "${PKG_DIR}" checkout -- R/get_teams.R
 python3 "${REPO_ROOT}/scripts/patch_get_teams.py" "${PKG_DIR}"
 
 echo "=== stage 3: install patched package ==="
