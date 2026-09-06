@@ -8,7 +8,11 @@
 # and the package reinstalled, which is exactly what the maintainer's own
 # data-raw/ncaa.R does each season.
 #
-# Usage:  Rscript discover_teams.R <path-to-package-source> [year] [sport]
+# Usage:  Rscript discover_teams.R <path-to-package-source> [year] [sport] [divisions]
+#
+# `divisions` is a comma-separated list, default "1". Only discover what you intend
+# to scrape -- each division walks its conferences with a 5s sleep between each, so
+# pulling D2 and D3 you will never use costs real time.
 
 suppressPackageStartupMessages(library(ncaavolleyballr))
 
@@ -17,19 +21,34 @@ if (length(args) < 1) stop("Pass the path to the ncaavolleyballr source tree.")
 pkg_dir <- normalizePath(args[1], mustWork = TRUE)
 year    <- as.integer(if (length(args) >= 2) args[2] else 2026)
 sport   <- if (length(args) >= 3) args[3] else "WVB"
+divs    <- if (length(args) >= 4) as.integer(strsplit(args[4], ",")[[1]]) else 1L
 
-obj  <- if (sport == "MVB") "mvb_teams" else "wvb_teams"
-existing <- get(obj, envir = asNamespace("ncaavolleyballr"))
+obj <- if (sport == "MVB") "mvb_teams" else "wvb_teams"
+rda <- file.path(pkg_dir, "data", paste0(obj, ".rda"))
 
-if (any(existing$yr == year)) {
-  cat(sprintf("%s already contains %d (%d rows). Nothing to do.\n",
-              obj, year, sum(existing$yr == year)))
-  quit(status = 0)
+# Read the table we are about to modify -- the copy in the source tree -- not the
+# installed namespace. They diverge as soon as this script runs once without a
+# reinstall, and trusting the namespace makes a re-run silently duplicate rows.
+if (file.exists(rda)) {
+  e <- new.env()
+  load(rda, envir = e)
+  existing <- get(obj, envir = e)
+} else {
+  existing <- get(obj, envir = asNamespace("ncaavolleyballr"))
 }
 
-cat(sprintf("Discovering %d %s teams from stats.ncaa.org ...\n", year, sport))
+have <- unique(existing$div[existing$yr == year])
+if (all(divs %in% have)) {
+  cat(sprintf("%s already covers %d for division(s) %s. Nothing to do.\n",
+              obj, year, paste(divs, collapse = ", ")))
+  quit(status = 0)
+}
+divs <- setdiff(divs, have)
+
+cat(sprintf("Discovering %d %s teams, division(s) %s, from stats.ncaa.org ...\n",
+            year, sport, paste(divs, collapse = ", ")))
 found <- list()
-for (division in 1:3) {
+for (division in divs) {
   d <- tryCatch(get_teams(year = year, division = division, sport = sport),
                 error = function(e) {
                   cat(sprintf("  div %d failed: %s\n", division, conditionMessage(e)))
@@ -51,7 +70,6 @@ updated <- rbind(existing, new_rows)
 
 # write into the source tree so the reinstall picks it up
 assign(obj, updated)
-save(list = obj, file = file.path(pkg_dir, "data", paste0(obj, ".rda")),
-     compress = "bzip2", version = 2)
+save(list = obj, file = rda, compress = "bzip2", version = 2)
 cat(sprintf("\nWrote %s.rda: %d rows (+%d for %d).\nReinstall the package, then scrape.\n",
             obj, nrow(updated), nrow(new_rows), year))
