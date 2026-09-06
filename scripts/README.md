@@ -22,6 +22,25 @@ Rscript scripts/r/scrape_season.R 2026 1 WVB /tmp/vb-smoke 3 4 4
 Stages: clone the package, patch the gate, install, discover the season's team IDs
 live from stats.ncaa.org, rebuild the team table, reinstall, then scrape.
 
+## stats.ncaa.org blocks plain HTTP
+
+Confirmed on 2026-09-06: every plain-HTTP request returns **403 Forbidden**,
+including for seasons the package already ships data for, and including with a
+genuine Chrome user-agent string. It is fingerprinting the client, not reading
+headers.
+
+Headless Chrome gets through. The same URL that 403s over httr2 returns 348 team
+links via `rvest::read_html_live()`.
+
+The package already knows this -- its stats functions go through
+`request_live_url()`, which wraps `read_html_live()`. Only `get_teams()` still
+used plain `request_url()`, which is why team discovery was the step that failed.
+`patch_get_teams.py` rewrites its two request sites to use the browser path, and
+the driver applies it automatically at stage 2b.
+
+Consequence: the scrape drives a real browser, so it is slower and Chrome will
+open and close repeatedly. That is expected.
+
 ## Requirements
 
 - R (any recent version) and `devtools`
