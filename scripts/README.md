@@ -111,6 +111,27 @@ Credit where due: this configuration is derived from the approach in
 Playwright pipeline solved the same block first. The technique is reimplemented
 here against chromote; no code was copied.
 
+## Why get_teams() is patched twice over
+
+`get_teams()` had two independent problems, and the second one bit twice:
+
+**Transport.** It used plain `request_url()` while the rest of the package had
+already moved to `request_live_url()` (a real browser). Akamai 403s plain HTTP,
+so team discovery was the only step that failed.
+
+**DOM position.** It found the conference menu as
+`(html_elements(".level2"))[[4]]` -- a positional index. How many `.level2`
+blocks a page produces depends on the browser and on whether it is headless, so
+that index is not stable. It pointed at a doubled menu under one configuration
+(696 teams instead of 348, which then made `find_team_id()` return two IDs and
+broke every downstream call), and did not exist at all under another
+(`subscript out of bounds`).
+
+`patch_get_teams.py` now selects by content: conference links are exactly the
+anchors whose `href` is `javascript:changeConference(<digits>)`, anywhere on the
+page. The "all conferences" link uses `(-1)`, which the digit pattern excludes on
+its own, and the result is de-duplicated so a doubled menu is harmless.
+
 ## Check coverage before trusting a scrape
 
 When a team page times out, `ncaavolleyballr` warns and returns `invisible()` for
