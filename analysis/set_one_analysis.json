@@ -1,0 +1,1131 @@
+{
+  "meta": {
+    "title": "Set One Among Equals",
+    "generated_utc": "2026-09-06T23:19:40+00:00",
+    "sport": "NCAA women's volleyball, Division I",
+    "seasons": [
+      "2021",
+      "2022",
+      "2023",
+      "2024",
+      "2025"
+    ],
+    "scope": "Headline analysis restricted to matches where BOTH teams ranked in the top 25 of the opponent-adjusted power rating for that season. That rating is a ridge regression on side-out rate, not the AVCA poll.",
+    "team_matches_all_d1": 44892,
+    "team_matches_top25": 1002,
+    "matches_top25": 501,
+    "set_facts_source": "Set winners, margins and checkpoint leads are read from the play-by-play score columns, not by counting rallies won. The two disagree on ~10% of sets because rally_engine drops malformed and abandoned rows; the score column is absolute."
+  },
+  "headline": {
+    "top25": {
+      "n_matches": 1002,
+      "won_set1": {
+        "w": 379,
+        "l": 122,
+        "n": 501,
+        "win_pct": 0.7565
+      },
+      "lost_set1": {
+        "w": 122,
+        "l": 379,
+        "n": 501,
+        "win_pct": 0.2435
+      },
+      "swing": 0.513
+    },
+    "all_d1": {
+      "n_matches": 44892,
+      "won_set1": {
+        "w": 17775,
+        "l": 4671,
+        "n": 22446,
+        "win_pct": 0.7919
+      },
+      "lost_set1": {
+        "w": 4671,
+        "l": 17775,
+        "n": 22446,
+        "win_pct": 0.2081
+      },
+      "swing": 0.5838
+    },
+    "note": "The first set is worth LESS between ranked teams than across D1 as a whole. Most of D1 is mismatches, where the first set merely reflects the gap.",
+    "top25_by_season": {
+      "2021": {
+        "n_matches": 208,
+        "won_set1": {
+          "w": 79,
+          "l": 25,
+          "n": 104,
+          "win_pct": 0.7596
+        },
+        "lost_set1": {
+          "w": 25,
+          "l": 79,
+          "n": 104,
+          "win_pct": 0.2404
+        },
+        "swing": 0.5192
+      },
+      "2022": {
+        "n_matches": 176,
+        "won_set1": {
+          "w": 68,
+          "l": 20,
+          "n": 88,
+          "win_pct": 0.7727
+        },
+        "lost_set1": {
+          "w": 20,
+          "l": 68,
+          "n": 88,
+          "win_pct": 0.2273
+        },
+        "swing": 0.5454
+      },
+      "2023": {
+        "n_matches": 192,
+        "won_set1": {
+          "w": 65,
+          "l": 31,
+          "n": 96,
+          "win_pct": 0.6771
+        },
+        "lost_set1": {
+          "w": 31,
+          "l": 65,
+          "n": 96,
+          "win_pct": 0.3229
+        },
+        "swing": 0.3542
+      },
+      "2024": {
+        "n_matches": 212,
+        "won_set1": {
+          "w": 89,
+          "l": 17,
+          "n": 106,
+          "win_pct": 0.8396
+        },
+        "lost_set1": {
+          "w": 17,
+          "l": 89,
+          "n": 106,
+          "win_pct": 0.1604
+        },
+        "swing": 0.6792
+      },
+      "2025": {
+        "n_matches": 214,
+        "won_set1": {
+          "w": 78,
+          "l": 29,
+          "n": 107,
+          "win_pct": 0.729
+        },
+        "lost_set1": {
+          "w": 29,
+          "l": 78,
+          "n": 107,
+          "win_pct": 0.271
+        },
+        "swing": 0.458
+      }
+    }
+  },
+  "all_d1_baseline": {
+    "by_season": {
+      "2021": {
+        "n_matches": 8404,
+        "won_set1": {
+          "w": 3376,
+          "l": 826,
+          "n": 4202,
+          "win_pct": 0.8034
+        },
+        "lost_set1": {
+          "w": 826,
+          "l": 3376,
+          "n": 4202,
+          "win_pct": 0.1966
+        },
+        "swing": 0.6068
+      },
+      "2022": {
+        "n_matches": 9270,
+        "won_set1": {
+          "w": 3680,
+          "l": 955,
+          "n": 4635,
+          "win_pct": 0.794
+        },
+        "lost_set1": {
+          "w": 955,
+          "l": 3680,
+          "n": 4635,
+          "win_pct": 0.206
+        },
+        "swing": 0.588
+      },
+      "2023": {
+        "n_matches": 9488,
+        "won_set1": {
+          "w": 3755,
+          "l": 989,
+          "n": 4744,
+          "win_pct": 0.7915
+        },
+        "lost_set1": {
+          "w": 989,
+          "l": 3755,
+          "n": 4744,
+          "win_pct": 0.2085
+        },
+        "swing": 0.583
+      },
+      "2024": {
+        "n_matches": 9514,
+        "won_set1": {
+          "w": 3756,
+          "l": 1001,
+          "n": 4757,
+          "win_pct": 0.7896
+        },
+        "lost_set1": {
+          "w": 1001,
+          "l": 3756,
+          "n": 4757,
+          "win_pct": 0.2104
+        },
+        "swing": 0.5792
+      },
+      "2025": {
+        "n_matches": 8216,
+        "won_set1": {
+          "w": 3208,
+          "l": 900,
+          "n": 4108,
+          "win_pct": 0.7809
+        },
+        "lost_set1": {
+          "w": 900,
+          "l": 3208,
+          "n": 4108,
+          "win_pct": 0.2191
+        },
+        "swing": 0.5618
+      }
+    }
+  },
+  "match_length": {
+    "top25": {
+      "3": {
+        "matches": 184,
+        "share": 0.3673
+      },
+      "4": {
+        "matches": 176,
+        "share": 0.3513
+      },
+      "5": {
+        "matches": 141,
+        "share": 0.2814
+      },
+      "total_matches": 501
+    },
+    "all_d1": {
+      "3": {
+        "matches": 10910,
+        "share": 0.4861
+      },
+      "4": {
+        "matches": 7110,
+        "share": 0.3168
+      },
+      "5": {
+        "matches": 4426,
+        "share": 0.1972
+      },
+      "total_matches": 22446
+    },
+    "set1_winner_wins_by_length": {
+      "3": {
+        "matches": 184,
+        "win_pct": 1.0
+      },
+      "4": {
+        "matches": 176,
+        "win_pct": 0.6761
+      },
+      "5": {
+        "matches": 141,
+        "win_pct": 0.539
+      }
+    },
+    "set1_winner_final_scores_top25": {
+      "3-0": 184,
+      "3-1": 119,
+      "3-2": 76,
+      "2-3": 65,
+      "1-3": 57
+    },
+    "note": "Top-25 matches go long far more often, which is why the first set is worth less: fewer of these matches end before it can be avenged."
+  },
+  "set1_margin": {
+    "top25_winner": [
+      {
+        "band": "2 points",
+        "n": 112,
+        "win_pct": 0.7321,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.3214
+      },
+      {
+        "band": "3-4",
+        "n": 121,
+        "win_pct": 0.7025,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.3306
+      },
+      {
+        "band": "5-7",
+        "n": 156,
+        "win_pct": 0.75,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.3654
+      },
+      {
+        "band": "8+",
+        "n": 111,
+        "win_pct": 0.8468,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.4505
+      }
+    ],
+    "all_d1_winner": [
+      {
+        "band": "2 points",
+        "n": 4486,
+        "win_pct": 0.6993,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.3729
+      },
+      {
+        "band": "3-4",
+        "n": 4582,
+        "win_pct": 0.7302,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.3946
+      },
+      {
+        "band": "5-7",
+        "n": 5886,
+        "win_pct": 0.7915,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.4772
+      },
+      {
+        "band": "8-11",
+        "n": 5077,
+        "win_pct": 0.8688,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.5795
+      },
+      {
+        "band": "12+",
+        "n": 2264,
+        "win_pct": 0.9382,
+        "wins_set1": 1.0,
+        "sweep_pct": 0.712
+      }
+    ],
+    "caveat": "In the top-25 subset the 3-4 point band sits below the 2-point band. With ~120 matches in each that is noise, not a finding: the trend is real at the ends and mushy in the middle."
+  },
+  "venue": {
+    "away": {
+      "n": 501,
+      "win_pct_after_winning_set1": 0.7464
+    },
+    "home": {
+      "n": 501,
+      "win_pct_after_winning_set1": 0.7637
+    }
+  },
+  "rating_gap": {
+    "top25": [
+      {
+        "band": "underdog (worse by >8)",
+        "n_team_matches": 81,
+        "win_pct_won_set1": 0.3333,
+        "win_pct_lost_set1": 0.0952,
+        "swing": 0.2381
+      },
+      {
+        "band": "even (within 8)",
+        "n_team_matches": 840,
+        "win_pct_won_set1": 0.7524,
+        "win_pct_lost_set1": 0.2476,
+        "swing": 0.5048
+      },
+      {
+        "band": "favorite (better by >8)",
+        "n_team_matches": 81,
+        "win_pct_won_set1": 0.9048,
+        "win_pct_lost_set1": 0.6667,
+        "swing": 0.2381
+      }
+    ],
+    "all_d1": [
+      {
+        "band": "outmatched (<= -15)",
+        "n_team_matches": 3755,
+        "win_pct_won_set1": 0.0664,
+        "win_pct_lost_set1": 0.004,
+        "swing": 0.0624
+      },
+      {
+        "band": "underdog",
+        "n_team_matches": 10624,
+        "win_pct_won_set1": 0.3294,
+        "win_pct_lost_set1": 0.0578,
+        "swing": 0.2716
+      },
+      {
+        "band": "even (within 5)",
+        "n_team_matches": 16134,
+        "win_pct_won_set1": 0.7258,
+        "win_pct_lost_set1": 0.2742,
+        "swing": 0.4516
+      },
+      {
+        "band": "favorite",
+        "n_team_matches": 10624,
+        "win_pct_won_set1": 0.9422,
+        "win_pct_lost_set1": 0.6706,
+        "swing": 0.2716
+      },
+      {
+        "band": "dominant (>= +15)",
+        "n_team_matches": 3755,
+        "win_pct_won_set1": 0.996,
+        "win_pct_lost_set1": 0.9336,
+        "swing": 0.0624
+      }
+    ],
+    "finding": "The first set swings the match most where the teams were otherwise even, and roughly half as much where one side was already clearly better. It decides the matches that weren't going to decide themselves.",
+    "gap_units": "difference in overall rating, in percentage points of side-out vs an average D1 team"
+  },
+  "comebacks": {
+    "top25": {
+      "n": 122,
+      "of": 501,
+      "rate": 0.2435,
+      "final_scores": {
+        "3-1": 57,
+        "3-2": 65
+      },
+      "mean_set1_deficit_overcome": 4.68
+    },
+    "by_deficit": [
+      {
+        "band": "down 2",
+        "n": 113,
+        "win_pct": 0.2655,
+        "wins_set1": 0.0,
+        "sweep_pct": 0.0
+      },
+      {
+        "band": "down 3-4",
+        "n": 121,
+        "win_pct": 0.2975,
+        "wins_set1": 0.0,
+        "sweep_pct": 0.0
+      },
+      {
+        "band": "down 5-7",
+        "n": 156,
+        "win_pct": 0.25,
+        "wins_set1": 0.0,
+        "sweep_pct": 0.0
+      },
+      {
+        "band": "down 8+",
+        "n": 111,
+        "win_pct": 0.1532,
+        "wins_set1": 0.0,
+        "sweep_pct": 0.0
+      }
+    ],
+    "largest_deficits_overcome": [
+      {
+        "season": "2023",
+        "team": "Texas",
+        "opponent": "BYU",
+        "result": "3-1",
+        "set1_deficit": 12
+      },
+      {
+        "season": "2021",
+        "team": "Wisconsin",
+        "opponent": "Nebraska",
+        "result": "3-1",
+        "set1_deficit": 11
+      },
+      {
+        "season": "2023",
+        "team": "Wisconsin",
+        "opponent": "Florida",
+        "result": "3-2",
+        "set1_deficit": 10
+      },
+      {
+        "season": "2025",
+        "team": "Indiana",
+        "opponent": "Southern California",
+        "result": "3-1",
+        "set1_deficit": 10
+      },
+      {
+        "season": "2024",
+        "team": "Florida",
+        "opponent": "Missouri",
+        "result": "3-2",
+        "set1_deficit": 10
+      },
+      {
+        "season": "2023",
+        "team": "Nebraska",
+        "opponent": "Penn St.",
+        "result": "3-2",
+        "set1_deficit": 10
+      },
+      {
+        "season": "2024",
+        "team": "Louisville",
+        "opponent": "Florida St.",
+        "result": "3-2",
+        "set1_deficit": 9
+      },
+      {
+        "season": "2023",
+        "team": "Kentucky",
+        "opponent": "Arkansas",
+        "result": "3-2",
+        "set1_deficit": 9
+      },
+      {
+        "season": "2021",
+        "team": "Washington",
+        "opponent": "Oregon",
+        "result": "3-2",
+        "set1_deficit": 8
+      },
+      {
+        "season": "2021",
+        "team": "Pittsburgh",
+        "opponent": "Georgia Tech",
+        "result": "3-1",
+        "set1_deficit": 8
+      }
+    ],
+    "note": "Every comeback in the top-25 sample went four sets or five. There are no cheap recoveries."
+  },
+  "point_leads": {
+    "definition": "At each checkpoint, the score when either team first reaches that many points in set 1, and who was ahead at that moment.",
+    "by_checkpoint": [
+      {
+        "checkpoint": 5,
+        "n": 501,
+        "wins_set1": 0.6727,
+        "wins_match": 0.5928,
+        "mean_lead": 2.2
+      },
+      {
+        "checkpoint": 10,
+        "n": 501,
+        "wins_set1": 0.7405,
+        "wins_match": 0.6367,
+        "mean_lead": 3.19
+      },
+      {
+        "checkpoint": 15,
+        "n": 501,
+        "wins_set1": 0.8263,
+        "wins_match": 0.6826,
+        "mean_lead": 4.05
+      },
+      {
+        "checkpoint": 20,
+        "n": 501,
+        "wins_set1": 0.8743,
+        "wins_match": 0.6866,
+        "mean_lead": 4.74
+      }
+    ],
+    "by_lead_size": {
+      "5": [
+        {
+          "lead": "up 1",
+          "n": 169,
+          "wins_set1": 0.5799,
+          "wins_match": 0.5266
+        },
+        {
+          "lead": "up 2",
+          "n": 156,
+          "wins_set1": 0.6667,
+          "wins_match": 0.5833
+        },
+        {
+          "lead": "up 3-4",
+          "n": 157,
+          "wins_set1": 0.7643,
+          "wins_match": 0.6561
+        }
+      ],
+      "10": [
+        {
+          "lead": "up 1",
+          "n": 111,
+          "wins_set1": 0.5676,
+          "wins_match": 0.5495
+        },
+        {
+          "lead": "up 2",
+          "n": 92,
+          "wins_set1": 0.6196,
+          "wins_match": 0.5217
+        },
+        {
+          "lead": "up 3-4",
+          "n": 183,
+          "wins_set1": 0.7978,
+          "wins_match": 0.6667
+        },
+        {
+          "lead": "up 5+",
+          "n": 115,
+          "wins_set1": 0.913,
+          "wins_match": 0.7652
+        }
+      ],
+      "15": [
+        {
+          "lead": "up 1",
+          "n": 81,
+          "wins_set1": 0.5926,
+          "wins_match": 0.5679
+        },
+        {
+          "lead": "up 2",
+          "n": 83,
+          "wins_set1": 0.7108,
+          "wins_match": 0.5904
+        },
+        {
+          "lead": "up 3-4",
+          "n": 144,
+          "wins_set1": 0.8472,
+          "wins_match": 0.6736
+        },
+        {
+          "lead": "up 5+",
+          "n": 193,
+          "wins_set1": 0.9585,
+          "wins_match": 0.7772
+        }
+      ],
+      "20": [
+        {
+          "lead": "up 1",
+          "n": 70,
+          "wins_set1": 0.7143,
+          "wins_match": 0.5
+        },
+        {
+          "lead": "up 2",
+          "n": 60,
+          "wins_set1": 0.6833,
+          "wins_match": 0.6
+        },
+        {
+          "lead": "up 3-4",
+          "n": 130,
+          "wins_set1": 0.8615,
+          "wins_match": 0.6846
+        },
+        {
+          "lead": "up 5+",
+          "n": 241,
+          "wins_set1": 0.9751,
+          "wins_match": 0.7635
+        }
+      ]
+    },
+    "lead_persistence": {
+      "5_to_10": 0.7645,
+      "10_to_15": 0.8104,
+      "15_to_20": 0.8603,
+      "5_to_20": 0.6786,
+      "n_matches": 501
+    },
+    "finding": "Being first to 20 wins the SET 87% of the time but the MATCH only 69%, because the set itself is only worth 76%. Lead size matters far more than lead: leading 20-19 is a coin flip for the match, while up 5+ at 10 is already worth what up 5+ at 20 is worth."
+  },
+  "nebraska": {
+    "top25_matchups": {
+      "w": 42,
+      "l": 14,
+      "n": 56,
+      "n_matches": 56,
+      "won_set1": {
+        "w": 38,
+        "l": 2,
+        "n": 40,
+        "win_pct": 0.95
+      },
+      "lost_set1": {
+        "w": 4,
+        "l": 12,
+        "n": 16,
+        "win_pct": 0.25
+      },
+      "swing": 0.7
+    },
+    "by_season": {
+      "2021": {
+        "w": 8,
+        "l": 6,
+        "n": 14,
+        "set1_won": 9,
+        "set1_rate": 0.6429,
+        "record_after_winning_set1": {
+          "w": 7,
+          "l": 2,
+          "n": 9
+        },
+        "record_after_losing_set1": {
+          "w": 1,
+          "l": 4,
+          "n": 5
+        }
+      },
+      "2022": {
+        "w": 4,
+        "l": 5,
+        "n": 9,
+        "set1_won": 4,
+        "set1_rate": 0.4444,
+        "record_after_winning_set1": {
+          "w": 4,
+          "l": 0,
+          "n": 4
+        },
+        "record_after_losing_set1": {
+          "w": 0,
+          "l": 5,
+          "n": 5
+        }
+      },
+      "2023": {
+        "w": 9,
+        "l": 1,
+        "n": 10,
+        "set1_won": 7,
+        "set1_rate": 0.7,
+        "record_after_winning_set1": {
+          "w": 7,
+          "l": 0,
+          "n": 7
+        },
+        "record_after_losing_set1": {
+          "w": 2,
+          "l": 1,
+          "n": 3
+        }
+      },
+      "2024": {
+        "w": 12,
+        "l": 2,
+        "n": 14,
+        "set1_won": 12,
+        "set1_rate": 0.8571,
+        "record_after_winning_set1": {
+          "w": 12,
+          "l": 0,
+          "n": 12
+        },
+        "record_after_losing_set1": {
+          "w": 0,
+          "l": 2,
+          "n": 2
+        }
+      },
+      "2025": {
+        "w": 9,
+        "l": 0,
+        "n": 9,
+        "set1_won": 8,
+        "set1_rate": 0.8889,
+        "record_after_winning_set1": {
+          "w": 8,
+          "l": 0,
+          "n": 8
+        },
+        "record_after_losing_set1": {
+          "w": 1,
+          "l": 0,
+          "n": 1
+        }
+      }
+    },
+    "official_records": {
+      "2021": {
+        "w": 26,
+        "l": 8,
+        "grade": 5.04
+      },
+      "2022": {
+        "w": 26,
+        "l": 6,
+        "grade": 5.07
+      },
+      "2023": {
+        "w": 33,
+        "l": 2,
+        "grade": 5.62
+      },
+      "2024": {
+        "w": 33,
+        "l": 3,
+        "grade": 5.97
+      },
+      "2025": {
+        "w": 33,
+        "l": 1,
+        "grade": 6.37
+      }
+    },
+    "losses_after_winning_set1": [
+      {
+        "season": "2021",
+        "opponent": "Utah",
+        "result": "2-3"
+      },
+      {
+        "season": "2021",
+        "opponent": "Wisconsin",
+        "result": "1-3"
+      }
+    ],
+    "comebacks": [
+      {
+        "season": "2021",
+        "opponent": "Purdue",
+        "result": "3-1"
+      },
+      {
+        "season": "2023",
+        "opponent": "Purdue",
+        "result": "3-2"
+      },
+      {
+        "season": "2023",
+        "opponent": "Penn St.",
+        "result": "3-2"
+      },
+      {
+        "season": "2025",
+        "opponent": "Kentucky",
+        "result": "3-2"
+      }
+    ],
+    "point_leads": [
+      {
+        "checkpoint": 5,
+        "led": 38,
+        "of": 56,
+        "lead_rate": 0.6786,
+        "wins_set1": 0.8158,
+        "wins_match": 0.8158
+      },
+      {
+        "checkpoint": 10,
+        "led": 41,
+        "of": 56,
+        "lead_rate": 0.7321,
+        "wins_set1": 0.8293,
+        "wins_match": 0.8049
+      },
+      {
+        "checkpoint": 15,
+        "led": 43,
+        "of": 56,
+        "lead_rate": 0.7679,
+        "wins_set1": 0.8605,
+        "wins_match": 0.8372
+      },
+      {
+        "checkpoint": 20,
+        "led": 40,
+        "of": 56,
+        "lead_rate": 0.7143,
+        "wins_set1": 0.9,
+        "wins_match": 0.85
+      }
+    ],
+    "trailing_at_20_in_set1": {
+      "w": 8,
+      "l": 8,
+      "n": 16,
+      "wins_set1": 0.25,
+      "wins_match": 0.5
+    },
+    "note": "Nebraska's comeback rate is ordinary. What separates them is the other column: once they take set 1 from a ranked opponent they finish it ~95% of the time."
+  },
+  "team_level": {
+    "correlation_set1_rate_vs_win_pct_in_top25_games": 0.6715,
+    "n_team_seasons": 99,
+    "min_matches": 6,
+    "leaders": [
+      {
+        "season": "2024",
+        "team": "Pittsburgh",
+        "record": "10-1",
+        "set1_rate": 1.0
+      },
+      {
+        "season": "2025",
+        "team": "Pittsburgh",
+        "record": "8-3",
+        "set1_rate": 0.9091
+      },
+      {
+        "season": "2025",
+        "team": "Nebraska",
+        "record": "9-0",
+        "set1_rate": 0.8889
+      },
+      {
+        "season": "2024",
+        "team": "Nebraska",
+        "record": "12-2",
+        "set1_rate": 0.8571
+      },
+      {
+        "season": "2024",
+        "team": "Texas",
+        "record": "4-3",
+        "set1_rate": 0.8571
+      },
+      {
+        "season": "2022",
+        "team": "Arkansas",
+        "record": "2-4",
+        "set1_rate": 0.8333
+      },
+      {
+        "season": "2022",
+        "team": "Wisconsin",
+        "record": "8-3",
+        "set1_rate": 0.8182
+      },
+      {
+        "season": "2024",
+        "team": "Penn St.",
+        "record": "8-1",
+        "set1_rate": 0.7778
+      },
+      {
+        "season": "2023",
+        "team": "Louisville",
+        "record": "6-3",
+        "set1_rate": 0.7778
+      },
+      {
+        "season": "2025",
+        "team": "Texas A&M",
+        "record": "6-3",
+        "set1_rate": 0.7778
+      },
+      {
+        "season": "2021",
+        "team": "UCLA",
+        "record": "8-1",
+        "set1_rate": 0.7778
+      },
+      {
+        "season": "2021",
+        "team": "Louisville",
+        "record": "7-0",
+        "set1_rate": 0.7143
+      }
+    ]
+  },
+  "first_to_20": {
+    "question": "Across every set of a match, how much does being first to 20 matter?",
+    "definition": "Whoever holds the lead at the moment either team first reaches 20 points. Sets 1-4 play to 25; a deciding fifth set plays to 15, so 12 is used there as the analogue and reported separately.",
+    "top25_by_set": [
+      {
+        "set": 1,
+        "n": 501,
+        "wins_that_set": 0.8743,
+        "wins_match": 0.6866,
+        "wins_match_if_not_first_to_20": 0.3134,
+        "lift": 0.3733
+      },
+      {
+        "set": 2,
+        "n": 501,
+        "wins_that_set": 0.8343,
+        "wins_match": 0.6627,
+        "wins_match_if_not_first_to_20": 0.3373,
+        "lift": 0.3253
+      },
+      {
+        "set": 3,
+        "n": 501,
+        "wins_that_set": 0.8723,
+        "wins_match": 0.6866,
+        "wins_match_if_not_first_to_20": 0.3134,
+        "lift": 0.3733
+      },
+      {
+        "set": 4,
+        "n": 317,
+        "wins_that_set": 0.8738,
+        "wins_match": 0.7098,
+        "wins_match_if_not_first_to_20": 0.2902,
+        "lift": 0.4196
+      }
+    ],
+    "all_d1_by_set": [
+      {
+        "set": 1,
+        "n": 22483,
+        "wins_that_set": 0.8837,
+        "wins_match": 0.7429,
+        "wins_match_if_not_first_to_20": 0.2571,
+        "lift": 0.4857
+      },
+      {
+        "set": 2,
+        "n": 22479,
+        "wins_that_set": 0.877,
+        "wins_match": 0.7432,
+        "wins_match_if_not_first_to_20": 0.2568,
+        "lift": 0.4864
+      },
+      {
+        "set": 3,
+        "n": 22484,
+        "wins_that_set": 0.8804,
+        "wins_match": 0.7549,
+        "wins_match_if_not_first_to_20": 0.2451,
+        "lift": 0.5099
+      },
+      {
+        "set": 4,
+        "n": 11551,
+        "wins_that_set": 0.8698,
+        "wins_match": 0.7449,
+        "wins_match_if_not_first_to_20": 0.2551,
+        "lift": 0.4897
+      }
+    ],
+    "top25_set5_first_to_12": {
+      "n": 141,
+      "wins_that_set": 0.8652,
+      "wins_match": 0.8652,
+      "note": "Winning set 5 is winning the match, so the two figures are the same by definition."
+    },
+    "top25_by_count": [
+      {
+        "sets_first_to_20": 0,
+        "n": 137,
+        "win_pct": 0.0146
+      },
+      {
+        "sets_first_to_20": 1,
+        "n": 235,
+        "win_pct": 0.1787
+      },
+      {
+        "sets_first_to_20": 2,
+        "n": 324,
+        "win_pct": 0.571
+      },
+      {
+        "sets_first_to_20": 3,
+        "n": 287,
+        "win_pct": 0.8885
+      }
+    ],
+    "all_d1_by_count": [
+      {
+        "sets_first_to_20": 0,
+        "n": 9372,
+        "win_pct": 0.0141
+      },
+      {
+        "sets_first_to_20": 1,
+        "n": 8981,
+        "win_pct": 0.1465
+      },
+      {
+        "sets_first_to_20": 2,
+        "n": 10896,
+        "win_pct": 0.594
+      },
+      {
+        "sets_first_to_20": 3,
+        "n": 14619,
+        "win_pct": 0.929
+      },
+      {
+        "sets_first_to_20": 4,
+        "n": 1024,
+        "win_pct": 0.9229
+      }
+    ],
+    "does_it_add_anything_beyond_the_set_result": {
+      "scope": "top-25, sets 1-4",
+      "first_to_20": {
+        "n": 1820,
+        "win_pct": 0.6841
+      },
+      "won_the_set": {
+        "n": 1816,
+        "win_pct": 0.7483
+      },
+      "first_to_20_and_won_set": {
+        "n": 1570,
+        "win_pct": 0.7497
+      },
+      "won_set_from_behind_at_20": {
+        "n": 246,
+        "win_pct": 0.7398
+      },
+      "first_to_20_but_lost_set": {
+        "n": 250,
+        "win_pct": 0.272
+      },
+      "neither": {
+        "n": 1574,
+        "win_pct": 0.2497
+      }
+    },
+    "finding": "No set's 20-point lead is worth more than another's -- the lift is flat across sets 1 through 4. And being first to 20 carries almost nothing beyond the set result itself: a team that won the set from behind at 20 wins the match at essentially the same rate as one that led at 20 and closed it out. First to 20 matters only because it usually means winning the set."
+  },
+  "benchmark_rationale": {
+    "replaced": "fbso_pct (first-ball side-out)",
+    "reason_practical": "stats.ncaa.org now denies every /teams/<id> path. The replacement feed carries point-summary play-by-play only, so first-ball side-out has no 2026 source.",
+    "grade_auc_before": 0.963,
+    "grade_auc_after": 0.9665,
+    "won_set1_hit_rate": 0.5,
+    "hit_rate_note": "Exactly 50% by construction -- one team wins set 1 in every match.",
+    "first_to_20_rejected": {
+      "p_win_given_first_to_20_every_set_all_d1": 0.993,
+      "reason": "Too tautological to grade; kept as a context metric instead."
+    }
+  }
+}
