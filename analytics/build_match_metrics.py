@@ -28,9 +28,18 @@ def clean_opponent(raw: str) -> str:
 
 
 def rally_metrics(parquet: Path) -> pd.DataFrame:
-    """Per team per match: sideout, point-score, first-ball rates, point-source mix."""
+    """Per team per match: sideout, point-score, first-ball rates, point-source mix.
+
+    A rally table built from ncaa-api point-summary play-by-play carries no touch
+    detail, so it flags itself with has_touch_detail=False and the first-ball
+    metrics are nulled downstream rather than reported as zero.
+    """
     con = duckdb.connect()
-    return con.sql(f"""
+    cols = con.sql(f"SELECT * FROM read_parquet('{parquet}') LIMIT 0").df().columns
+    touch_detail = "has_touch_detail" not in cols or bool(
+        con.sql(f"SELECT coalesce(bool_or(has_touch_detail), false) "
+                f"FROM read_parquet('{parquet}')").fetchone()[0])
+    out = con.sql(f"""
         WITH sides AS (
             SELECT date, away_team, home_team, serve_team, recv_team, winner,
                    first_ball, end_event
@@ -69,6 +78,8 @@ def rally_metrics(parquet: Path) -> pd.DataFrame:
         JOIN serve s USING (date, away_team, home_team, team)
         LEFT JOIN pts p USING (date, away_team, home_team, team)
     """).df()
+    out["has_touch_detail"] = touch_detail
+    return out
 
 
 def set_context(parquet: Path) -> pd.DataFrame:
@@ -210,6 +221,13 @@ def build(pbp_parquet: Path, teammatch_csv: Path, season_label: str) -> pd.DataF
     # set-level context: won_set1 arrives as 0/1, first20_share as a rate so it
     # compares across 3-, 4- and 5-set matches
     d["first20_share"] = d.sets_first20 / d.sets_played.replace(0, pd.NA)
+    # Without touch detail there is no way to know whether a side-out came off the
+    # first ball. Reporting these as 0 would read as "never sides out in system",
+    # which is a claim the data does not make.
+    if "has_touch_detail" in d.columns and not d.has_touch_detail.all():
+        blind = ~d.has_touch_detail.astype(bool)
+        for c in ("fbso_pct", "trans_so_pct", "opp_fbso_allowed"):
+            d.loc[blind, c] = pd.NA
     return d
 
 
@@ -240,7 +258,7 @@ def main() -> None:
     ap.add_argument("--box-dir", type=Path, default=Path("data/ncaavolleyballr/data-csv"))
     ap.add_argument("--sport", default="wvb")
     ap.add_argument("--division", default="div1")
-    ap.add_argument("--years", nargs="+", type=int, default=[2021, 2022, 2023, 2024, 2025])
+    ap.add_argument("--years", nargs="+", type=int, default=[2021, 2022, 2023, 2024, 2025, 2026])
     ap.add_argument("--out", type=Path, default=Path("data/match_metrics.parquet"))
     args = ap.parse_args()
 
