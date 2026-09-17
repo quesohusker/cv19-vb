@@ -169,7 +169,12 @@ def main() -> None:
         lambda g: g.grade.corr(g.win_pct), include_groups=False)
     meta = {
         "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-        "source": "NCAA play-by-play and box scores via JeffreyRStevens/ncaavolleyballr",
+        # 2026 onward comes from a different route: stats.ncaa.org now denies
+        # every /teams/<id> path, so the app footer should not claim otherwise
+        "source": ("NCAA play-by-play and box scores. 2021-2025 via "
+                   "JeffreyRStevens/ncaavolleyballr; 2026 onward from the ncaa-api "
+                   "mirror (results, play-by-play) and jpitel24/volleyball-gis "
+                   "(player box scores)"),
         "sport": "women's volleyball", "division": "D1",
         "seasons": sorted(matches.season.unique().tolist()),
         "team_match_rows": int(len(matches)),
