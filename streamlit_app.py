@@ -270,6 +270,7 @@ PLAYER_COLUMNS = {
     "Outside hitter": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                        ("Hit% adj", "hit_pct_pass", "dec3"),
                        ("Rec/set", "receptions_per_set", "dec2"),
+                       ("Rec err", "reception_err_rate", "pct1"),
                        ("Digs/set", "digs_per_set", "dec2"),
                        ("Aces/set", "aces_per_set", "dec2")],
     "Middle blocker": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
@@ -351,9 +352,11 @@ def page_players(season: str, home: str, away: str) -> None:
         st.markdown(f"- **Usage.** {oa['does_not_fix']}")
         st.markdown(
             "- **Position labels.** Only about half of teams give their opposite a label "
-            "of her own; the rest are listed as outside hitters and are ranked there. The "
-            "passing adjustment absorbs some of it, since an opposite who never passes is "
-            "measured against outsides who do.")
+            "of her own; the rest are listed as outside hitters and are ranked there. "
+            "Outsides are graded on reception *quality* rather than reception volume so "
+            "that a terminator who never passes is not punished for a role she was never "
+            "given &mdash; passing load is already the control in the efficiency "
+            "adjustment, and grading it again counted the same fact twice.")
         st.markdown(
             "- **Small samples early in a season.** The set minimum is a season-long floor, "
             "so in the first weeks a board is ordered on twenty-odd sets and will move a "

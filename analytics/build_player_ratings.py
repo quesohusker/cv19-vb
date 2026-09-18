@@ -51,6 +51,23 @@ director's habits. The dig gap between the labels (2.50 vs 1.86 per set) is a
 quality difference the ranking should surface, not a role difference that
 justifies separate boards.
 
+PASSING LOAD IS A CONTROL FOR OUTSIDES, NEVER A BENCHMARK. Grading receptions per set
+as a virtue -- more serve receive, better player -- looks reasonable and is wrong,
+because the efficiency adjustment below already accounts for the passing load. Doing
+both counts the same fact twice in the same direction. It cost Pittsburgh's Olivia
+Babcock, 5.17 kills per set at .334 for the country's second-ranked team, a rank of
+379th out of 1,667 in 2025: she takes no serve receive, so she was docked 28 points of
+hitting efficiency for being a low passer AND scored near the bottom percentile on
+passing volume, one fifth of her rating. Wisconsin's Mimi Colyer, 5.54 kills per set at
+.340, came out 129th the same way. Both are terminators, and about half of teams do not
+give their opposite a label of her own, so the outside board is full of them.
+
+So volume controls and quality is graded: outsides are scored on reception ERROR RATE,
+among those who take at least forty serve receives, and a player below that carries one
+fewer benchmark rather than a zero, exactly as with serving. It is a weak metric, .33
+at half-season and .50 over a full one, and it is still better than grading a role as
+if it were an ability.
+
 OUTSIDES ARE ADJUSTED FOR PASSING LOAD. Among high-volume outside attackers,
 hitting efficiency falls from .214 to .186 as reception load rises (r = -0.22):
 the outside who passes and swings gets the out-of-system ball. Raw efficiency
@@ -110,6 +127,7 @@ import pandas as pd
 
 MIN_SETS = 20
 MIN_SERVE_EVENTS = 3        # aces + service errors, the evidence that she serves
+MIN_RECEPTIONS = 40         # serve receives, the evidence that she is a passer
 
 # source position codes -> the group they are ranked in
 POSITION_GROUPS = {
@@ -226,7 +244,7 @@ def derive(df: pd.DataFrame) -> pd.DataFrame:
     d["blocks_per_set"] = (d.BlockSolos + d.BlockAssists / 2) / s
     d["hit_pct"] = ((d.Kills - d.Errors) / d.TotalAttacks.where(d.TotalAttacks >= 50))
     d["assist_rate"] = d.Assists / d.SetAtt.where(d.SetAtt >= 100)
-    d["reception_err_rate"] = d.RErr / d.RetAtt.where(d.RetAtt >= 50)
+    d["reception_err_rate"] = d.RErr / d.RetAtt.where(d.RetAtt >= MIN_RECEPTIONS)
     # Serving is graded only for players who serve. Forty percent of middles and
     # forty-five percent of opposites record no ace and no service error all season --
     # they are replaced by a serving sub every rotation -- and scoring them a zero
@@ -469,7 +487,7 @@ BENCHMARKS = {
     "Outside hitter": [
         ("kills_per_set", +1, "Kills per set"),
         ("hit_pct_pass", +1, "Hitting efficiency, adjusted for passing load"),
-        ("receptions_per_set", +1, "Receptions per set"),
+        ("reception_err_rate", -1, "Reception error rate"),
         ("digs_per_set", +1, "Digs per set"),
         ("aces_per_set", +1, "Aces per set"),
     ],

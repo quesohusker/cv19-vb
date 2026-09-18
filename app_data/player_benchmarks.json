@@ -22,10 +22,10 @@
         "threshold": 0.17492
       },
       {
-        "metric": "receptions_per_set",
-        "direction": "higher_is_better",
-        "label": "Receptions per set",
-        "threshold": 0.87952
+        "metric": "reception_err_rate",
+        "direction": "lower_is_better",
+        "label": "Reception error rate",
+        "threshold": 0.06542
       },
       {
         "metric": "digs_per_set",
@@ -147,7 +147,7 @@
         "metric": "reception_err_rate",
         "direction": "lower_is_better",
         "label": "Reception error rate",
-        "threshold": 0.0614
+        "threshold": 0.06162
       },
       {
         "metric": "aces_per_set",
