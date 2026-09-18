@@ -60,14 +60,55 @@ def team_picker(season: str, label: str, default: str | None, key: str) -> str:
     return st.selectbox(label, teams, index=idx, key=key)
 
 
-def season_frames(season: str, team: str):
-    """(season averages, most recent match, opponent name) for one team."""
+def season_frames(season: str, team: str, match_idx: int | None = None):
+    """(season averages, one match, that match's label) for one team.
+
+    match_idx indexes the team's schedule in date order; None means the most recent,
+    which is what every view defaulted to before a match could be chosen.
+    """
     tm = D.team_matches(season, team)
     if tm.empty:
         return None, None, None
     numeric = tm.select_dtypes("number").mean()
-    last = tm.iloc[-1]
-    return numeric, last, last.opponent
+    i = -1 if match_idx is None else max(0, min(match_idx, len(tm) - 1))
+    row = tm.iloc[i]
+    return numeric, row, match_label(row)
+
+
+def match_label(row) -> str:
+    """'Sep 12 vs Wisconsin - W 3-1', short enough for a column header."""
+    # built from parts rather than strftime("%b %-d"): the no-pad flag is a platform
+    # extension and is not portable
+    date = (f"{row.match_date:%b} {row.match_date.day}"
+            if pd.notna(row.match_date) else "?")
+    where = "at" if row.location == "away" else "vs"
+    if pd.notna(row.get("sets_for")) and pd.notna(row.get("sets_against")):
+        result = f"{'W' if row.won else 'L'} {int(row.sets_for)}-{int(row.sets_against)}"
+    else:
+        result = "W" if row.won else "L"
+    return f"{date} {where} {row.opponent} \u00b7 {result}"
+
+
+def match_picker(season: str, team: str, key: str) -> int | None:
+    """Choose which of a team's matches to show. Defaults to the most recent."""
+    tm = D.team_matches(season, team)
+    if tm.empty:
+        return None
+    labels = [match_label(r) for _, r in tm.iterrows()]
+    # Two matches can label identically -- same day, same opponent, same result, which
+    # happens in tournaments. Selecting by label would then always return the first of
+    # the pair, so number the repeats.
+    seen: dict[str, int] = {}
+    for i, lab in enumerate(labels):
+        seen[lab] = seen.get(lab, 0) + 1
+        if labels.count(lab) > 1:
+            labels[i] = f"{lab}  (game {seen[lab]})"
+
+    # most recent first: that is the match someone is usually here to look at
+    order = list(range(len(labels)))[::-1]
+    shown = [labels[i] for i in order]
+    choice = st.selectbox(f"{team} match", shown, index=0, key=key)
+    return order[shown.index(choice)]
 
 
 # ---------------------------------------------------------------- comparison
@@ -130,8 +171,17 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                 'that best separated winning from losing performances across 2021-2023, '
                 'validated out of sample.</p>', unsafe_allow_html=True)
 
-    frames = {t: season_frames(season, t) for t in (home, away)}
-    if any(f[0] is None for f in frames.values()):
+    # one picker per side: the two teams have different schedules, so a single
+    # opponent list cannot serve both. Each defaults to that team's most recent match.
+    c1, c2 = st.columns(2)
+    with c1:
+        home_idx = match_picker(season, home, "bench_match_home")
+    with c2:
+        away_idx = match_picker(season, away, "bench_match_away")
+
+    # a list, not a dict keyed by team: picking the same team on both sides is legal
+    frames = [season_frames(season, home, home_idx), season_frames(season, away, away_idx)]
+    if any(f[0] is None for f in frames):
         st.info("No graded matches for one of these teams in this season.")
         return
 
@@ -139,8 +189,8 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
             f'<tr><th></th><th class="grp" colspan="2">{T.chip(home)}</th>'
             f'<th class="grp sep" colspan="2">{T.chip(away)}</th></tr>',
             f'<tr><th class="lab">Benchmark</th>'
-            f'<th class="sub">Last ({frames[home][2]})</th><th class="sub">Season</th>'
-            f'<th class="sub sep">Last ({frames[away][2]})</th>'
+            f'<th class="sub">{frames[0][2]}</th><th class="sub">Season</th>'
+            f'<th class="sub sep">{frames[1][2]}</th>'
             f'<th class="sub">Season</th></tr></thead><tbody>']
 
     for b in D.graded_benchmarks():
@@ -151,8 +201,7 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
         if metric == "won_set1":
             kind = "yn"   # the match cell is a result, not a rate
         cells = []
-        for team in (home, away):
-            avg, last, _ = frames[team]
+        for team, (avg, last, _) in zip((home, away), frames):
             last_met = None if pd.isna(last.get(flag)) else bool(last[flag])
             cells.append(T.bench_pill(team, fmt(last.get(metric), kind), last_met))
             rate = avg.get(flag)
@@ -163,8 +212,7 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                     f'<td class="num">{cells[3]}</td></tr>')
 
     totals = []
-    for team in (home, away):
-        avg, last, _ = frames[team]
+    for avg, last, _ in frames:
         # a benchmark with a missing input is not graded; show what it was graded out of
         of = int(last.graded_on) if pd.notna(last.get("graded_on")) else GRADE_MAX
         totals.append((f"{int(last.grade)} / {of}", f"{avg.grade:.2f} / {GRADE_MAX}"))
@@ -173,9 +221,10 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                 f'<td class="num sep"><b>{totals[1][0]}</b></td>'
                 f'<td class="num"><b>{totals[1][1]}</b></td></tr></tbody></table>')
     st.markdown("".join(html), unsafe_allow_html=True)
-    st.markdown('<p class="sublabel">Last-match cells show the match value; season cells show '
-                'the share of matches in which the team cleared that benchmark.</p>',
-                unsafe_allow_html=True)
+    st.markdown('<p class="sublabel">Match cells show that match&rsquo;s value; season cells '
+                'show the share of the team&rsquo;s matches in which it cleared that '
+                'benchmark. Pick any match above &mdash; each side defaults to its most '
+                'recent.</p>', unsafe_allow_html=True)
 
 
 # ------------------------------------------------------------------ rankings
