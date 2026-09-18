@@ -14,7 +14,35 @@ group. Reception error rate is the weakest thing graded anywhere here, .30 and .
 back-row players, and it is kept anyway with the tradeoff stated plainly: digs and
 receptions are both volume, so without it a libero is ranked purely on how many balls
 came at her, which rewards playing behind a bad block. One weak quality signal beats
-none. Ace-to-service-error was tested and dropped outright.
+none.
+
+EVERYONE WHO SERVES IS GRADED ON SERVING, ON ACES PER SET. It is the one benchmark
+every board shares -- but not everyone serves. Forty percent of middles and forty-five
+percent of opposites record no ace and no service error in a whole season, because a
+serving sub goes in for them every rotation, and scoring those players a zero would
+rank them on their coach's substitution pattern. Three serving events is the bar for
+being graded on it; below that a player carries one fewer benchmark, which the rating
+already handles by averaging over the metrics she has. Aces per set is the choice on both criteria at once: it
+repeats better than anything else in the serving family (.77 to .86 at half-season,
+.87 to .93 over a full one), and at team level it is the serving construct that tracks
+winning serve-phase rallies best (+0.34 against point-score %, +0.21 against win %,
+over 1,348 team-seasons).
+
+The balance measures lose on both. Ace-to-service-error looks respectable at .63 to
+.67 for the front-row groups, but that is an artifact of guarding the divide-by-zero:
+clipping errors at one orders every zero-error server by her ace count, so the ratio
+is partly measuring ace volume through its own guard. Written as a proper bounded
+share, aces over aces-plus-errors, the same quantity falls to .20 to .33 at
+half-season -- because aces per set and service errors per set correlate between +0.80
+and +0.91, so serving is nearly one axis, how hard she goes after it, and subtracting
+one from the other cancels most of the signal rather than isolating quality. The
+validity test says the same thing from the other side: service errors per set
+correlate -0.05 with a team's point-score rate, which is to say missed serves cost
+almost nothing measurable while aces are worth a good deal.
+
+Per-attempt serving rates are not used at all, whatever their appeal, because the
+source cannot support them: not one team-season in the file reports serve attempts
+consistently.
 
 LIBERO AND DS ARE ONE GROUP. Their workloads are identical -- 3.78 / 3.80 / 3.75
 receptions per set for L, L/DS and DS -- and 140 of 340 teams label every back-row
@@ -81,6 +109,7 @@ import numpy as np
 import pandas as pd
 
 MIN_SETS = 20
+MIN_SERVE_EVENTS = 3        # aces + service errors, the evidence that she serves
 
 # source position codes -> the group they are ranked in
 POSITION_GROUPS = {
@@ -198,7 +227,22 @@ def derive(df: pd.DataFrame) -> pd.DataFrame:
     d["hit_pct"] = ((d.Kills - d.Errors) / d.TotalAttacks.where(d.TotalAttacks >= 50))
     d["assist_rate"] = d.Assists / d.SetAtt.where(d.SetAtt >= 100)
     d["reception_err_rate"] = d.RErr / d.RetAtt.where(d.RetAtt >= 50)
-    d["ace_per_serve"] = d.Aces / d.ServeAtt.where(d.ServeAtt >= 50)
+    # Serving is graded only for players who serve. Forty percent of middles and
+    # forty-five percent of opposites record no ace and no service error all season --
+    # they are replaced by a serving sub every rotation -- and scoring them a zero
+    # would rank them on their coach's substitution pattern. With serve attempts
+    # unusable (see below), an ace or an error is the only evidence in the file that a
+    # player served at all, so three of them is the bar. Everyone below it carries no
+    # serving benchmark and is graded out of one fewer.
+    d["serve_events"] = d.Aces + d.SErr
+    serves = d.serve_events >= MIN_SERVE_EVENTS
+    d["serves"] = serves
+    d["aces_per_set"] = (d.Aces / s).where(serves)
+    d["serve_err_per_set"] = (d.SErr / s).where(serves)
+    # ServeAtt deliberately unused: no team in the source reports it consistently --
+    # every one of the 1,400-odd team-seasons logs it on between 5% and 95% of rows --
+    # so any per-attempt serving rate is division by a number that is missing at
+    # unknown times. Per-set serving needs no such denominator.
     return d
 
 
@@ -262,6 +306,8 @@ RATE_DEFS = {
     "digs_per_set":       (lambda v: v.Digs, lambda v: v.S, 1),
     "receptions_per_set": (lambda v: v.RetAtt, lambda v: v.S, 1),
     "assists_per_set":    (lambda v: v.Assists, lambda v: v.S, 1),
+    "aces_per_set":       (lambda v: v.Aces, lambda v: v.S, 1),
+    "serve_err_per_set":  (lambda v: v.SErr, lambda v: v.S, 1),
     "blocks_per_set":     (lambda v: v.BlockSolos + v.BlockAssists / 2, lambda v: v.S, 1),
     "hit_pct":            (lambda v: v.Kills - v.Errors, lambda v: v.TotalAttacks, 3),
     "assist_rate":        (lambda v: v.Assists, lambda v: v.SetAtt, 5),
@@ -425,28 +471,33 @@ BENCHMARKS = {
         ("hit_pct_pass", +1, "Hitting efficiency, adjusted for passing load"),
         ("receptions_per_set", +1, "Receptions per set"),
         ("digs_per_set", +1, "Digs per set"),
+        ("aces_per_set", +1, "Aces per set"),
     ],
     "Middle blocker": [
         ("kills_per_set", +1, "Kills per set"),
         ("hit_pct", +1, "Hitting efficiency"),
         ("blocks_per_set", +1, "Blocks per set"),
         ("attacks_per_set", +1, "Attacks per set"),
+        ("aces_per_set", +1, "Aces per set"),
     ],
     "Opposite": [
         ("kills_per_set", +1, "Kills per set"),
         ("hit_pct", +1, "Hitting efficiency"),
         ("blocks_per_set", +1, "Blocks per set"),
         ("attacks_per_set", +1, "Attacks per set"),
+        ("aces_per_set", +1, "Aces per set"),
     ],
     "Setter": [
         ("assists_per_set", +1, "Assists per set"),
         ("assist_rate", +1, "Assists per set attempt"),
         ("digs_per_set", +1, "Digs per set"),
+        ("aces_per_set", +1, "Aces per set"),
     ],
     "Back row": [
         ("digs_per_set", +1, "Digs per set"),
         ("receptions_per_set", +1, "Receptions per set"),
         ("reception_err_rate", -1, "Reception error rate"),
+        ("aces_per_set", +1, "Aces per set"),
     ],
 }
 SETTER_BONUS = ("kills_per_set", 0.40, 0.10)   # metric, threshold, weight
@@ -604,6 +655,9 @@ def split_half_reliability(pm: pd.DataFrame) -> dict:
         "digs_per_set": (lambda v: v.Digs, lambda v: v.S, 8),
         "receptions_per_set": (lambda v: v.RetAtt, lambda v: v.S, 8),
         "assists_per_set": (lambda v: v.Assists, lambda v: v.S, 8),
+        "aces_per_set": (lambda v: v.Aces, lambda v: v.S, 8),
+        "serve_err_per_set": (lambda v: v.SErr, lambda v: v.S, 8),
+        "ace_share": (lambda v: v.Aces, lambda v: v.Aces + v.SErr, 10),
         "blocks_per_set": (lambda v: v.BlockSolos + v.BlockAssists / 2, lambda v: v.S, 8),
         "hit_pct": (lambda v: v.Kills - v.Errors, lambda v: v.TotalAttacks, 25),
         "assist_rate": (lambda v: v.Assists, lambda v: v.SetAtt, 80),
@@ -671,6 +725,9 @@ def main() -> None:
         if col in d:
             d[col] = pd.to_numeric(d[col], errors="coerce").fillna(
                 pd.to_numeric(d[metric], errors="coerce"))
+    for col in ("aces_per_set_adj", "serve_err_per_set_adj"):
+        if col in d:
+            d[col] = d[col].where(d.serves)
     d["opponent_adjusted"] = d.hit_pct_adj.notna() | d.kills_per_set_adj.notna()
 
     print("\nchecking who is still on the floor")
@@ -691,7 +748,8 @@ def main() -> None:
     keep = ["season", "team", "conference", "player", "position", "matches", "S",
             "kills_per_set", "attacks_per_set", "hit_pct", "hit_pct_pass",
             "blocks_per_set", "digs_per_set", "receptions_per_set",
-            "reception_err_rate", "assists_per_set", "assist_rate", "ace_per_serve",
+            "reception_err_rate", "assists_per_set", "assist_rate",
+            "aces_per_set", "serve_err_per_set",
             "opponent_adjusted",
             "last_played", "team_matches_missed", "recent_sets", "recent_set_share",
             "active", "ranked",

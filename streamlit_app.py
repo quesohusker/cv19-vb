@@ -270,18 +270,23 @@ PLAYER_COLUMNS = {
     "Outside hitter": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                        ("Hit% adj", "hit_pct_pass", "dec3"),
                        ("Rec/set", "receptions_per_set", "dec2"),
-                       ("Digs/set", "digs_per_set", "dec2")],
+                       ("Digs/set", "digs_per_set", "dec2"),
+                       ("Aces/set", "aces_per_set", "dec2")],
     "Middle blocker": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                        ("Blk/set", "blocks_per_set", "dec2"),
-                       ("Att/set", "attacks_per_set", "dec2")],
+                       ("Att/set", "attacks_per_set", "dec2"),
+                       ("Aces/set", "aces_per_set", "dec2")],
     "Opposite": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                  ("Blk/set", "blocks_per_set", "dec2"),
-                 ("Att/set", "attacks_per_set", "dec2")],
+                 ("Att/set", "attacks_per_set", "dec2"),
+                 ("Aces/set", "aces_per_set", "dec2")],
     "Setter": [("Ast/set", "assists_per_set", "dec2"), ("Ast/att", "assist_rate", "dec3"),
-               ("Digs/set", "digs_per_set", "dec2"), ("K/set", "kills_per_set", "dec2")],
+               ("Digs/set", "digs_per_set", "dec2"),
+               ("Aces/set", "aces_per_set", "dec2"), ("K/set", "kills_per_set", "dec2")],
     "Back row": [("Digs/set", "digs_per_set", "dec2"),
                  ("Rec/set", "receptions_per_set", "dec2"),
-                 ("Rec err", "reception_err_rate", "pct1")],
+                 ("Rec err", "reception_err_rate", "pct1"),
+                 ("Aces/set", "aces_per_set", "dec2")],
 }
 
 
@@ -353,6 +358,15 @@ def page_players(season: str, home: str, away: str) -> None:
             "- **Small samples early in a season.** The set minimum is a season-long floor, "
             "so in the first weeks a board is ordered on twenty-odd sets and will move a "
             "lot.")
+        st.markdown(
+            "- **Serving aggression.** Every board grades aces per set, the most reliable "
+            "serving measure there is and the one that tracks winning serve rallies. It "
+            "does not separate a good server from an aggressive one: aces and service "
+            "errors per set correlate about +0.85, so serving is close to a single axis, "
+            "and the balance measures that would separate them do not repeat well enough "
+            "to grade. Players who never serve &mdash; 43% of middles and 61% of opposites, "
+            "who have a serving sub go in for them &mdash; carry no serving benchmark "
+            "rather than a zero, and are graded out of one fewer.")
         st.caption("Opponent model: " + oa["model"])
 
 
