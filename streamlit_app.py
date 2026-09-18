@@ -12,6 +12,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 from app import data as D
+from app import llm as L
 from app import theme as T
 
 st.set_page_config(page_title="QuesoHusker's Volleyball", page_icon="🏐", layout="wide")
@@ -53,6 +54,27 @@ def fmt(value, kind: str) -> str:
     if kind == "dec2":
         return f"{value:.2f}"
     return f"{value:.1f}"
+
+
+def ask_panel(title: str, context: str, tables, key: str,
+              glossary=None, limits=None, examples=(), limit: int | None = 300) -> None:
+    """The download-and-ask panel at the foot of every page.
+
+    Nothing is sent anywhere and no key is needed. The page packs what it is showing
+    into one self-describing Markdown file and the reader takes it to whatever model
+    they already use.
+    """
+    with st.expander("\U0001f9e0 Ask an LLM about this"):
+        ex = (" \u2014 for example, " + " or ".join(f"*&ldquo;{e}&rdquo;*" for e in examples)
+              if examples else "")
+        st.markdown(L.HOWTO.replace("then ask it questions.",
+                                    f"then ask it questions{ex}."),
+                    unsafe_allow_html=True)
+        md = L.build(title, context, tables, glossary, limits, limit)
+        st.download_button("\u2b07  Download (.md)", md,
+                           file_name=f"{L.slug(title)}.md", mime="text/markdown",
+                           key=f"dl_{key}")
+        st.caption(f"{len(md):,} characters \u00b7 fits in any current model's context.")
 
 
 def team_picker(season: str, label: str, default: str | None, key: str) -> str:
@@ -162,6 +184,20 @@ def page_comparison(season: str, home: str, away: str) -> None:
     st.markdown('<p class="sublabel">Green = better of the two on the season. '
                 'Offense rows favor the higher value; allowed rows favor the lower.</p>',
                 unsafe_allow_html=True)
+    ask_panel(
+        f"Stat Comparison \u2014 {home} vs {away}, {season}",
+        "Two teams' season averages side by side. Offense rows are the team's own value; "
+        "'allowed' rows are what opponents managed against them. Hitting efficiency is "
+        "(kills - errors) / attempts. Side-out % is the share of receive rallies won; "
+        "point-score % is the share of serve rallies won.",
+        [(f"{home}", h_avg.rename("value").to_frame().reset_index(), None),
+         (f"{away}", a_avg.rename("value").to_frame().reset_index(), None)],
+        "cmp",
+        limits=["Season averages here are unadjusted for schedule strength; the Power "
+                "Rankings page carries the opponent-adjusted version.",
+                "First-ball side-out is null for 2026 \u2014 the current play-by-play feed "
+                "is point-summary only and cannot reconstruct it."],
+        examples=["where does this team actually win?", "which gap decides the match?"])
 
 
 # ---------------------------------------------------------------- benchmarks
@@ -226,6 +262,27 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                 'show the share of the team&rsquo;s matches in which it cleared that '
                 'benchmark. Pick any match above &mdash; each side defaults to its most '
                 'recent.</p>', unsafe_allow_html=True)
+    ask_panel(
+        f"The Volleyball {GRADE_MAX} \u2014 {home} vs {away}, {season}",
+        f"Every team-match is scored against {GRADE_MAX} benchmarks and the grade is how "
+        "many it cleared. Thresholds are empirical: each is the value that best separated "
+        "winning from losing performances across 2021-2023, constrained so 30-70% of "
+        "team-matches clear it, then validated out of sample on 2024. A team's profile is "
+        "the share of its matches that cleared each one.",
+        [("Benchmark definitions", pd.DataFrame(D.graded_benchmarks()),
+          ["label", "phase", "direction", "threshold"]),
+         (f"{home} \u2014 share of matches clearing each benchmark",
+          D.benchmark_profile(season, home), None),
+         (f"{away} \u2014 share of matches clearing each benchmark",
+          D.benchmark_profile(season, away), None)],
+        "bm",
+        limits=["The grade describes how a team played; it is not a forecast.",
+                "It is unadjusted, so a soft schedule inflates it. Ranking uses the "
+                "opponent-adjusted rating instead.",
+                "Season grade correlates about 0.95 with season win %, so at season level "
+                "it largely restates the standings. Its value is per-match diagnosis."],
+        examples=["which benchmark is this team missing most?",
+                  "what broke in the last match?"])
 
 
 # ------------------------------------------------------------------ rankings
@@ -261,6 +318,27 @@ def page_rankings(season: str, home: str, away: str) -> None:
             f'<td class="n">{row.rating_def:+.1f}</td><td class="n">{grade}</td></tr>')
     html.append("</tbody></table></div>")
     st.markdown("".join(html), unsafe_allow_html=True)
+    ask_panel(
+        f"Power Rankings \u2014 {season}" + ("" if conf == "All D1" else f", {conf}"),
+        "Opponent-adjusted team ratings from one ridge regression over every team-match. "
+        "Side-out rate is the currency: sideout_pct(i receiving against j) = mu + off_i - "
+        "def_j. Ratings are centred so an average D1 team is 0.0, in percentage points of "
+        "side-out rate \u2014 '+6.1' means six more side-outs per hundred receive rallies "
+        "than an average team would manage against the same opponents. rating_overall = "
+        "off + def. Ranks stay national when a conference is selected.",
+        [("Team ratings", r, ["rank_overall", "team", "conference", "wins", "losses",
+                              "rating_overall", "rating_off", "rating_def", "grade",
+                              "graded_matches"])],
+        "pwr",
+        glossary={"rating_off": "side-out ability when receiving",
+                  "rating_def": "suppressing the opponent's side-out",
+                  "grade": f"mean benchmark count out of {GRADE_MAX}, unadjusted"},
+        limits=["Ridge shrinks teams with short or lopsided schedules toward average.",
+                "The grade column is unadjusted and will disagree with the rating for "
+                "teams on very soft or very hard schedules. That disagreement is the "
+                "reason both are shown."],
+        examples=["who is underrated by their record?",
+                  "is this conference strong on offense or defense?"])
 
 
 
@@ -550,6 +628,64 @@ def page_players(season: str, home: str, away: str) -> None:
     st.markdown('<p class="tiny" style="color:#6f7681">A season rating is an average. '
                 'This is what it averaged.</p>', unsafe_allow_html=True)
 
+    ctx_cols = ["rank_in_position", "players_in_position", "rank_low", "rank_high",
+                "rank_in_conference", "players_in_conference", "player", "team",
+                "conference", "position", "sets", "rating", "benchmarks_met",
+                "benchmarks_of"] + [c for _, c, _ in cols]
+    graded_defs = "\n".join(
+        f"- **{g}**: " + "; ".join(f'{x["label"]} (median threshold {x["threshold"]}, '
+                                   f'{x["direction"]})' for x in v)
+        for g, v in pb["groups"].items())
+    ask_panel(
+        f"Position Rankings \u2014 {position or 'all positions'}, {season}",
+        "Each position is graded on its own small set of benchmarks, because the "
+        "positions do not share a job. Two numbers per player, deliberately different:\n\n"
+        "- `benchmarks_met` is RAW, against fixed 2022-2025 medians. It describes what she "
+        "did and stays readable.\n"
+        "- `rating` is 0-100: the mean of her percentiles on the same metrics after an "
+        "opponent adjustment, against the same fixed reference seasons. It is what "
+        "ranks.\n\n"
+        "The opponent adjustment is fitted per match, not per season: "
+        "rate(player i vs team j) = mu + player_i - opponent_j, by alternating weighted "
+        "means with a ridge penalty on the opponent effects only.\n\n"
+        "`rank_low`..`rank_high` is a 90% confidence band on the rank. It is measured, not "
+        "assumed: every player's matches are split odd/even and scored twice, and the "
+        "spread between her own two halves is the standard error. **Players whose bands "
+        "overlap heavily are not distinguishable and should not be ranked against each "
+        "other.**\n\n"
+        f"What each position is graded on:\n{graded_defs}\n\n"
+        f"Minimum {pb['min_sets']} sets. In {pb['recency_rule']['current_season']}, which "
+        "is still being played, a player is ranked only if she played at least one set in "
+        "her team's last three matches.",
+        [("Board", r, ctx_cols),
+         (f"Match log \u2014 {pick} ({prow.team})", log,
+          ["date", "opponent", "S", "Kills", "Errors", "TotalAttacks", "hit_pct", "Digs",
+           "RetAtt", "RErr", "Assists", "Aces"])],
+        "plr",
+        glossary={
+            "rating": "0-100, mean percentile on this position's benchmarks, opponent-adjusted",
+            "benchmarks_met": "how many benchmarks she cleared, unadjusted",
+            "rank_in_conference": "the same rank taken inside her conference",
+            "hit_pct_pass": "hitting efficiency adjusted for her serve-receive load",
+            "dig_rating": "charted dig quality, (2*great + good) / total, back row only",
+            "sets": "sets played, the sample everything here rests on"},
+        limits=[
+            pb["opponent_adjustment"]["does_not_fix"],
+            "About half of teams do not give their opposite a distinct label, so the "
+            "outside board contains many true opposites.",
+            "Charted reception, serve and block quality were tested and rejected as "
+            "scorer-contaminated: charted pass quality correlates +0.54 between teammates, "
+            "higher than its own year-over-year, and 60% of its signal disappears once the "
+            "team effect is removed. Only dig quality survived, and only for back row.",
+            "Every board grades aces per set, which measures serving aggression as much as "
+            "serving quality: aces and service errors per set correlate about +0.85.",
+            "Players who never serve carry no serving benchmark rather than a zero, and "
+            "are graded out of one fewer.",
+            "Early in a season the bands are wide. Read them before comparing two players.",
+        ],
+        examples=["why is this player ranked where she is?",
+                  "which of these players are actually distinguishable?"])
+
     with st.expander("What this board does not fix"):
         oa = pb["opponent_adjustment"]
         st.markdown(f"- **Usage.** {oa['does_not_fix']}")
@@ -622,6 +758,25 @@ def page_about() -> None:
     for c in meta["caveats"]:
         st.markdown(f"- {c}")
     st.caption(f"Built {meta['built_at']} · {meta['source']}")
+    ask_panel(
+        "How it works \u2014 methodology",
+        f"The {GRADE_MAX} graded benchmarks, the context metrics shown but never scored, "
+        "and the project's own caveats. Seven rather than fourteen because volleyball will "
+        "not carry fourteen independent measurements: every rally is won by exactly one "
+        "team and is either a side-out or a point-score, so most 'different' volleyball "
+        "stats are components of the same two numbers. Two of the original fourteen were "
+        "algebraic identities rather than correlations \u2014 hitting efficiency IS kill "
+        "rate minus attack-error rate \u2014 and three more had infinite variance "
+        "inflation.",
+        [("Graded benchmarks", pd.DataFrame(D.graded_benchmarks()), None),
+         ("Context metrics, shown but never scored",
+          pd.DataFrame(D.context_benchmarks()), None),
+         ("Grade vs win % by season",
+          pd.DataFrame([{"season": k, "r": v}
+                        for k, v in meta["grade_vs_win_pct_by_season"].items()]), None)],
+        "abt",
+        limits=meta["caveats"],
+        examples=["why seven benchmarks?", "what is deliberately not measured?"])
 
 
 # ------------------------------------------------------------------- shell
