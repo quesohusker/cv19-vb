@@ -285,6 +285,7 @@ PLAYER_COLUMNS = {
                ("Digs/set", "digs_per_set", "dec2"),
                ("Aces/set", "aces_per_set", "dec2"), ("K/set", "kills_per_set", "dec2")],
     "Back row": [("Digs/set", "digs_per_set", "dec2"),
+                 ("Dig qual", "dig_rating", "dec2"),
                  ("Rec/set", "receptions_per_set", "dec2"),
                  ("Rec err", "reception_err_rate", "pct1"),
                  ("Aces/set", "aces_per_set", "dec2")],
@@ -329,23 +330,41 @@ def page_players(season: str, home: str, away: str) -> None:
 
     cols = PLAYER_COLUMNS.get(position, [])
     head = ("".join(f'<th style="text-align:right">{lab}</th>' for lab, _, _ in cols))
-    html = ['<table class="grid"><thead><tr><th>Rank</th><th>Player</th><th>Team</th>'
+    # How wide the bands run tells the reader, before they read a single name, whether
+    # these are ranks or merely an ordering of overlapping guesses.
+    width = ((r.rank_high - r.rank_low) / r.players_in_position).median()
+    if pd.notna(width) and width >= 0.30:
+        st.warning(
+            f"Early in this season the 90% band on a rank spans about "
+            f"{width:.0%} of the position. Read the bands, not the ranks &mdash; and do "
+            f"not publish these as ordinal rankings yet.")
+
+    html = ['<table class="grid"><thead><tr><th>Rank</th>'
+            '<th style="text-align:right">90% band</th><th>Player</th><th>Team</th>'
             '<th>Conference</th><th style="text-align:right">Sets</th>'
             '<th style="text-align:right">Rating</th>'
             f'<th style="text-align:right">Bench</th>{head}</tr></thead><tbody>']
     for _, row in r.iterrows():
         hl = ' class="hl"' if row.team in (home, away) else ""
         rank = int(row.rank_in_position) if pd.notna(row.rank_in_position) else "&mdash;"
+        band = (f'{int(row.rank_low)}&ndash;{int(row.rank_high)}'
+                if pd.notna(row.rank_low) else "&mdash;")
         bench = (f'{row.benchmarks_met:.0f}/{int(row.benchmarks_of)}'
                  if pd.notna(row.benchmarks_met) else "&mdash;")
         cells = "".join(f'<td class="n">{fmt(row.get(c), k)}</td>' for _, c, k in cols)
         html.append(
-            f'<tr{hl}><td class="n">{rank}</td><td><b>{row.player}</b></td>'
+            f'<tr{hl}><td class="n">{rank}</td><td class="n" style="color:#9aa0a6">{band}</td>'
+            f'<td><b>{row.player}</b></td>'
             f'<td>{T.chip(row.team, ".85rem")}</td><td>{row.conference or ""}</td>'
             f'<td class="n">{row.sets:.0f}</td><td class="n">{row.rating:.1f}</td>'
             f'<td class="n">{bench}</td>{cells}</tr>')
     html.append("</tbody></table>")
     st.markdown("".join(html), unsafe_allow_html=True)
+    st.markdown('<p class="tiny" style="color:#6f7681">The band is where this player '
+                'plausibly sits, at 90% confidence. It is measured, not assumed: every '
+                'player&rsquo;s season is split odd/even and scored twice, and the spread '
+                'between her own two halves is the error bar.</p>',
+                unsafe_allow_html=True)
 
     with st.expander("What this board does not fix"):
         oa = pb["opponent_adjustment"]
@@ -360,7 +379,17 @@ def page_players(season: str, home: str, away: str) -> None:
         st.markdown(
             "- **Small samples early in a season.** The set minimum is a season-long floor, "
             "so in the first weeks a board is ordered on twenty-odd sets and will move a "
-            "lot.")
+            "lot. The rank band is the measurement of exactly that; at 23 sets it spans "
+            "hundreds of places.")
+        st.markdown(
+            "- **Charted touch quality, mostly unusable.** The source charts reception, "
+            "serve, dig, block and set quality from play-by-play. Only digs survive "
+            "testing, and only for back-row players. The rest are contaminated by who "
+            "keeps the book: charted reception quality correlates +0.54 between teammates "
+            "&mdash; double any box-score metric, and higher than its own year-over-year "
+            "&mdash; and 60% of its apparent signal disappears once the team effect is "
+            "removed. Passing is still graded on charged errors, which is weak but is at "
+            "least the player&rsquo;s.")
         st.markdown(
             "- **Serving aggression.** Every board grades aces per set, the most reliable "
             "serving measure there is and the one that tracks winning serve rallies. It "

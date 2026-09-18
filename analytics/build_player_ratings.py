@@ -215,8 +215,14 @@ def read_playermatch(gis_dir: Path, years: list[int]) -> pd.DataFrame:
     weight = pm.S.where(pm.S > 0, 1.0)
     by_label = (pm.assign(w=weight).groupby(["uid", "label_group"], as_index=False).w.sum()
                   .sort_values("w", ascending=False).drop_duplicates("uid"))
-    by_name = (pm.groupby(["uid", "player"], as_index=False).size()
-                 .sort_values("size", ascending=False).drop_duplicates("uid"))
+    # Pick the display spelling by how it is written, then by how often. The 2022 and
+    # 2023 files carry more rows under "julia Bergmann" than "Julia Bergmann", so
+    # frequency alone puts a lower-case first name at the top of a published board.
+    by_name = pm.groupby(["uid", "player"], as_index=False).size()
+    by_name["titled"] = by_name.player.map(
+        lambda n: all(w[:1].isupper() for w in n.split() if w))
+    by_name = (by_name.sort_values(["titled", "size"], ascending=[False, False])
+                      .drop_duplicates("uid"))
     pm = (pm.drop(columns=["player"])
             .merge(by_label[["uid", "label_group"]].rename(
                 columns={"label_group": "position"}), on="uid")
@@ -229,6 +235,53 @@ def player_seasons(pm: pd.DataFrame) -> pd.DataFrame:
     keys = ["uid", "season", "team", "conference", "player", "position"]
     out = (pm.groupby(keys, as_index=False)
              .agg(matches=("date", "size"), **{c: (c, "sum") for c in COUNTS}))
+    return out
+
+
+def touch_quality(gis_dir: Path, years: list[int], kind: str = "dig") -> pd.DataFrame:
+    """Per-touch quality grades, charted from play-by-play, on the classic 0-2 scale.
+
+    The source publishes great/good/bad counts per player per season for reception,
+    serve, dig, block and set. Only DIG survives testing, and the test that kills the
+    others is worth stating because it is not the obvious one.
+
+    THE TEST. A quality grade is a human judgement, and statisticians differ in how
+    generously they award "great". That contamination shows up as a teammate
+    correlation -- how much knowing one player's number tells you about the player
+    beside her. Charted reception quality has a teammate correlation of +0.535, double
+    any box-score metric (box-score reception error rate is +0.26, hitting efficiency
+    +0.32) and HIGHER than its own year-over-year of +0.486. A number more predictable
+    from your teammate than from your own past season is measuring the team, or the
+    person keeping the book, and not you. Strip the team mean and reception quality's
+    year-over-year collapses from +0.462 to +0.180: about sixty percent of it was never
+    the player. Block quality fails the same way (+0.259 centred) and so does serve
+    quality (+0.206).
+
+    Dig quality passes cleanly and is the one addition made here: teammate +0.050 raw,
+    and year-over-year of +0.686 that does not move when the team effect is removed.
+    Digs are graded off what the rally does next rather than off an opinion about the
+    ball, which is likely why. It is graded only where most of a position is covered --
+    back row and setter, 60% to 83% of ranked players -- and never for middles or
+    opposites, where coverage runs 1% to 39%.
+    """
+    rows = []
+    for year in years:
+        f = gis_dir / f"wvb_{kind}_quality_{year}.json"
+        if not f.exists():
+            continue
+        for key, v in json.loads(f.read_text()).items():
+            if not v.get("qualified") or not v.get("total"):
+                continue
+            name = key.split("|")[0]
+            rows.append({"season": str(year), "team": v.get("school", ""),
+                         "_key": name,
+                         f"{kind}_rating": (2 * v["great"] + v["good"]) / v["total"],
+                         f"{kind}_touches": v["total"]})
+    if not rows:
+        print(f"  no {kind}-quality files found; skipping")
+        return pd.DataFrame(columns=["season", "team", "_key", f"{kind}_rating"])
+    out = pd.DataFrame(rows)
+    print(f"  {kind} quality: {len(out):,} qualified player-seasons")
     return out
 
 
@@ -513,6 +566,7 @@ BENCHMARKS = {
     ],
     "Back row": [
         ("digs_per_set", +1, "Digs per set"),
+        ("dig_rating", +1, "Dig quality (charted, 0-2)"),
         ("receptions_per_set", +1, "Receptions per set"),
         ("reception_err_rate", -1, "Reception error rate"),
         ("aces_per_set", +1, "Aces per set"),
@@ -656,6 +710,62 @@ def score(d: pd.DataFrame, thresholds: dict, refs: dict,
     return d.sort_values(["season", "position", "rank_in_position", "player"])
 
 
+def rating_uncertainty(pm: pd.DataFrame, d: pd.DataFrame, thresholds: dict,
+                       refs: dict) -> pd.DataFrame:
+    """How much of each rating is signal and how much is the sample -- measured, not assumed.
+
+    A rank out of 1,133 looks precise and is not. Split every player's matches odd/even,
+    score each half exactly as the season is scored, and the spread between the halves is
+    a direct read on how much the number moves for a player who did not change. A full
+    season carries twice the data, so its standard error is half the standard deviation
+    of that half-to-half difference. The estimate is pooled within buckets of sets played,
+    because the noise depends on how much she played and almost nothing else.
+
+    Published as a rank band, not an error bar, because a band is what a reader needs:
+    "somewhere between 118th and 634th" is honest about three weeks of volleyball in a
+    way that "256th" is not.
+    """
+    half = pm.sort_values(["uid", "date"]).copy()
+    half["h"] = half.groupby("uid").cumcount() % 2
+    agg = half.groupby(["uid", "position", "h"], as_index=False)[list(COUNTS)].sum()
+    agg = derive(agg.rename(columns={"S": "S"}))
+    agg["hit_pct_pass"] = agg["hit_pct"]          # no passing fit at half-season
+    scored = {}
+    for hv in (0, 1):
+        g = agg[agg.h == hv].set_index("uid")
+        out = {}
+        for group, specs in BENCHMARKS.items():
+            sub = g[g.position == group]
+            if sub.empty:
+                continue
+            tot = pd.Series(0.0, index=sub.index); n = pd.Series(0, index=sub.index)
+            for metric, direction, _lab in specs:
+                if metric not in sub.columns:
+                    continue
+                v = pd.to_numeric(sub[metric], errors="coerce")
+                vals = refs[group].get(metric) or []
+                pc = v.map(lambda x: percentile_of(vals, x))
+                if direction < 0:
+                    pc = 100.0 - pc
+                tot += pc.fillna(0.0); n += pc.notna().astype(int)
+            out.update((tot / n.where(n > 0)).dropna().to_dict())
+        scored[hv] = out
+    both = pd.DataFrame({"a": pd.Series(scored[0]), "b": pd.Series(scored[1])}).dropna()
+    both["diff"] = both.a - both.b
+    sets = d.set_index("uid").S
+    both["sets"] = sets.reindex(both.index)
+    both = both.dropna(subset=["sets"])
+    both["bucket"] = pd.cut(both.sets, [0, 30, 45, 60, 80, 100, 130, 1e9])
+    se = (both.groupby("bucket", observed=True)["diff"].std() / 2.0).rename("rating_se")
+    print("  rating standard error by sets played (from each player's own two halves):")
+    for b, v in se.items():
+        print(f"    {str(b):>16}  +/- {v:.1f} rating points  (n={int((both.bucket==b).sum()):,})")
+    out = d[["uid", "S"]].copy()
+    out["bucket"] = pd.cut(out.S, [0, 30, 45, 60, 80, 100, 130, 1e9])
+    out = out.merge(se.reset_index(), on="bucket", how="left")
+    return out[["uid", "rating_se"]]
+
+
 def split_half_reliability(pm: pd.DataFrame) -> dict:
     """Odd/even match split per player-season -- does the metric measure the player?
 
@@ -748,6 +858,17 @@ def main() -> None:
             d[col] = d[col].where(d.serves)
     d["opponent_adjusted"] = d.hit_pct_adj.notna() | d.kills_per_set_adj.notna()
 
+    print("\nreading charted touch quality")
+    d["_key"] = d.player.map(norm_name)
+    dq = touch_quality(args.gis_dir, args.years, "dig")
+    if not dq.empty:
+        d = d.merge(dq, on=["season", "team", "_key"], how="left")
+    if "dig_rating" not in d:
+        d["dig_rating"] = pd.NA
+    # only where most of the position is covered; elsewhere it would rank the 1% of
+    # middles who happen to be charted against each other
+    d.loc[d.position != "Back row", "dig_rating"] = pd.NA
+
     print("\nchecking who is still on the floor")
     d = d.merge(recency(pm), on="uid", how="left")
     d["active"] = d.active.fillna(False).astype(bool)
@@ -760,6 +881,22 @@ def main() -> None:
     print(f"  {current}: {int(live.ranked.sum()):,} of {len(live):,} players with "
           f"{MIN_SETS}+ sets played in their team's last three matches")
 
+    print("\nmeasuring how much each rating is worth to one decimal place")
+    unc = rating_uncertainty(pm, scored, thresholds, refs)
+    scored = scored.merge(unc, on="uid", how="left")
+    # turn the error bar into a rank band, which is what a reader can act on
+    scored["rank_low"] = pd.NA
+    scored["rank_high"] = pd.NA
+    for (_sea, _pos), g in scored[scored.ranked].groupby(["season", "position"]):
+        r = g.rating.to_numpy()
+        se = g.rating_se.fillna(g.rating_se.median()).to_numpy()
+        hi = r + 1.645 * se
+        lo = r - 1.645 * se
+        scored.loc[g.index, "rank_low"] = [int((r > x).sum()) + 1 for x in hi]
+        scored.loc[g.index, "rank_high"] = [int((r > x).sum()) + 1 for x in lo]
+    scored["rank_low"] = scored.rank_low.astype("Int64")
+    scored["rank_high"] = scored.rank_high.astype("Int64")
+
     print("\nchecking that the graded metrics measure the player, not the night")
     reliability = split_half_reliability(pm)
 
@@ -767,12 +904,13 @@ def main() -> None:
             "kills_per_set", "attacks_per_set", "hit_pct", "hit_pct_pass",
             "blocks_per_set", "digs_per_set", "receptions_per_set",
             "reception_err_rate", "assists_per_set", "assist_rate",
-            "aces_per_set", "serve_err_per_set",
+            "aces_per_set", "serve_err_per_set", "dig_rating", "dig_touches",
             "opponent_adjusted",
             "last_played", "team_matches_missed", "recent_sets", "recent_set_share",
             "active", "ranked",
             "benchmarks_met", "benchmarks_of", "setter_attack_bonus", "score", "rating",
-            "rank_in_position", "players_in_position"]
+            "rank_in_position", "rank_low", "rank_high", "rating_se",
+            "players_in_position"]
     keep += [c for c in scored.columns if c.startswith("b_")]
     keep += [f"{m}_adj" for specs in BENCHMARKS.values() for m, _, _ in specs]
     keep = list(dict.fromkeys(keep))
@@ -820,6 +958,14 @@ def main() -> None:
                      "frozen by injury stops holding a ranking it is no longer being "
                      "tested for. Finished seasons rank everyone who met the set "
                      "minimum."),
+        },
+        "rank_band": {
+            "method": ("each player's matches split odd/even and scored twice; the "
+                       "standard deviation of the half-to-half difference, halved for the "
+                       "full sample and pooled by sets played, is the standard error"),
+            "interval": "90% (1.645 standard errors either side of the rating)",
+            "note": ("a rank out of a thousand looks precise and is not. Publish the "
+                     "band, not the rank, whenever the band is wide."),
         },
         "reliability": reliability,
     }, indent=2))

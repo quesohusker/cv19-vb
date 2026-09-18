@@ -138,6 +138,12 @@
         "threshold": 1.4125
       },
       {
+        "metric": "dig_rating",
+        "direction": "higher_is_better",
+        "label": "Dig quality (charted, 0-2)",
+        "threshold": 0.92424
+      },
+      {
         "metric": "receptions_per_set",
         "direction": "higher_is_better",
         "label": "Receptions per set",
@@ -2132,6 +2138,11 @@
     "current_season": "2026",
     "rule": "at least one set played in the team's last three matches",
     "note": "applied to the season still being played, so a season total frozen by injury stops holding a ranking it is no longer being tested for. Finished seasons rank everyone who met the set minimum."
+  },
+  "rank_band": {
+    "method": "each player's matches split odd/even and scored twice; the standard deviation of the half-to-half difference, halved for the full sample and pooled by sets played, is the standard error",
+    "interval": "90% (1.645 standard errors either side of the rating)",
+    "note": "a rank out of a thousand looks precise and is not. Publish the band, not the rank, whenever the band is wide."
   },
   "reliability": {
     "Back row": {
