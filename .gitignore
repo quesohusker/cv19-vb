@@ -23,3 +23,7 @@
 __pycache__/
 *.pyc
 .venv/
+
+# Working clone of the ncaavolleyballr R package, created by the old
+# scripts/fetch_season.sh route. A build artifact, not source.
+.ncaavolleyballr-src/
