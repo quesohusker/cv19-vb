@@ -142,6 +142,30 @@ def benchmark_definitions() -> list[dict]:
     return out
 
 
+def guard_against_shrinking(matches, app_dir: Path, allow_shrink: bool) -> None:
+    """Refuse to publish an app_data that covers fewer seasons than it already does.
+
+    Raw data lives outside the repository, so a machine that only ever built one
+    season will produce a one-season match_metrics.parquet. Writing that out would
+    quietly delete every other season from the published app.
+    """
+    existing = app_dir / "matches.parquet"
+    if allow_shrink or not existing.exists():
+        return
+    have = set(pd.read_parquet(existing, columns=["season"]).season.unique())
+    new = set(matches.season.unique())
+    lost = sorted(have - new)
+    if not lost:
+        return
+    raise SystemExit(
+        f"Refusing to overwrite app_data: it currently covers {len(have)} seasons but "
+        f"this build has only {sorted(new)}.\n"
+        f"Seasons that would be deleted: {', '.join(lost)}\n\n"
+        "Raw data is gitignored, so those seasons are missing from this machine rather "
+        "than from the project. Rebuild them first, or pass --allow-shrink if dropping "
+        "them is what you actually want.")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--metrics", type=Path, default=Path("data/match_metrics.parquet"))
@@ -149,10 +173,13 @@ def main() -> None:
                     default=Path("data/ncaavolleyballr/data-csv"),
                     help="team-match CSVs, used for true W-L records")
     ap.add_argument("--out-dir", type=Path, default=Path("app_data"))
+    ap.add_argument("--allow-shrink", action="store_true",
+                    help="permit publishing fewer seasons than app_data already has")
     args = ap.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     matches = build_matches(args.metrics)
+    guard_against_shrinking(matches, args.out_dir, args.allow_shrink)
     records = official_records(args.box_dir, sorted(matches.season.unique().tolist()))
     team_seasons = build_team_seasons(matches, records)
     baselines = build_league_baselines(matches)
@@ -165,8 +192,11 @@ def main() -> None:
     baselines.to_parquet(args.out_dir / "league_baselines.parquet", compression="zstd", index=False)
     (args.out_dir / "benchmarks.json").write_text(json.dumps(benchmark_definitions(), indent=2))
 
-    corr = team_seasons[team_seasons.graded_matches >= 20].groupby("season").apply(
-        lambda g: g.grade.corr(g.win_pct), include_groups=False)
+    # a plain dict rather than groupby().apply(): pandas 3 returns a DataFrame where
+    # pandas 2 returned a Series for a scalar-valued apply, and float() on the cell
+    # then raises. This shape does not depend on the pandas version.
+    corr = {s: g.grade.corr(g.win_pct)
+            for s, g in team_seasons[team_seasons.graded_matches >= 20].groupby("season")}
     meta = {
         "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         # 2026 onward comes from a different route: stats.ncaa.org now denies
@@ -181,7 +211,8 @@ def main() -> None:
         "team_seasons": int(len(team_seasons)),
         "median_graded_share": round(float(team_seasons.graded_share.median()), 4),
         "graded_benchmarks": len(VOLLEYBALL_7),
-        "grade_vs_win_pct_by_season": {k: round(float(v), 4) for k, v in corr.items()},
+        "grade_vs_win_pct_by_season": {str(k): (None if pd.isna(v) else round(float(v), 4))
+                                       for k, v in corr.items()},
         "caveats": [
             "Thresholds are calibrated on women's D1; men's and D2/D3 need recalibration.",
             "Matches join pbp to box scores on (date, unordered team pair) because neither "

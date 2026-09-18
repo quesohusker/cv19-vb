@@ -143,12 +143,12 @@ def serve_counts(sets, openers, away, home) -> dict:
     return counts
 
 
-def choose_openers(sets, away, home, box: dict | None) -> tuple[list[str], str]:
+def choose_openers(sets, away, home, box: dict | None) -> tuple[list[str], str, float | None]:
     """Pick the first server of each set. Returns the choice and how it was made."""
     anchors = [opening_anchor(r, away, home) for r in sets]
     free = [i for i, a in enumerate(anchors) if a is None]
     if not free:
-        return anchors, "anchored"
+        return anchors, "anchored", None
 
     if box and (box.get(away) or box.get(home)):
         best, best_err = None, None
@@ -161,20 +161,20 @@ def choose_openers(sets, away, home, box: dict | None) -> tuple[list[str], str]:
             if best_err is None or err < best_err:
                 best, best_err = trial, err
         if best_err == 0:
-            return best, "matched box score exactly"
-        return best, f"closest to box score (off by {best_err} serves)"
+            return best, "matched box score exactly", 0.0
+        return best, "closest to box score", float(best_err)
 
     # nothing to go on: assume the away team opened and alternate
     out, cur = [], away
     for i, a in enumerate(anchors):
         out.append(a if a is not None else cur)
         cur = home if out[-1] == away else away
-    return out, "assumed (no anchor, no box score)"
+    return out, "assumed (no anchor, no box score)", None
 
 
-def match_rows(m: dict, box: dict | None) -> tuple[list[dict], str]:
+def match_rows(m: dict, box: dict | None) -> tuple[list[dict], str, float | None]:
     away, home = m["away_team"], m["home_team"]
-    openers, how = choose_openers(m["sets"], away, home, box)
+    openers, how, err = choose_openers(m["sets"], away, home, box)
     rows = []
     for set_idx, (rallies, opener) in enumerate(zip(m["sets"], openers), start=1):
         server = opener
@@ -196,7 +196,7 @@ def match_rows(m: dict, box: dict | None) -> tuple[list[dict], str]:
             else:
                 sh += 1
             server = r["winner"]
-    return rows, how
+    return rows, how, err
 
 
 def load_serve_attempts(path: Path | None) -> dict:
@@ -237,6 +237,7 @@ def main() -> None:
     serve_att = load_serve_attempts(args.serve_attempts)
 
     all_rows, how_counts, skipped = [], defaultdict(int), 0
+    serve_errors: list[float] = []
     failures = []
     for f in files:
         try:
@@ -255,12 +256,14 @@ def main() -> None:
             if not any(v for v in box.values()):
                 box = None
         try:
-            rows, how = match_rows(m, box)
+            rows, how, err = match_rows(m, box)
         except Exception as e:                                    # noqa: BLE001
             failures.append((f.name, str(e)[:70]))
             skipped += 1
             continue
         how_counts[how.split(" (")[0]] += 1
+        if err:
+            serve_errors.append(err)
         all_rows.extend(rows)
 
     if not all_rows:
@@ -307,6 +310,15 @@ def main() -> None:
     print("  first server decided by:")
     for how, n in sorted(how_counts.items(), key=lambda x: -x[1]):
         print(f"    {how:<34}{n:,}")
+    if serve_errors:
+        s = sorted(serve_errors)
+        # the opener is one rally per set, so a mismatch of 1-2 serves is that single
+        # ambiguity, not a broken reconstruction. Anything large means the box score
+        # and the play-by-play disagree about the match itself.
+        print(f"  where it did not match exactly, serve-count error: "
+              f"median {s[len(s) // 2]:.0f}, "
+              f"{sum(1 for x in s if x <= 2) / len(s) * 100:.0f}% within 2, "
+              f"max {s[-1]:.0f}")
     print("  first_ball is null throughout: this feed has no touch detail, so\n"
           "  first-ball and transition side-out cannot be computed for this season.")
 
