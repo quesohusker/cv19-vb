@@ -169,3 +169,27 @@ def player_conferences(season: str) -> list[str]:
     p = players()
     return sorted(p[p.season == season].conference.dropna().replace("", pd.NA)
                   .dropna().unique().tolist())
+
+
+@lru_cache(maxsize=1)
+def player_matches() -> pd.DataFrame:
+    """Match-by-match lines for every ranked player. A season number is an average,
+    and an average hides a slump."""
+    return _read("player_matches.parquet")
+
+
+def player_log(season: str, team: str, player: str) -> pd.DataFrame:
+    """One player's season, match by match, with the rate metrics computed per match."""
+    m = player_matches()
+    g = m[(m.season == season) & (m.team == team) & (m.player == player)].copy()
+    if g.empty:
+        return g
+    sets = g.S.replace(0, pd.NA)
+    g["hit_pct"] = (g.Kills - g.Errors) / g.TotalAttacks.where(g.TotalAttacks >= 3)
+    g["kills_per_set"] = g.Kills / sets
+    g["digs_per_set"] = g.Digs / sets
+    g["assists_per_set"] = g.Assists / sets
+    g["blocks_per_set"] = (g.BlockSolos + g.BlockAssists / 2) / sets
+    g["aces_per_set"] = g.Aces / sets
+    g["rec_err_rate"] = g.RErr / g.RetAtt.where(g.RetAtt >= 3)
+    return g.sort_values("date")

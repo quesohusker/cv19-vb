@@ -335,9 +335,11 @@ def page_players(season: str, home: str, away: str) -> None:
     width = ((r.rank_high - r.rank_low) / r.players_in_position).median()
     if pd.notna(width) and width >= 0.30:
         st.warning(
-            f"Early in this season the 90% band on a rank spans about "
-            f"{width:.0%} of the position. Read the bands, not the ranks &mdash; and do "
-            f"not publish these as ordinal rankings yet.")
+            f"**{season} is still being played.** The 90% band on a rank currently spans "
+            f"about {width:.0%} of this position, against roughly 18% for a finished "
+            f"season. The ordering is real but individual places are not yet separable "
+            f"&mdash; two players twenty apart are not distinguishable. Bands are shown "
+            f"beside every rank.")
 
     html = ['<table class="grid"><thead><tr><th>Rank</th>'
             '<th style="text-align:right">90% band</th><th>Player</th><th>Team</th>'
@@ -365,6 +367,53 @@ def page_players(season: str, home: str, away: str) -> None:
                 'player&rsquo;s season is split odd/even and scored twice, and the spread '
                 'between her own two halves is the error bar.</p>',
                 unsafe_allow_html=True)
+
+    names = r.player.tolist()
+    default = next((i for i, n in enumerate(names)
+                    if r.team.iloc[i] in (home, away)), 0)
+    pick = st.selectbox("Match log", names, index=default, key="plog")
+    prow = r[r.player == pick].iloc[0]
+    log = D.player_log(season, prow.team, pick)
+    if not log.empty:
+        prim = {"Outside hitter": ("hit_pct", "dec3", "Hit%"),
+                "Middle blocker": ("hit_pct", "dec3", "Hit%"),
+                "Opposite": ("hit_pct", "dec3", "Hit%"),
+                "Setter": ("assists_per_set", "dec2", "Ast/set"),
+                "Back row": ("digs_per_set", "dec2", "Digs/set")}[position]
+        col, kind, plab = prim
+        recent = log.tail(3)[col].mean()
+        season_val = pd.to_numeric(prow.get(col), errors="coerce")
+        arrow = ""
+        if pd.notna(recent) and pd.notna(season_val):
+            delta = recent - season_val
+            word = "above" if delta > 0 else "below"
+            arrow = (f" &middot; last three matches {fmt(recent, kind)}, "
+                     f"{fmt(abs(delta), kind)} {word} her season {fmt(season_val, kind)}")
+        st.markdown(
+            f'<p class="sublabel"><b>{pick}</b>, {prow.team} &mdash; rank '
+            f'{int(prow.rank_in_position)} of {int(prow.players_in_position):,}, '
+            f'band {int(prow.rank_low)}&ndash;{int(prow.rank_high)}{arrow}</p>',
+            unsafe_allow_html=True)
+        lh = ['<table class="cmp"><thead><tr><th>Date</th><th>Opponent</th>'
+              '<th style="text-align:right">Sets</th><th style="text-align:right">K</th>'
+              '<th style="text-align:right">E</th><th style="text-align:right">TA</th>'
+              '<th style="text-align:right">Hit%</th><th style="text-align:right">Digs</th>'
+              '<th style="text-align:right">Rec</th><th style="text-align:right">RErr</th>'
+              '<th style="text-align:right">Ast</th><th style="text-align:right">Aces</th>'
+              '</tr></thead><tbody>']
+        for _, x in log.iterrows():
+            lh.append(
+                f'<tr><td>{x.date}</td><td>{x.opponent}</td>'
+                f'<td class="num">{x.S:.0f}</td><td class="num">{x.Kills:.0f}</td>'
+                f'<td class="num">{x.Errors:.0f}</td><td class="num">{x.TotalAttacks:.0f}</td>'
+                f'<td class="num">{fmt(x.hit_pct, "dec3")}</td>'
+                f'<td class="num">{x.Digs:.0f}</td><td class="num">{x.RetAtt:.0f}</td>'
+                f'<td class="num">{x.RErr:.0f}</td><td class="num">{x.Assists:.0f}</td>'
+                f'<td class="num">{x.Aces:.0f}</td></tr>')
+        lh.append("</tbody></table>")
+        st.markdown("".join(lh), unsafe_allow_html=True)
+        st.markdown('<p class="tiny" style="color:#6f7681">A season rating is an average. '
+                    'This is what it averaged.</p>', unsafe_allow_html=True)
 
     with st.expander("What this board does not fix"):
         oa = pb["opponent_adjustment"]

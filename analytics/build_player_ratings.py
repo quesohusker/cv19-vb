@@ -970,6 +970,16 @@ def main() -> None:
         "reliability": reliability,
     }, indent=2))
 
+    # the match-by-match lines behind every season row. A season rating is an average,
+    # and an average hides a slump; this is what lets the app show one.
+    ranked_uids = set(scored[scored.S >= MIN_SETS].uid)
+    log = pm[pm.uid.isin(ranked_uids)][
+        ["season", "date", "uid", "team", "player", "position", "opponent", "S", "Kills",
+         "Errors", "TotalAttacks", "Assists", "Digs", "RetAtt", "RErr", "BlockSolos",
+         "BlockAssists", "Aces", "SErr"]].sort_values(["uid", "date"])
+    log.to_parquet(args.out_dir / "player_matches.parquet", compression="zstd", index=False)
+    print(f"wrote {args.out_dir / 'player_matches.parquet'}  {len(log):,} player-matches")
+
     print(f"\nwrote {args.out_dir / 'players.parquet'}  {len(out):,} player-seasons")
     print(f"wrote {args.out_dir / 'player_benchmarks.json'}")
     for season in sorted(out.season.unique()):
