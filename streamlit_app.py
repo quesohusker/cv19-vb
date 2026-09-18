@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 from app import data as D
 from app import theme as T
@@ -299,17 +300,32 @@ TEAM_COLUMNS = [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                 ("Aces/set", "aces_per_set", "dec2")]
 
 
+def sort_key(v) -> str:
+    """The value a cell sorts on, kept out of the text it displays.
+
+    A reader wants to see "53-326" and "18/49"; a sorter wants one number. Emitting
+    both means the JS never parses display text, so a band, a chip or an em-dash sorts
+    by what it means rather than by how it reads.
+    """
+    return "" if v is None or (isinstance(v, float) and pd.isna(v)) or pd.isna(v) else str(v)
+
+
 def player_table(r, cols, home: str, away: str, show_position: bool = False) -> str:
     """The ranked-player table. One renderer for the position boards and the team view."""
-    head = "".join(f'<th style="text-align:right">{lab}</th>' for lab, _, _ in cols)
-    pos_h = "<th>Pos</th>" if show_position else ""
-    html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th>'
-            '<th style="text-align:right">90% band</th>'
-            '<th style="text-align:right">In conf</th><th>Player</th>'
-            f'{pos_h}<th>Team</th>'
-            '<th>Conference</th><th style="text-align:right">Sets</th>'
-            '<th style="text-align:right">Rating</th>'
-            f'<th style="text-align:right">Bench</th>{head}</tr></thead><tbody>']
+    head = "".join(f'<th class="srt" data-t="n" style="text-align:right">{lab}</th>'
+                   for lab, _, _ in cols)
+    pos_h = '<th class="srt" data-t="s">Pos</th>' if show_position else ""
+    html = ['<div class="scroller"><table class="grid"><thead><tr>'
+            '<th class="srt" data-t="n">Rank</th>'
+            '<th class="srt" data-t="n" style="text-align:right">90% band</th>'
+            '<th class="srt" data-t="n" style="text-align:right">In conf</th>'
+            '<th class="srt" data-t="s">Player</th>'
+            f'{pos_h}<th class="srt" data-t="s">Team</th>'
+            '<th class="srt" data-t="s">Conference</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Sets</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Rating</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Bench</th>'
+            f'{head}</tr></thead><tbody>']
     for _, row in r.iterrows():
         hl = ' class="hl"' if row.team in (home, away) else ""
         rank = int(row.rank_in_position) if pd.notna(row.rank_in_position) else "&mdash;"
@@ -319,16 +335,72 @@ def player_table(r, cols, home: str, away: str, show_position: bool = False) -> 
               if pd.notna(row.rank_in_conference) else "&mdash;")
         bench = (f'{row.benchmarks_met:.0f}/{int(row.benchmarks_of)}'
                  if pd.notna(row.benchmarks_met) else "&mdash;")
-        pos_c = f'<td class="ph">{row.position}</td>' if show_position else ""
-        cells = "".join(f'<td class="n">{fmt(row.get(c), k)}</td>' for _, c, k in cols)
+        pos_c = (f'<td class="ph" data-s="{row.position}">{row.position}</td>'
+                 if show_position else "")
+        cells = "".join(
+            f'<td class="n" data-s="{sort_key(row.get(c))}">{fmt(row.get(c), k)}</td>'
+            for _, c, k in cols)
         html.append(
-            f'<tr{hl}><td class="n">{rank}</td><td class="n" style="color:#9aa0a6">{band}</td>'
-            f'<td class="n">{cr}</td><td><b>{row.player}</b></td>{pos_c}'
-            f'<td>{T.chip(row.team, ".85rem")}</td><td>{row.conference or ""}</td>'
-            f'<td class="n">{row.sets:.0f}</td><td class="n">{row.rating:.1f}</td>'
-            f'<td class="n">{bench}</td>{cells}</tr>')
+            f'<tr{hl}><td class="n" data-s="{sort_key(row.rank_in_position)}">{rank}</td>'
+            f'<td class="n" data-s="{sort_key(row.rank_low)}" style="color:#9aa0a6">{band}</td>'
+            f'<td class="n" data-s="{sort_key(row.rank_in_conference)}">{cr}</td>'
+            f'<td data-s="{row.player}"><b>{row.player}</b></td>{pos_c}'
+            f'<td data-s="{row.team}">{T.chip(row.team, ".85rem")}</td>'
+            f'<td data-s="{row.conference or ""}">{row.conference or ""}</td>'
+            f'<td class="n" data-s="{sort_key(row.sets)}">{row.sets:.0f}</td>'
+            f'<td class="n" data-s="{sort_key(row.rating)}">{row.rating:.1f}</td>'
+            f'<td class="n" data-s="{sort_key(row.benchmarks_met)}">{bench}</td>'
+            f'{cells}</tr>')
     html.append("</tbody></table></div>")
     return "".join(html)
+
+
+SORT_JS = """
+<script>
+// Click a header to sort. Lives in a component iframe because st.markdown strips
+// <script>; the trade is that this table cannot see the page's CSS, so the theme is
+// inlined above. Rows carry data-s, so nothing here parses display text.
+document.querySelectorAll('table.grid th.srt').forEach(function (th, i) {
+  th.addEventListener('click', function () {
+    var table = th.closest('table');
+    var body = table.tBodies[0];
+    var numeric = th.dataset.t === 'n';
+    var wasAsc = th.classList.contains('asc');
+    // Rank-like columns read best smallest-first; everything else biggest-first.
+    var asc = th.classList.contains('asc') || th.classList.contains('desc')
+        ? !wasAsc : (numeric ? i < 3 : true);
+    table.querySelectorAll('th.srt').forEach(function (o) {
+      o.classList.remove('asc', 'desc');
+    });
+    th.classList.add(asc ? 'asc' : 'desc');
+    var rows = Array.prototype.slice.call(body.rows);
+    rows.sort(function (a, b) {
+      var x = a.cells[i] ? a.cells[i].dataset.s : '';
+      var y = b.cells[i] ? b.cells[i].dataset.s : '';
+      // A blank is "not measured", never "worst" -- it sits at the bottom either way.
+      if (x === '' && y === '') return 0;
+      if (x === '') return 1;
+      if (y === '') return -1;
+      var c = numeric ? (parseFloat(x) - parseFloat(y))
+                      : x.localeCompare(y, undefined, {sensitivity: 'base'});
+      return asc ? c : -c;
+    });
+    rows.forEach(function (r) { body.appendChild(r); });
+  });
+});
+</script>
+"""
+
+
+def sortable(html: str, rows: int) -> None:
+    """Render a grid table as a component so its headers can be clicked to sort."""
+    height = min(760, 118 + 31 * max(rows, 1))
+    components.html(
+        T.CSS
+        + f'<style>body{{margin:0;background:{T.BG};color:{T.TEXT};font-family:{T.FONT}}}'
+          f'.scroller{{max-height:{height - 24}px}}</style>'
+        + html + SORT_JS,
+        height=height, scrolling=False)
 
 
 def page_players(season: str, home: str, away: str) -> None:
@@ -407,8 +479,7 @@ def page_players(season: str, home: str, away: str) -> None:
             f"players twenty apart are not distinguishable. Bands are shown beside every "
             f"rank.")
 
-    st.markdown(player_table(r, cols, home, away, show_position=show_pos),
-                unsafe_allow_html=True)
+    sortable(player_table(r, cols, home, away, show_position=show_pos), len(r))
     st.markdown('<p class="tiny" style="color:#6f7681">The band is where this player '
                 'plausibly sits, at 90% confidence. It is measured, not assumed: every '
                 'player&rsquo;s season is split odd/even and scored twice, and the spread '

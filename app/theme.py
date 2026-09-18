@@ -161,6 +161,13 @@ CSS = f"""
   .scroller {{ max-height:70vh; overflow:auto; }}
   .scroller table.grid th {{ position:sticky; top:0; z-index:3;
                              box-shadow:inset 0 -1px 0 {BORDER}; }}
+  /* click-to-sort affordances, used when the table is rendered as a component */
+  table.grid th.srt {{ cursor:pointer; user-select:none; white-space:nowrap; }}
+  table.grid th.srt:hover {{ color:{TEXT}; }}
+  table.grid th.srt::after {{ content:"\2195"; opacity:.28; margin-left:5px;
+                              font-size:.85em; }}
+  table.grid th.srt.asc::after {{ content:"\2191"; opacity:1; color:{ACCENT}; }}
+  table.grid th.srt.desc::after {{ content:"\2193"; opacity:1; color:{ACCENT}; }}
   table.grid td {{ padding:7px 10px; border-bottom:1px solid {BORDER}; }}
   table.grid td.n {{ text-align:right; font-variant-numeric:tabular-nums; }}
   table.grid tr:hover {{ background:{HOVER}; }}
