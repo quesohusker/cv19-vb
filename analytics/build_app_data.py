@@ -142,28 +142,33 @@ def benchmark_definitions() -> list[dict]:
     return out
 
 
-def guard_against_shrinking(matches, app_dir: Path, allow_shrink: bool) -> None:
-    """Refuse to publish an app_data that covers fewer seasons than it already does.
+def carry_forward(new: pd.DataFrame, app_dir: Path, name: str, season_col="season"):
+    """Keep already-published rows for seasons this machine cannot rebuild.
 
-    Raw data lives outside the repository, so a machine that only ever built one
-    season will produce a one-season match_metrics.parquet. Writing that out would
-    quietly delete every other season from the published app.
+    The raw play-by-play for 2021-2025 is 8.8 GB and gitignored, so a machine set up
+    to add the current season has no way to regenerate the earlier ones. Everything
+    here is computed per season independently -- the power rating fits each season on
+    its own, baselines and team-season rows are per season -- so splicing published
+    rows back in is exact, not an approximation.
+
+    The catch, and it is a real one: carried rows were graded under whatever benchmark
+    set was current when they were published. Change a benchmark and they go stale
+    while the rebuilt seasons do not. A benchmark change therefore needs a full rebuild
+    somewhere that has the raw data.
     """
-    existing = app_dir / "matches.parquet"
-    if allow_shrink or not existing.exists():
-        return
-    have = set(pd.read_parquet(existing, columns=["season"]).season.unique())
-    new = set(matches.season.unique())
-    lost = sorted(have - new)
-    if not lost:
-        return
-    raise SystemExit(
-        f"Refusing to overwrite app_data: it currently covers {len(have)} seasons but "
-        f"this build has only {sorted(new)}.\n"
-        f"Seasons that would be deleted: {', '.join(lost)}\n\n"
-        "Raw data is gitignored, so those seasons are missing from this machine rather "
-        "than from the project. Rebuild them first, or pass --allow-shrink if dropping "
-        "them is what you actually want.")
+    existing = app_dir / f"{name}.parquet"
+    if not existing.exists():
+        return new, []
+    old = pd.read_parquet(existing)
+    if season_col not in old.columns:
+        return new, []
+    missing = sorted(set(old[season_col].unique()) - set(new[season_col].unique()))
+    if not missing:
+        return new, []
+    kept = old[old[season_col].isin(missing)]
+    combined = pd.concat([kept, new], ignore_index=True)
+    return combined.sort_values([season_col] + ([c for c in ("team",) if c in combined.columns])
+                                ).reset_index(drop=True), missing
 
 
 def main() -> None:
@@ -173,20 +178,31 @@ def main() -> None:
                     default=Path("data/ncaavolleyballr/data-csv"),
                     help="team-match CSVs, used for true W-L records")
     ap.add_argument("--out-dir", type=Path, default=Path("app_data"))
-    ap.add_argument("--allow-shrink", action="store_true",
-                    help="permit publishing fewer seasons than app_data already has")
+    ap.add_argument("--no-carry-forward", action="store_true",
+                    help="rebuild every season from raw data; drop any this machine lacks")
     args = ap.parse_args()
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     matches = build_matches(args.metrics)
-    guard_against_shrinking(matches, args.out_dir, args.allow_shrink)
-    records = official_records(args.box_dir, sorted(matches.season.unique().tolist()))
+    rebuilt = sorted(matches.season.unique().tolist())
+    records = official_records(args.box_dir, rebuilt)
     team_seasons = build_team_seasons(matches, records)
     baselines = build_league_baselines(matches)
-
     ratings = power_ratings.build(args.metrics)
-    ratings.to_parquet(args.out_dir / "power_ratings.parquet", compression="zstd", index=False)
 
+    carried: list[str] = []
+    if not args.no_carry_forward:
+        matches, carried = carry_forward(matches, args.out_dir, "matches")
+        team_seasons, _ = carry_forward(team_seasons, args.out_dir, "team_seasons")
+        baselines, _ = carry_forward(baselines, args.out_dir, "league_baselines")
+        ratings, _ = carry_forward(ratings, args.out_dir, "power_ratings")
+        if carried:
+            print(f"rebuilt from raw data: {', '.join(rebuilt)}")
+            print(f"carried forward from published app_data: {', '.join(carried)}")
+            print("  (those seasons keep the grades they were published with -- change a\n"
+                  "   benchmark and they need a full rebuild where the raw data lives)")
+
+    ratings.to_parquet(args.out_dir / "power_ratings.parquet", compression="zstd", index=False)
     matches.to_parquet(args.out_dir / "matches.parquet", compression="zstd", index=False)
     team_seasons.to_parquet(args.out_dir / "team_seasons.parquet", compression="zstd", index=False)
     baselines.to_parquet(args.out_dir / "league_baselines.parquet", compression="zstd", index=False)
@@ -207,6 +223,8 @@ def main() -> None:
                    "(player box scores)"),
         "sport": "women's volleyball", "division": "D1",
         "seasons": sorted(matches.season.unique().tolist()),
+        "seasons_rebuilt": rebuilt,
+        "seasons_carried_forward": carried,
         "team_match_rows": int(len(matches)),
         "team_seasons": int(len(team_seasons)),
         "median_graded_share": round(float(team_seasons.graded_share.median()), 4),

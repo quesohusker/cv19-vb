@@ -1,5 +1,25 @@
-# Collected volleyball data (large; regenerate with data_collection/collect_all.py)
-/data/
+# Raw NCAA play-by-play is 8.8 GB and stays out of the repository.
+/data/*
+
+# The DERIVED history does not: 42 MB of rally tables and team box scores for
+# 2021-2025, which is everything the pipeline needs to rebuild those seasons.
+# Without them a fresh machine can only build the current season, and publishing
+# that would delete five seasons from the app. Downloading them once, with the
+# clone, is cheaper than re-deriving 8.8 GB that is no longer reachable anyway --
+# stats.ncaa.org now denies every /teams/<id> path.
+#
+# The current season is deliberately excluded: it is rebuilt on every update and
+# would churn constantly.
+!/data/rallies/
+/data/rallies/*
+!/data/rallies/wvb_rallies_div1_202[1-5].parquet
+
+!/data/ncaavolleyballr/
+/data/ncaavolleyballr/*
+!/data/ncaavolleyballr/data-csv/
+/data/ncaavolleyballr/data-csv/*
+!/data/ncaavolleyballr/data-csv/wvb_teammatch_div1_202[0-5].csv
+
 __pycache__/
 *.pyc
 .venv/
