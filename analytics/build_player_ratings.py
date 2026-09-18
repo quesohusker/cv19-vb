@@ -707,6 +707,18 @@ def score(d: pd.DataFrame, thresholds: dict, refs: dict,
                              .rank(ascending=False, method="min").astype("Int64"))
     d["players_in_position"] = (d[d.ranked].groupby(["season", "position"]).rating
                                 .transform("size").reindex(d.index).astype("Int64"))
+    # The same rank taken inside a conference. Computed here rather than in the app so
+    # that it is over every eligible player in that conference, not over whichever rows
+    # a filter happens to be showing -- the mistake that would make a conference view
+    # renumber itself 1..n every time somebody narrowed it further.
+    conf = d.conference.replace("", pd.NA)
+    key = [d.season, d.position, conf]
+    d["rank_in_conference"] = (r.where(conf.notna()).groupby(key).rating
+                               .rank(ascending=False, method="min").astype("Int64"))
+    d["players_in_conference"] = (d[d.ranked & conf.notna()].groupby(
+        [d.season[d.ranked & conf.notna()], d.position[d.ranked & conf.notna()],
+         conf[d.ranked & conf.notna()]]).rating
+        .transform("size").reindex(d.index).astype("Int64"))
     return d.sort_values(["season", "position", "rank_in_position", "player"])
 
 
@@ -910,7 +922,7 @@ def main() -> None:
             "active", "ranked",
             "benchmarks_met", "benchmarks_of", "setter_attack_bonus", "score", "rating",
             "rank_in_position", "rank_low", "rank_high", "rating_se",
-            "players_in_position"]
+            "players_in_position", "rank_in_conference", "players_in_conference"]
     keep += [c for c in scored.columns if c.startswith("b_")]
     keep += [f"{m}_adj" for specs in BENCHMARKS.values() for m, _, _ in specs]
     keep = list(dict.fromkeys(keep))

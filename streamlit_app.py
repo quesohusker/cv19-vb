@@ -244,7 +244,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
                 'suppressing the opponent&rsquo;s side-out. Ranks stay national when a '
                 'conference is selected.</p>', unsafe_allow_html=True)
 
-    html = ['<table class="grid"><thead><tr><th>Rank</th><th>Team</th><th>Record</th>'
+    html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th><th>Team</th><th>Record</th>'
             '<th>Conference</th><th style="text-align:right">Overall</th>'
             '<th style="text-align:right">Offense</th><th style="text-align:right">Defense</th>'
             f'<th style="text-align:right">Grade /{GRADE_MAX}</th></tr></thead><tbody>']
@@ -258,7 +258,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
             f'<td class="n">{row.rating_overall:+.1f}</td>'
             f'<td class="n">{row.rating_off:+.1f}</td>'
             f'<td class="n">{row.rating_def:+.1f}</td><td class="n">{grade}</td></tr>')
-    html.append("</tbody></table>")
+    html.append("</tbody></table></div>")
     st.markdown("".join(html), unsafe_allow_html=True)
 
 
@@ -292,57 +292,21 @@ PLAYER_COLUMNS = {
 }
 
 
-def page_players(season: str, home: str, away: str) -> None:
-    st.markdown('<h1 class="app">Position <span class="accent">Rankings</span></h1>',
-                unsafe_allow_html=True)
-    pb = D.player_benchmarks()
-    c1, c2, c3 = st.columns([1.2, 1.2, 1])
-    position = c1.selectbox("Position", D.positions(), index=D.positions().index("Outside hitter")
-                            if "Outside hitter" in D.positions() else 0)
-    conf = c2.selectbox("Conference", ["All D1"] + D.player_conferences(season), key="pconf")
-    scope = c3.selectbox("Show", ["Top 50", "Top 100", "Selected teams only", "Everyone"])
+TEAM_COLUMNS = [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
+                ("Blk/set", "blocks_per_set", "dec2"), ("Digs/set", "digs_per_set", "dec2"),
+                ("Rec/set", "receptions_per_set", "dec2"),
+                ("Ast/set", "assists_per_set", "dec2"),
+                ("Aces/set", "aces_per_set", "dec2")]
 
-    r = D.player_rankings(season, position,
-                          None if conf == "All D1" else conf)
-    if scope == "Selected teams only":
-        r = r[r.team.isin([home, away])]
-    elif scope == "Top 50":
-        r = r.head(50)
-    elif scope == "Top 100":
-        r = r.head(100)
-    if r.empty:
-        st.info("Nobody matches that filter.")
-        return
 
-    specs = pb["groups"].get(position, [])
-    graded = ", ".join(s["label"].lower() for s in specs)
-    bonus = (" Setters who attack carry a small credit on kills per set."
-             if position == "Setter" else "")
-    st.markdown(
-        f'<p class="sublabel">Rating is the mean percentile on {graded}, computed on values '
-        f'adjusted for the opponents she actually faced, against fixed 2022&ndash;2025 '
-        f'reference distributions &mdash; so it means the same thing in every season.{bonus} '
-        f'The benchmark count beside it is deliberately <em>un</em>adjusted, the same split '
-        f'the team pages make between the grade and the power rating. Minimum '
-        f'{pb["min_sets"]} sets, and in {pb["recency_rule"]["current_season"]} at least one '
-        f'set in the team&rsquo;s last three matches. Ranks stay national under every '
-        f'filter.</p>', unsafe_allow_html=True)
-
-    cols = PLAYER_COLUMNS.get(position, [])
-    head = ("".join(f'<th style="text-align:right">{lab}</th>' for lab, _, _ in cols))
-    # How wide the bands run tells the reader, before they read a single name, whether
-    # these are ranks or merely an ordering of overlapping guesses.
-    width = ((r.rank_high - r.rank_low) / r.players_in_position).median()
-    if pd.notna(width) and width >= 0.30:
-        st.warning(
-            f"**{season} is still being played.** The 90% band on a rank currently spans "
-            f"about {width:.0%} of this position, against roughly 18% for a finished "
-            f"season. The ordering is real but individual places are not yet separable "
-            f"&mdash; two players twenty apart are not distinguishable. Bands are shown "
-            f"beside every rank.")
-
-    html = ['<table class="grid"><thead><tr><th>Rank</th>'
-            '<th style="text-align:right">90% band</th><th>Player</th><th>Team</th>'
+def player_table(r, cols, home: str, away: str, show_position: bool = False) -> str:
+    """The ranked-player table. One renderer for the position boards and the team view."""
+    head = "".join(f'<th style="text-align:right">{lab}</th>' for lab, _, _ in cols)
+    pos_h = "<th>Pos</th>" if show_position else ""
+    html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th>'
+            '<th style="text-align:right">90% band</th>'
+            '<th style="text-align:right">In conf</th><th>Player</th>'
+            f'{pos_h}<th>Team</th>'
             '<th>Conference</th><th style="text-align:right">Sets</th>'
             '<th style="text-align:right">Rating</th>'
             f'<th style="text-align:right">Bench</th>{head}</tr></thead><tbody>']
@@ -351,69 +315,155 @@ def page_players(season: str, home: str, away: str) -> None:
         rank = int(row.rank_in_position) if pd.notna(row.rank_in_position) else "&mdash;"
         band = (f'{int(row.rank_low)}&ndash;{int(row.rank_high)}'
                 if pd.notna(row.rank_low) else "&mdash;")
+        cr = (f'{int(row.rank_in_conference)}/{int(row.players_in_conference)}'
+              if pd.notna(row.rank_in_conference) else "&mdash;")
         bench = (f'{row.benchmarks_met:.0f}/{int(row.benchmarks_of)}'
                  if pd.notna(row.benchmarks_met) else "&mdash;")
+        pos_c = f'<td class="ph">{row.position}</td>' if show_position else ""
         cells = "".join(f'<td class="n">{fmt(row.get(c), k)}</td>' for _, c, k in cols)
         html.append(
             f'<tr{hl}><td class="n">{rank}</td><td class="n" style="color:#9aa0a6">{band}</td>'
-            f'<td><b>{row.player}</b></td>'
+            f'<td class="n">{cr}</td><td><b>{row.player}</b></td>{pos_c}'
             f'<td>{T.chip(row.team, ".85rem")}</td><td>{row.conference or ""}</td>'
             f'<td class="n">{row.sets:.0f}</td><td class="n">{row.rating:.1f}</td>'
             f'<td class="n">{bench}</td>{cells}</tr>')
-    html.append("</tbody></table>")
-    st.markdown("".join(html), unsafe_allow_html=True)
+    html.append("</tbody></table></div>")
+    return "".join(html)
+
+
+def page_players(season: str, home: str, away: str) -> None:
+    st.markdown('<h1 class="app">Position <span class="accent">Rankings</span></h1>',
+                unsafe_allow_html=True)
+    pb = D.player_benchmarks()
+    positions = [D.ALL_POSITIONS] + D.positions()
+    c1, c2, c3 = st.columns([1.3, 1.2, 1.2])
+    position = c1.selectbox("Position", positions,
+                            index=positions.index("Outside hitter")
+                            if "Outside hitter" in positions else 0)
+    conf = c2.selectbox("Conference", ["All D1"] + D.player_conferences(season), key="pconf")
+    every = position == D.ALL_POSITIONS
+    scope_opts = (["Selected teams only", "One team", "Top 25 per position", "Everyone"]
+                  if every else
+                  ["Top 50", "Top 100", "Selected teams only", "Everyone"])
+    scope = c3.selectbox("Show", scope_opts, key="pscope")
+
+    conference = None if conf == "All D1" else conf
+    if every:
+        team = None
+        if scope == "One team":
+            teams = D.player_teams(season)
+            team = st.selectbox("Team", teams,
+                                index=teams.index(home) if home in teams else 0, key="pteam")
+        r = D.all_positions(season, conference, team)
+        if scope == "Selected teams only":
+            r = r[r.team.isin([home, away])]
+        elif scope == "Top 25 per position":
+            r = r.groupby("position", group_keys=False).head(25)
+        cols, show_pos = TEAM_COLUMNS, True
+        who = team or (f"{home} and {away}" if scope == "Selected teams only" else "D1")
+        st.markdown(
+            f'<p class="sublabel">Every ranked {who} player in {season}, all five '
+            f'positions. Rank and rating are national and <em>within her own position</em> '
+            f'&mdash; the boards grade different jobs, so a setter&rsquo;s 92 and a '
+            f'middle&rsquo;s 92 are not the same 92, and the rows are not a pecking order. '
+            f'&ldquo;In conf&rdquo; is the same rank taken inside her conference. Minimum '
+            f'{pb["min_sets"]} sets, and in {pb["recency_rule"]["current_season"]} at '
+            f'least one set in the team&rsquo;s last three matches.</p>',
+            unsafe_allow_html=True)
+    else:
+        r = D.player_rankings(season, position, conference)
+        if scope == "Selected teams only":
+            r = r[r.team.isin([home, away])]
+        elif scope == "Top 50":
+            r = r.head(50)
+        elif scope == "Top 100":
+            r = r.head(100)
+        cols, show_pos = PLAYER_COLUMNS.get(position, []), False
+        graded = ", ".join(x["label"].lower() for x in pb["groups"].get(position, []))
+        bonus = (" Setters who attack carry a small credit on kills per set."
+                 if position == "Setter" else "")
+        st.markdown(
+            f'<p class="sublabel">Rating is the mean percentile on {graded}, computed on '
+            f'values adjusted for the opponents she actually faced, against fixed '
+            f'2022&ndash;2025 reference distributions &mdash; so it means the same thing in '
+            f'every season.{bonus} The benchmark count beside it is deliberately '
+            f'<em>un</em>adjusted, the same split the team pages make between the grade and '
+            f'the power rating. Minimum {pb["min_sets"]} sets, and in '
+            f'{pb["recency_rule"]["current_season"]} at least one set in the team&rsquo;s '
+            f'last three matches. Ranks stay national under every filter.</p>',
+            unsafe_allow_html=True)
+    if r.empty:
+        st.info("Nobody matches that filter.")
+        return
+
+    # How wide the bands run tells the reader, before they read a single name, whether
+    # these are ranks or merely an ordering of overlapping guesses.
+    width = ((r.rank_high - r.rank_low) / r.players_in_position).median()
+    if pd.notna(width) and width >= 0.30:
+        st.warning(
+            f"**{season} is still being played.** The 90% band on a rank currently spans "
+            f"about {width:.0%} of a position, against roughly 18% for a finished season. "
+            f"The ordering is real but individual places are not yet separable &mdash; two "
+            f"players twenty apart are not distinguishable. Bands are shown beside every "
+            f"rank.")
+
+    st.markdown(player_table(r, cols, home, away, show_position=show_pos),
+                unsafe_allow_html=True)
     st.markdown('<p class="tiny" style="color:#6f7681">The band is where this player '
                 'plausibly sits, at 90% confidence. It is measured, not assumed: every '
                 'player&rsquo;s season is split odd/even and scored twice, and the spread '
-                'between her own two halves is the error bar.</p>',
-                unsafe_allow_html=True)
+                'between her own two halves is the error bar. A dash means the stat is not '
+                'part of that position&rsquo;s job, or she has too few attempts to be '
+                'graded on it.</p>', unsafe_allow_html=True)
 
+    # ---- one player's season, match by match
     names = r.player.tolist()
-    default = next((i for i, n in enumerate(names)
-                    if r.team.iloc[i] in (home, away)), 0)
+    default = next((i for i, n in enumerate(names) if r.team.iloc[i] in (home, away)), 0)
     pick = st.selectbox("Match log", names, index=default, key="plog")
     prow = r[r.player == pick].iloc[0]
     log = D.player_log(season, prow.team, pick)
-    if not log.empty:
-        prim = {"Outside hitter": ("hit_pct", "dec3", "Hit%"),
-                "Middle blocker": ("hit_pct", "dec3", "Hit%"),
-                "Opposite": ("hit_pct", "dec3", "Hit%"),
-                "Setter": ("assists_per_set", "dec2", "Ast/set"),
-                "Back row": ("digs_per_set", "dec2", "Digs/set")}[position]
-        col, kind, plab = prim
-        recent = log.tail(3)[col].mean()
-        season_val = pd.to_numeric(prow.get(col), errors="coerce")
-        arrow = ""
-        if pd.notna(recent) and pd.notna(season_val):
-            delta = recent - season_val
-            word = "above" if delta > 0 else "below"
-            arrow = (f" &middot; last three matches {fmt(recent, kind)}, "
-                     f"{fmt(abs(delta), kind)} {word} her season {fmt(season_val, kind)}")
-        st.markdown(
-            f'<p class="sublabel"><b>{pick}</b>, {prow.team} &mdash; rank '
-            f'{int(prow.rank_in_position)} of {int(prow.players_in_position):,}, '
-            f'band {int(prow.rank_low)}&ndash;{int(prow.rank_high)}{arrow}</p>',
-            unsafe_allow_html=True)
-        lh = ['<table class="cmp"><thead><tr><th>Date</th><th>Opponent</th>'
-              '<th style="text-align:right">Sets</th><th style="text-align:right">K</th>'
-              '<th style="text-align:right">E</th><th style="text-align:right">TA</th>'
-              '<th style="text-align:right">Hit%</th><th style="text-align:right">Digs</th>'
-              '<th style="text-align:right">Rec</th><th style="text-align:right">RErr</th>'
-              '<th style="text-align:right">Ast</th><th style="text-align:right">Aces</th>'
-              '</tr></thead><tbody>']
-        for _, x in log.iterrows():
-            lh.append(
-                f'<tr><td>{x.date}</td><td>{x.opponent}</td>'
-                f'<td class="num">{x.S:.0f}</td><td class="num">{x.Kills:.0f}</td>'
-                f'<td class="num">{x.Errors:.0f}</td><td class="num">{x.TotalAttacks:.0f}</td>'
-                f'<td class="num">{fmt(x.hit_pct, "dec3")}</td>'
-                f'<td class="num">{x.Digs:.0f}</td><td class="num">{x.RetAtt:.0f}</td>'
-                f'<td class="num">{x.RErr:.0f}</td><td class="num">{x.Assists:.0f}</td>'
-                f'<td class="num">{x.Aces:.0f}</td></tr>')
-        lh.append("</tbody></table>")
-        st.markdown("".join(lh), unsafe_allow_html=True)
-        st.markdown('<p class="tiny" style="color:#6f7681">A season rating is an average. '
-                    'This is what it averaged.</p>', unsafe_allow_html=True)
+    if log.empty:
+        return
+    col, kind = {"Outside hitter": ("hit_pct", "dec3"),
+                 "Middle blocker": ("hit_pct", "dec3"),
+                 "Opposite": ("hit_pct", "dec3"),
+                 "Setter": ("assists_per_set", "dec2"),
+                 "Back row": ("digs_per_set", "dec2")}[prow.position]
+    recent = log.tail(3)[col].mean()
+    season_val = pd.to_numeric(prow.get(col), errors="coerce")
+    arrow = ""
+    if pd.notna(recent) and pd.notna(season_val):
+        delta = recent - season_val
+        word = "above" if delta > 0 else "below"
+        arrow = (f" &middot; last three matches {fmt(recent, kind)}, "
+                 f"{fmt(abs(delta), kind)} {word} her season {fmt(season_val, kind)}")
+    st.markdown(
+        f'<p class="sublabel"><b>{pick}</b>, {prow.team} &mdash; {prow.position}, rank '
+        f'{int(prow.rank_in_position)} of {int(prow.players_in_position):,}, band '
+        f'{int(prow.rank_low)}&ndash;{int(prow.rank_high)}{arrow}</p>',
+        unsafe_allow_html=True)
+    lh = ['<div class="scroller"><table class="grid"><thead><tr><th>Date</th>'
+          '<th>Opponent</th><th style="text-align:right">Sets</th>'
+          '<th style="text-align:right">K</th><th style="text-align:right">E</th>'
+          '<th style="text-align:right">TA</th><th style="text-align:right">Hit%</th>'
+          '<th style="text-align:right">Digs</th><th style="text-align:right">Rec</th>'
+          '<th style="text-align:right">RErr</th><th style="text-align:right">Ast</th>'
+          '<th style="text-align:right">Blk</th><th style="text-align:right">Aces</th>'
+          '</tr></thead><tbody>']
+    for _, x in log.iterrows():
+        lh.append(
+            f'<tr><td>{x.date}</td><td>{x.opponent}</td>'
+            f'<td class="n">{x.S:.0f}</td><td class="n">{x.Kills:.0f}</td>'
+            f'<td class="n">{x.Errors:.0f}</td><td class="n">{x.TotalAttacks:.0f}</td>'
+            f'<td class="n">{fmt(x.hit_pct, "dec3")}</td>'
+            f'<td class="n">{x.Digs:.0f}</td><td class="n">{x.RetAtt:.0f}</td>'
+            f'<td class="n">{x.RErr:.0f}</td><td class="n">{x.Assists:.0f}</td>'
+            f'<td class="n">{x.BlockSolos + x.BlockAssists / 2:.1f}</td>'
+            f'<td class="n">{x.Aces:.0f}</td></tr>')
+    lh.append("</tbody></table></div>")
+    st.markdown("".join(lh), unsafe_allow_html=True)
+    st.markdown('<p class="tiny" style="color:#6f7681">A season rating is an average. '
+                'This is what it averaged.</p>', unsafe_allow_html=True)
 
     with st.expander("What this board does not fix"):
         oa = pb["opponent_adjustment"]
@@ -431,15 +481,6 @@ def page_players(season: str, home: str, away: str) -> None:
             "lot. The rank band is the measurement of exactly that; at 23 sets it spans "
             "hundreds of places.")
         st.markdown(
-            "- **Charted touch quality, mostly unusable.** The source charts reception, "
-            "serve, dig, block and set quality from play-by-play. Only digs survive "
-            "testing, and only for back-row players. The rest are contaminated by who "
-            "keeps the book: charted reception quality correlates +0.54 between teammates "
-            "&mdash; double any box-score metric, and higher than its own year-over-year "
-            "&mdash; and 60% of its apparent signal disappears once the team effect is "
-            "removed. Passing is still graded on charged errors, which is weak but is at "
-            "least the player&rsquo;s.")
-        st.markdown(
             "- **Serving aggression.** Every board grades aces per set, the most reliable "
             "serving measure there is and the one that tracks winning serve rallies. It "
             "does not separate a good server from an aggressive one: aces and service "
@@ -448,6 +489,15 @@ def page_players(season: str, home: str, away: str) -> None:
             "to grade. Players who never serve &mdash; 43% of middles and 61% of opposites, "
             "who have a serving sub go in for them &mdash; carry no serving benchmark "
             "rather than a zero, and are graded out of one fewer.")
+        st.markdown(
+            "- **Charted touch quality, mostly unusable.** The source charts reception, "
+            "serve, dig, block and set quality from play-by-play. Only digs survive "
+            "testing, and only for back-row players. The rest are contaminated by who "
+            "keeps the book: charted reception quality correlates +0.54 between teammates "
+            "&mdash; double any box-score metric, and higher than its own year-over-year "
+            "&mdash; and 60% of its apparent signal disappears once the team effect is "
+            "removed. Passing is still graded on charged errors, which is weak but is at "
+            "least the player&rsquo;s.")
         st.caption("Opponent model: " + oa["model"])
 
 

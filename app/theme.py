@@ -152,9 +152,15 @@ CSS = f"""
   table.cmp .sep {{ border-left:2px solid {BORDER_STRONG}; }}
   table.cmp tbody tr:hover {{ background:{HOVER}; }}
   table.cmp td.better {{ font-weight:800; color:{GOOD}; }}
-  table.grid {{ border-collapse:collapse; width:100%; font-size:.85rem; }}
+  table.grid {{ border-collapse:separate; border-spacing:0; width:100%; font-size:.85rem; }}
   table.grid th {{ background:{BG_INPUT}; color:{ROW_LABEL}; text-align:left;
                    font-weight:600; padding:8px 10px; border-bottom:1px solid {BORDER}; }}
+  /* Column names stay put while a long board scrolls under them. Needs
+     border-collapse:separate -- a collapsed border does not travel with a sticky
+     cell, so the header loses its rule and the rows show through it. */
+  .scroller {{ max-height:70vh; overflow:auto; }}
+  .scroller table.grid th {{ position:sticky; top:0; z-index:3;
+                             box-shadow:inset 0 -1px 0 {BORDER}; }}
   table.grid td {{ padding:7px 10px; border-bottom:1px solid {BORDER}; }}
   table.grid td.n {{ text-align:right; font-variant-numeric:tabular-nums; }}
   table.grid tr:hover {{ background:{HOVER}; }}

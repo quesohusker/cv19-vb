@@ -193,3 +193,52 @@ def player_log(season: str, team: str, player: str) -> pd.DataFrame:
     g["aces_per_set"] = g.Aces / sets
     g["rec_err_rate"] = g.RErr / g.RetAtt.where(g.RetAtt >= 3)
     return g.sort_values("date")
+
+
+ALL_POSITIONS = "All positions"
+
+POSITION_ORDER = ["Outside hitter", "Opposite", "Middle blocker", "Setter", "Back row"]
+
+
+def all_positions(season: str, conference: str | None = None,
+                  team: str | None = None) -> pd.DataFrame:
+    """Every ranked player in one season, across all five boards.
+
+    Ordered by position and then by national rank, never by rating across positions:
+    the boards grade different jobs, so a setter's 92 and a middle's 92 are not the
+    same 92 and stacking them would invent a pecking order the numbers cannot carry.
+    """
+    p = players()
+    out = p[(p.season == season) & p.ranked].copy()
+    if conference:
+        out = out[out.conference == conference]
+    if team:
+        out = out[out.team == team]
+    order = {g: i for i, g in enumerate(POSITION_ORDER)}
+    out["_o"] = out.position.map(order).fillna(99)
+    return (out.sort_values(["_o", "rank_in_position"], na_position="last")
+               .drop(columns="_o").reset_index(drop=True))
+
+
+def team_board(season: str, team: str, include_unranked: bool = False) -> pd.DataFrame:
+    """Every ranked player on one team, across all five positions.
+
+    Ordered by position and then by national rank rather than by rating, because a
+    rating is only comparable inside a position -- the boards grade different things,
+    so a setter's 92 and a middle's 92 are not the same 92 and stacking them would
+    invent a roster pecking order the numbers cannot support.
+    """
+    p = players()
+    out = p[(p.season == season) & (p.team == team)].copy()
+    if not include_unranked:
+        out = out[out.ranked]
+    order = {g: i for i, g in enumerate(
+        ["Outside hitter", "Opposite", "Middle blocker", "Setter", "Back row"])}
+    out["_o"] = out.position.map(order).fillna(99)
+    return (out.sort_values(["_o", "rank_in_position"], na_position="last")
+               .drop(columns="_o").reset_index(drop=True))
+
+
+def player_teams(season: str) -> list[str]:
+    p = players()
+    return sorted(p[(p.season == season) & p.ranked].team.unique().tolist())
