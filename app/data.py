@@ -127,3 +127,45 @@ def rankings(season: str, conference: str | None = None,
     if conference:
         out = out[out.conference == conference]
     return out.sort_values("rank_overall").reset_index(drop=True)
+
+
+@lru_cache(maxsize=1)
+def players() -> pd.DataFrame:
+    """One row per player-season, with position, benchmarks and the ranked rating."""
+    return _read("players.parquet")
+
+
+@lru_cache(maxsize=1)
+def player_benchmarks() -> dict:
+    return json.loads((DATA_DIR / "player_benchmarks.json").read_text())
+
+
+def positions() -> list[str]:
+    return sorted(players().position.dropna().unique().tolist())
+
+
+def player_rankings(season: str, position: str, conference: str | None = None,
+                    team: str | None = None, include_unranked: bool = False
+                    ) -> pd.DataFrame:
+    """A position board for one season, national ranks preserved under any filter.
+
+    The rank is computed once at build time over everyone eligible, so filtering to a
+    conference or a team shows where those players sit nationally rather than
+    renumbering them 1..n. Players held out by the recency rule are excluded unless
+    asked for, and never carry a rank.
+    """
+    p = players()
+    out = p[(p.season == season) & (p.position == position)].copy()
+    if not include_unranked:
+        out = out[out.ranked]
+    if conference:
+        out = out[out.conference == conference]
+    if team:
+        out = out[out.team == team]
+    return out.sort_values("rank_in_position", na_position="last").reset_index(drop=True)
+
+
+def player_conferences(season: str) -> list[str]:
+    p = players()
+    return sorted(p[p.season == season].conference.dropna().replace("", pd.NA)
+                  .dropna().unique().tolist())

@@ -262,6 +262,100 @@ def page_rankings(season: str, home: str, away: str) -> None:
     st.markdown("".join(html), unsafe_allow_html=True)
 
 
+
+# ----------------------------------------------------------------- players
+# What each board shows beyond rank / player / team / sets / rating. The graded
+# metrics come first in the order they are graded, then a little context.
+PLAYER_COLUMNS = {
+    "Outside hitter": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
+                       ("Hit% adj", "hit_pct_pass", "dec3"),
+                       ("Rec/set", "receptions_per_set", "dec2"),
+                       ("Digs/set", "digs_per_set", "dec2")],
+    "Middle blocker": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
+                       ("Blk/set", "blocks_per_set", "dec2"),
+                       ("Att/set", "attacks_per_set", "dec2")],
+    "Opposite": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
+                 ("Blk/set", "blocks_per_set", "dec2"),
+                 ("Att/set", "attacks_per_set", "dec2")],
+    "Setter": [("Ast/set", "assists_per_set", "dec2"), ("Ast/att", "assist_rate", "dec3"),
+               ("Digs/set", "digs_per_set", "dec2"), ("K/set", "kills_per_set", "dec2")],
+    "Back row": [("Digs/set", "digs_per_set", "dec2"),
+                 ("Rec/set", "receptions_per_set", "dec2"),
+                 ("Rec err", "reception_err_rate", "pct1")],
+}
+
+
+def page_players(season: str, home: str, away: str) -> None:
+    st.markdown('<h1 class="app">Position <span class="accent">Rankings</span></h1>',
+                unsafe_allow_html=True)
+    pb = D.player_benchmarks()
+    c1, c2, c3 = st.columns([1.2, 1.2, 1])
+    position = c1.selectbox("Position", D.positions(), index=D.positions().index("Outside hitter")
+                            if "Outside hitter" in D.positions() else 0)
+    conf = c2.selectbox("Conference", ["All D1"] + D.player_conferences(season), key="pconf")
+    scope = c3.selectbox("Show", ["Top 50", "Top 100", "Selected teams only", "Everyone"])
+
+    r = D.player_rankings(season, position,
+                          None if conf == "All D1" else conf)
+    if scope == "Selected teams only":
+        r = r[r.team.isin([home, away])]
+    elif scope == "Top 50":
+        r = r.head(50)
+    elif scope == "Top 100":
+        r = r.head(100)
+    if r.empty:
+        st.info("Nobody matches that filter.")
+        return
+
+    specs = pb["groups"].get(position, [])
+    graded = ", ".join(s["label"].lower() for s in specs)
+    bonus = (" Setters who attack carry a small credit on kills per set."
+             if position == "Setter" else "")
+    st.markdown(
+        f'<p class="sublabel">Rating is the mean percentile on {graded}, computed on values '
+        f'adjusted for the opponents she actually faced, against fixed 2022&ndash;2025 '
+        f'reference distributions &mdash; so it means the same thing in every season.{bonus} '
+        f'The benchmark count beside it is deliberately <em>un</em>adjusted, the same split '
+        f'the team pages make between the grade and the power rating. Minimum '
+        f'{pb["min_sets"]} sets, and in {pb["recency_rule"]["current_season"]} at least one '
+        f'set in the team&rsquo;s last three matches. Ranks stay national under every '
+        f'filter.</p>', unsafe_allow_html=True)
+
+    cols = PLAYER_COLUMNS.get(position, [])
+    head = ("".join(f'<th style="text-align:right">{lab}</th>' for lab, _, _ in cols))
+    html = ['<table class="grid"><thead><tr><th>Rank</th><th>Player</th><th>Team</th>'
+            '<th>Conference</th><th style="text-align:right">Sets</th>'
+            '<th style="text-align:right">Rating</th>'
+            f'<th style="text-align:right">Bench</th>{head}</tr></thead><tbody>']
+    for _, row in r.iterrows():
+        hl = ' class="hl"' if row.team in (home, away) else ""
+        rank = int(row.rank_in_position) if pd.notna(row.rank_in_position) else "&mdash;"
+        bench = (f'{row.benchmarks_met:.0f}/{int(row.benchmarks_of)}'
+                 if pd.notna(row.benchmarks_met) else "&mdash;")
+        cells = "".join(f'<td class="n">{fmt(row.get(c), k)}</td>' for _, c, k in cols)
+        html.append(
+            f'<tr{hl}><td class="n">{rank}</td><td><b>{row.player}</b></td>'
+            f'<td>{T.chip(row.team, ".85rem")}</td><td>{row.conference or ""}</td>'
+            f'<td class="n">{row.sets:.0f}</td><td class="n">{row.rating:.1f}</td>'
+            f'<td class="n">{bench}</td>{cells}</tr>')
+    html.append("</tbody></table>")
+    st.markdown("".join(html), unsafe_allow_html=True)
+
+    with st.expander("What this board does not fix"):
+        oa = pb["opponent_adjustment"]
+        st.markdown(f"- **Usage.** {oa['does_not_fix']}")
+        st.markdown(
+            "- **Position labels.** Only about half of teams give their opposite a label "
+            "of her own; the rest are listed as outside hitters and are ranked there. The "
+            "passing adjustment absorbs some of it, since an opposite who never passes is "
+            "measured against outsides who do.")
+        st.markdown(
+            "- **Small samples early in a season.** The set minimum is a season-long floor, "
+            "so in the first weeks a board is ordered on twenty-odd sets and will move a "
+            "lot.")
+        st.caption("Opponent model: " + oa["model"])
+
+
 # ---------------------------------------------------------------------- about
 def page_about() -> None:
     meta = D.meta()
@@ -308,7 +402,8 @@ away = team_picker(season, "Opponent", "Wisconsin", "away")
 st.sidebar.caption(f"NCAA women's D1 · {min(D.seasons())}-{max(D.seasons())} · "
                    f"{D.meta()['team_match_rows']:,} graded team-matches")
 
-tabs = st.tabs(["Stat Comparison", f"The Volleyball {GRADE_MAX}", "Power Rankings", "How it works"])
+tabs = st.tabs(["Stat Comparison", f"The Volleyball {GRADE_MAX}", "Power Rankings",
+                "Position Rankings", "How it works"])
 with tabs[0]:
     page_comparison(season, home, away)
 with tabs[1]:
@@ -316,4 +411,6 @@ with tabs[1]:
 with tabs[2]:
     page_rankings(season, home, away)
 with tabs[3]:
+    page_players(season, home, away)
+with tabs[4]:
     page_about()
