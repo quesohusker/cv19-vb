@@ -392,15 +392,29 @@ document.querySelectorAll('table.grid th.srt').forEach(function (th, i) {
 """
 
 
+ROW_PX = 45          # a row carrying a team chip, measured in the rendered component
+HEAD_PX = 32
+VISIBLE_ROWS = 25    # show the whole table up to here, then scroll inside the frame
+
+
 def sortable(html: str, rows: int) -> None:
-    """Render a grid table as a component so its headers can be clicked to sort."""
-    height = min(760, 118 + 31 * max(rows, 1))
+    """Render a grid table as a component so its headers can be clicked to sort.
+
+    The frame is sized to the table: a short board shows whole with no scrollbar of its
+    own, and anything longer than VISIBLE_ROWS scrolls inside the frame under its sticky
+    header rather than stretching the page to two thousand rows. The row height is
+    measured rather than guessed -- 45px with a team chip in the cell -- and rounded up,
+    because being a few pixels generous costs a sliver of whitespace while being a few
+    pixels short clips the last row behind the frame edge.
+    """
+    shown = min(max(rows, 1), VISIBLE_ROWS)
+    inner = HEAD_PX + shown * ROW_PX + 4
     components.html(
         T.CSS
         + f'<style>body{{margin:0;background:{T.BG};color:{T.TEXT};font-family:{T.FONT}}}'
-          f'.scroller{{max-height:{height - 24}px}}</style>'
+          f'.scroller{{max-height:{inner}px}}</style>'
         + html + SORT_JS,
-        height=height, scrolling=False)
+        height=inner + 2, scrolling=False)
 
 
 def page_players(season: str, home: str, away: str) -> None:
