@@ -80,11 +80,21 @@ def read_match(path: Path) -> dict | None:
     teams = d.get("teams") or []
     if len(teams) != 2:
         return None
-    by_id = {str(t["teamId"]): t.get("nameShort") or t.get("name6Char") for t in teams}
     home = next((t for t in teams if t.get("isHome")), None)
     away = next((t for t in teams if not t.get("isHome")), None)
     if home is None or away is None:
         return None
+
+    # Resolve the rally winner by team ID, never by name. The names arrive from two
+    # places -- the scoreboard (carried in on _away_team/_home_team) and the pbp
+    # payload's own teams array -- and they are not always byte-identical: "LSU New
+    # Orleans " comes back from one with a trailing space, which used to blow up the
+    # serve counter with a KeyError on a name that looked correct in the message.
+    away_name = (d.get("_away_team") or away.get("nameShort") or "").strip()
+    home_name = (d.get("_home_team") or home.get("nameShort") or "").strip()
+    if not away_name or not home_name:
+        return None
+    by_id = {str(home.get("teamId")): home_name, str(away.get("teamId")): away_name}
 
     sets: list[list[dict]] = []
     for p in d.get("periods") or []:
@@ -108,12 +118,8 @@ def read_match(path: Path) -> dict | None:
             sets.append(rallies)
     if not sets:
         return None
-    return {
-        "date": d.get("_date"),
-        "away_team": d.get("_away_team") or away.get("nameShort"),
-        "home_team": d.get("_home_team") or home.get("nameShort"),
-        "sets": sets,
-    }
+    return {"date": d.get("_date"), "away_team": away_name,
+            "home_team": home_name, "sets": sets}
 
 
 def opening_anchor(rallies: list[dict], away: str, home: str) -> str | None:
@@ -231,8 +237,13 @@ def main() -> None:
     serve_att = load_serve_attempts(args.serve_attempts)
 
     all_rows, how_counts, skipped = [], defaultdict(int), 0
+    failures = []
     for f in files:
-        m = read_match(f)
+        try:
+            m = read_match(f)
+        except Exception as e:                                    # noqa: BLE001
+            failures.append((f.name, str(e)[:70]))
+            m = None
         if m is None:
             skipped += 1
             continue
@@ -243,7 +254,12 @@ def main() -> None:
             box = {a: serve_att.get((iso, a, h)), h: serve_att.get((iso, h, a))}
             if not any(v for v in box.values()):
                 box = None
-        rows, how = match_rows(m, box)
+        try:
+            rows, how = match_rows(m, box)
+        except Exception as e:                                    # noqa: BLE001
+            failures.append((f.name, str(e)[:70]))
+            skipped += 1
+            continue
         how_counts[how.split(" (")[0]] += 1
         all_rows.extend(rows)
 
@@ -283,7 +299,11 @@ def main() -> None:
     matches = len({(r["date"], r["away_team"], r["home_team"]) for r in all_rows})
     print(f"wrote {out}  ({out.stat().st_size / 1e6:.1f} MB)")
     print(f"  {len(all_rows):,} rallies over {matches:,} matches "
-          f"({skipped:,} files unreadable)")
+          f"({skipped:,} files skipped)")
+    if failures:
+        print(f"  {len(failures)} match(es) failed to parse, e.g.:")
+        for name, err in failures[:5]:
+            print(f"    {name}: {err}")
     print("  first server decided by:")
     for how, n in sorted(how_counts.items(), key=lambda x: -x[1]):
         print(f"    {how:<34}{n:,}")
