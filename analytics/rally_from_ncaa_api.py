@@ -61,6 +61,13 @@ EVENT_PATTERNS = [
 ]
 BY_PLAYER = re.compile(r"\bby ([A-Z][^.(,]*?)(?:\s*\(|\.|,|$)")
 
+# Only the first rally of a set has a free server -- every later one is forced by the
+# previous rally's winner -- so a correct box score can disagree by at most one serve
+# per set, five in a full match. A larger gap means the box score does not belong to
+# this match (a tournament repeat pairing, a mis-joined date) and is worse than no box
+# score at all, because it steers the opener search with confident nonsense.
+MAX_PLAUSIBLE_SERVE_ERROR = 10
+
 
 def classify(text: str) -> str:
     for pat, label in EVENT_PATTERNS:
@@ -162,13 +169,21 @@ def choose_openers(sets, away, home, box: dict | None) -> tuple[list[str], str, 
                 best, best_err = trial, err
         if best_err == 0:
             return best, "matched box score exactly", 0.0
-        return best, "closest to box score", float(best_err)
+        if best_err <= MAX_PLAUSIBLE_SERVE_ERROR:
+            return best, "closest to box score", float(best_err)
+        # fall through to the anchor/alternation path below, but keep the number so
+        # the run can report which matches had an implausible box score
+        implausible = float(best_err)
+    else:
+        implausible = None
 
-    # nothing to go on: assume the away team opened and alternate
+    # nothing usable to go on: assume the away team opened and alternate
     out, cur = [], away
     for i, a in enumerate(anchors):
         out.append(a if a is not None else cur)
         cur = home if out[-1] == away else away
+    if implausible is not None:
+        return out, "box score rejected as implausible", implausible
     return out, "assumed (no anchor, no box score)", None
 
 
@@ -237,7 +252,7 @@ def main() -> None:
     serve_att = load_serve_attempts(args.serve_attempts)
 
     all_rows, how_counts, skipped = [], defaultdict(int), 0
-    serve_errors: list[float] = []
+    serve_errors: list[tuple] = []
     failures = []
     for f in files:
         try:
@@ -263,7 +278,7 @@ def main() -> None:
             continue
         how_counts[how.split(" (")[0]] += 1
         if err:
-            serve_errors.append(err)
+            serve_errors.append((err, f.stem, m["date"], m["away_team"], m["home_team"]))
         all_rows.extend(rows)
 
     if not all_rows:
@@ -311,7 +326,7 @@ def main() -> None:
     for how, n in sorted(how_counts.items(), key=lambda x: -x[1]):
         print(f"    {how:<34}{n:,}")
     if serve_errors:
-        s = sorted(serve_errors)
+        s = sorted(e for e, *_ in serve_errors)
         # the opener is one rally per set, so a mismatch of 1-2 serves is that single
         # ambiguity, not a broken reconstruction. Anything large means the box score
         # and the play-by-play disagree about the match itself.
@@ -319,6 +334,15 @@ def main() -> None:
               f"median {s[len(s) // 2]:.0f}, "
               f"{sum(1 for x in s if x <= 2) / len(s) * 100:.0f}% within 2, "
               f"max {s[-1]:.0f}")
+        worst = sorted(serve_errors, reverse=True)[:5]
+        if worst and worst[0][0] > MAX_PLAUSIBLE_SERVE_ERROR:
+            print("  box scores that do not match their play-by-play (opener fell back "
+                  "to anchor/alternation):")
+            for e, stem, date, a, h in worst:
+                if e > MAX_PLAUSIBLE_SERVE_ERROR:
+                    print(f"    {date}  {a} at {h}  (game {stem}, off by {e:.0f})")
+        print("  a wrong opener misplaces at most one rally per set, so even a rejected "
+              "box score\n  costs under five rallies in a match of roughly 180.")
     print("  first_ball is null throughout: this feed has no touch detail, so\n"
           "  first-ball and transition side-out cannot be computed for this season.")
 
