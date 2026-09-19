@@ -1,16 +1,4 @@
 #!/usr/bin/env bash
-# Update a season and publish it, in one command.
-#
-#   scripts/publish.sh            # 2026, asks before pushing
-#   scripts/publish.sh 2026 -y    # do not ask
-#   scripts/publish.sh --skip-update   # publish what is already built
-#
-# Runs the data pipeline, then commits app_data and pushes. Streamlit Cloud
-# redeploys on push, so the push is the publish.
-#
-# Only app_data is committed. The current season's raw files under data/ are
-# gitignored and rebuilt on every run; the 2021-2025 derived history is already
-# tracked and does not change.
 
 set -euo pipefail
 
@@ -31,8 +19,6 @@ cd "$ROOT"
 
 step() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
 
-# Publish from a clean tree, or the commit sweeps up unrelated edits. Changes to
-# app_data are expected -- that is what we are here to publish.
 DIRTY="$(git status --porcelain -- . ':!app_data' | head -5)"
 if [ -n "$DIRTY" ]; then
   echo "Uncommitted changes outside app_data:" >&2
@@ -55,7 +41,6 @@ if git diff --quiet -- app_data && git diff --cached --quiet -- app_data; then
 fi
 git diff --stat -- app_data
 
-# say what actually changed, not just which files did
 "${ROOT}/.venv/bin/python" - "$YEAR" <<'PY' || true
 import subprocess, sys, io
 import pandas as pd

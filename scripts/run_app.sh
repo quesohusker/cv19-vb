@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-# Launch the app using the project virtualenv.
-#
-#   scripts/run_app.sh
-#
-# streamlit is installed into .venv, not onto PATH, so "streamlit run" from a plain
-# shell fails with command not found. This finds it the same way the pipeline script
-# finds python, so neither one depends on the caller having activated anything.
 
 set -euo pipefail
 
