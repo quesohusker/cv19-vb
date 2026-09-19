@@ -97,6 +97,114 @@ def pin_split_note() -> None:
             "&mdash; you can always see how close a player sits to the boundary.")
 
 
+# What each board grades, and -- the part readers argue with -- which obvious
+# measure was tried and thrown out. Every rejection here is a measured result, not a
+# preference; the numbers are the ones the build script records.
+METRIC_NOTES = {
+    "Six-rotation hitter": (
+        "**Graded on:** kills per set, hitting efficiency adjusted for passing load, "
+        "reception error rate, digs per set, aces per set.\n\n"
+        "She passes and attacks, so her hitting is measured against what her passing "
+        "load predicts. An outside taking six serves a set gets the out-of-system ball "
+        "more often, and raw efficiency punishes her for it.\n\n"
+        "**Ruled out &mdash; receptions per set.** It looks like the obvious way to "
+        "credit a six-rotation player, and it double-counts: the efficiency adjustment "
+        "already accounts for passing load, so grading volume on top scores the same "
+        "fact twice. It cost Pittsburgh's Olivia Babcock &mdash; 5.17 kills a set at "
+        ".334 &mdash; a rank of 379th, because she takes no serve receive and was "
+        "penalised for it twice over.\n\n"
+        "**Ruled out &mdash; charted pass quality.** The source grades every pass "
+        "great/good/bad, which sounds far better than counting errors. But two players "
+        "on the same roster post nearly the same numbers (+0.54), higher than a "
+        "player's own year-over-year, and 60% of the signal vanishes once the team "
+        "effect is removed. It is largely measuring who keeps the book."),
+    "Front-row hitter": (
+        "**Graded on:** kills per set, hitting efficiency, blocks per set, attacks per "
+        "set, aces per set.\n\n"
+        "Someone else passes, so she is measured purely on terminating and blocking. "
+        "Her efficiency is used raw &mdash; no passing adjustment &mdash; because she "
+        "is swinging at in-system balls and should be held to that standard.\n\n"
+        "**Ruled out &mdash; charted block quality.** The source publishes a blocking "
+        "efficiency, and it does not repeat: once the team effect is removed, a "
+        "player's year-over-year correlation is +0.26. Blocks per set is cruder and far "
+        "more reliable."),
+    "Middle blocker": (
+        "**Graded on:** kills per set, hitting efficiency, blocks per set, attacks per "
+        "set, aces per set.\n\n"
+        "Attack volume is graded deliberately: a middle who gets set often is being "
+        "trusted, and that is part of being good. A block assist counts as half a "
+        "block, since two players share one.\n\n"
+        "**Ruled out &mdash; charted block quality** (+0.26 year-over-year once the "
+        "team effect is removed), and **hitting efficiency alone**. Middles post the "
+        "highest efficiency of any position because they swing at the easiest balls; "
+        "ranking on it alone would reward a middle who takes four safe swings a match "
+        "over one carrying a real load."),
+    "Setter": (
+        "**Graded on:** assists per set, digs per set, aces per set, plus a small "
+        "credit for a setter who attacks.\n\n"
+        "**Ruled out &mdash; assists per set attempt.** This is the one that stings, "
+        "because it reads like the only measure of setting *quality* a box score "
+        "offers: what share of her sets a hitter put away. It validates beautifully "
+        "&mdash; +0.50 against team hitting efficiency, +0.43 against win percentage. "
+        "It is a trap. Two setters on the same roster post nearly the same assist rate "
+        "(+0.72, the highest correlation measured anywhere in this project), and a "
+        "setter's own year-over-year signal falls to +0.09 once the team is removed. It "
+        "tracks winning **because it is the team**: a setter on a good offence has a "
+        "high assist rate because her hitters convert, and grading her on it credits "
+        "her with their hitting.\n\n"
+        "**What that leaves, stated plainly:** this board measures a setter's volume, "
+        "not her quality. A college volleyball box score does not contain a clean "
+        "measure of setting quality. Charted set quality exists in the source but "
+        "qualifies only 6&ndash;7% of players &mdash; far too thin to rank on. Assists "
+        "per set is kept because it is demonstrably hers (teammate correlation "
+        "&minus;0.70, since two setters split one job) and tracks winning at +0.53."),
+    "Back row": (
+        "**Graded on:** digs per set, charted dig quality, receptions per set, "
+        "reception error rate, aces per set.\n\n"
+        "Dig quality is the only charted touch metric that survived testing &mdash; "
+        "teammate correlation +0.05, year-over-year +0.69 that does not move when the "
+        "team effect is removed. Digs are graded off what the rally does next rather "
+        "than off an opinion about the ball, which is likely why.\n\n"
+        "**Why both volume and quality.** They measure different things, and the proof "
+        "is blunt: among back-row players, digs per set and charted dig quality "
+        "correlate **+0.001**. Knowing how many balls someone reached tells you nothing "
+        "about what happened to them.\n\n"
+        "**Ruled out &mdash; charted reception quality**, for the scorer bias described "
+        "above. Passing is graded on charged errors instead: weaker, but at least it is "
+        "the player's."),
+}
+
+ALL_BOARDS_NOTE = (
+    "**Every board grades aces per set**, and it is the most reliable serving measure "
+    "there is (.87 to .93 over a full season). It does not separate a good server from "
+    "an aggressive one &mdash; aces and service errors per set correlate about +0.85, "
+    "so serving is close to a single axis.\n\n"
+    "**Ruled out &mdash; ace-to-service-error ratio.** The obvious way to reward "
+    "balance, and it looked respectable at .63&ndash;.67. That number is an artifact of "
+    "guarding the divide-by-zero: clipping errors at one orders every zero-error server "
+    "by her ace count, so the ratio is secretly measuring volume. Written properly as a "
+    "share it falls to .20&ndash;.33. Service errors, meanwhile, correlate &minus;0.05 "
+    "with a team's point-score rate &mdash; missed serves cost almost nothing "
+    "measurable, while aces are worth a good deal.\n\n"
+    "**Players who never serve carry no serving benchmark rather than a zero.** Forty "
+    "percent of middles and sixty percent of front-row hitters have a serving sub go in "
+    "for them every rotation; scoring them zero would rank them on their coach's "
+    "substitution pattern."
+)
+
+
+def metric_note(position: str | None) -> None:
+    """What this board grades, and which obvious measure was tried and rejected."""
+    body = METRIC_NOTES.get(position)
+    label = ("What these boards measure, and what was ruled out" if body is None
+             else f"What the {position.lower()} board measures, and what was ruled out")
+    with st.expander(label):
+        if body:
+            st.markdown(body)
+            st.markdown("---")
+        st.markdown(ALL_BOARDS_NOTE)
+
+
 def ask_panel(title: str, context: str, tables, key: str,
               glossary=None, limits=None, examples=(), limit: int | None = 300) -> None:
     """The download-and-ask panel at the foot of every page.
@@ -566,6 +674,7 @@ def page_players(season: str, home: str, away: str) -> None:
         elif scope == "Top 25 per position":
             r = r.groupby("position", group_keys=False).head(25)
         cols, show_pos = TEAM_COLUMNS, True
+        metric_note(None)
         pin_split_note()
         who = team or (f"{home} and {away}" if scope == "Selected teams only" else "D1")
         st.markdown(
@@ -586,6 +695,7 @@ def page_players(season: str, home: str, away: str) -> None:
         elif scope == "Top 100":
             r = r.head(100)
         cols, show_pos = PLAYER_COLUMNS.get(position, []), False
+        metric_note(position)
         if position in PIN_BOARDS:
             pin_split_note()
         graded = ", ".join(x["label"].lower() for x in pb["groups"].get(position, []))

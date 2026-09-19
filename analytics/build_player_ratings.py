@@ -76,6 +76,23 @@ pass, so efficiency is scored as a residual against the league's efficiency-vers
 passing-load line. Attack volume alone does not hurt efficiency (r = +0.15) and is
 not adjusted for.
 
+ASSISTS PER SET ATTEMPT WAS TESTED AND DROPPED. It reads like the one measure of
+setting QUALITY the box score offers -- what share of her sets a hitter converted --
+and it validates beautifully, +0.50 against team hitting efficiency and +0.43 against
+win percentage. It is a trap. Two setters on the same roster post nearly the same
+assist rate (teammate correlation +0.724, the highest of anything measured in this
+project), and once the team mean is removed a setter's own year-over-year signal falls
+to +0.089. It correlates with winning because it IS the team: a setter on a good
+offence has a high assist rate because her hitters convert, and grading her on it
+credits her with their hitting. It fails the same test as charted reception quality,
+by a wider margin.
+
+What that leaves is worth saying out loud: the setter board has no measure of setting
+quality, only of volume. A college volleyball box score does not contain one. Charted
+set quality exists in the source but qualifies 6-7% of players, far too thin to grade.
+Assists per set is kept because it is demonstrably hers -- teammate correlation -0.698,
+since two setters split the same job -- and tracks winning at +0.53.
+
 SETTERS GET A SMALL ATTACKING BONUS. A setter who attacks brings something the
 others do not, and the evidence says it is hers rather than her coach's: two
 setters on the same roster dump at uncorrelated rates (r = -0.046), the rate
@@ -645,7 +662,6 @@ BENCHMARKS = {
     ],
     "Setter": [
         ("assists_per_set", +1, "Assists per set"),
-        ("assist_rate", +1, "Assists per set attempt"),
         ("digs_per_set", +1, "Digs per set"),
         ("aces_per_set", +1, "Aces per set"),
     ],
