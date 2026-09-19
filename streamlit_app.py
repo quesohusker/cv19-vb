@@ -546,12 +546,11 @@ def page_rankings(season: str, home: str, away: str) -> None:
         st.info("No teams match that filter.")
         return
     rating_note()
-    st.markdown('<p class="sublabel">Rating blends two opponent-adjusted models half and '
-                'half: a season-long ridge fit on side-out rate, and an Elo that carries '
-                'last season and weights recent matches more. Offense and defense are the '
-                'ridge&rsquo;s own numbers, in percentage points of side-out rate against '
-                'an average D1 team. Ranks stay national when a conference is '
-                'selected.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sublabel">The Power Ranking blends two opponent-adjusted '
+                'models with each contributing equally to the ranking: a season-long ridge '
+                'regression model and an Elo that carries last season and weights recent '
+                'matches more. Ranks stay national when a conference is selected.</p>',
+                unsafe_allow_html=True)
 
     html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th><th>Team</th><th>Record</th>'
             '<th>Conference</th><th style="text-align:right">Rating</th>'
