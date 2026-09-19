@@ -59,6 +59,51 @@ def fmt(value, kind: str) -> str:
 PIN_BOARDS = ("Six-rotation hitter", "Front-row hitter")
 
 
+def rating_note() -> None:
+    """How the composite power rating is built, in one click.
+
+    The board leads with a number that is not a raw rate, so the reader is owed the
+    recipe without having to open the LLM panel to find it.
+    """
+    with st.expander("How the power rating is calculated"):
+        st.markdown(
+            "The rating is **a 50/50 blend of two models that disagree on purpose.**\n\n"
+            "**The ridge half** fits one regression over every team-match in the season. "
+            "Side-out rate is the currency &mdash; how often a team wins the rally when "
+            "it is receiving &mdash; and every team's offense and every opponent's "
+            "defense are solved at the same time, so strength of schedule is built in "
+            "rather than added on. Its blind spot: it has no memory. Each season starts "
+            "from zero, and a match in August counts exactly as much as one in December. "
+            "It cannot see a team improve.\n\n"
+            "**The Elo half** starts each team at 95% of where it finished last season "
+            "and moves the rating after every match, by how far the result landed from "
+            "what the rating predicted. Margin counts, measured as the winner's share of "
+            "all rallies rather than the set score &mdash; about 180 rallies a match is a "
+            "lot more evidence than 5 sets. Its blind spot: it updates one match at a "
+            "time and never sees the schedule whole.\n\n"
+            "**Why both.** Neither wins. Across 12,508 forecasts in 2022&ndash;2025, each "
+            "made before the match it predicts, the ridge called 77.0&ndash;78.9% and Elo "
+            "77.5&ndash;79.2%. But they miss *different* matches, so the blend beat both "
+            "of them in all four seasons.\n\n"
+            "**Why half and half.** The weight was fitted, not chosen. Trained on three "
+            "seasons and tested on the fourth, it came back 52%, 49%, 50% and 49% Elo. "
+            "It does drift within a season &mdash; nearer 55% Elo in September, when Elo "
+            "still has last year's team and the ridge has barely any schedule, and nearer "
+            "20% by December &mdash; but sliding it predicts no better than holding it "
+            "flat, because by the time the ridge earns the larger share the two ratings "
+            "already agree.\n\n"
+            "**Read it as a ranking, not a rate.** The two halves are standardised and "
+            "averaged, then stretched back to the ridge's scale so the number still looks "
+            "familiar. A +27 means *as far above average as a +27 ridge rating would be*, "
+            "not 27 extra side-outs per hundred. The Offense and Defense columns are the "
+            "ridge's own numbers and those **are** literally side-outs per hundred: "
+            "&ldquo;+6.1&rdquo; is six more per hundred receive rallies than an average "
+            "team would manage against the same opponents.\n\n"
+            "Ranks stay national when you filter by conference. Wins and losses are not "
+            "an input to either half."
+        )
+
+
 def pin_split_note() -> None:
     """Why the two attacking boards are named for the job rather than the position.
 
@@ -500,16 +545,13 @@ def page_rankings(season: str, home: str, away: str) -> None:
     if r.empty:
         st.info("No teams match that filter.")
         return
-    st.markdown('<p class="sublabel">Rating is a 50/50 composite of two models that '
-                'disagree on purpose. The <em>ridge</em> half solves every team against '
-                'every opponent at once but has no memory &mdash; August counts like '
-                'December and each season starts from nothing. The <em>Elo</em> half '
-                'carries last season and weights recent matches more, but updates one '
-                'match at a time and never sees the whole schedule. Each still predicts '
-                'what the other misses, so the blend beats both. Offense and defense are '
-                'the ridge components, in percentage points of side-out rate against an '
-                'average D1 team. Ranks stay national when a conference is selected.</p>',
-                unsafe_allow_html=True)
+    rating_note()
+    st.markdown('<p class="sublabel">Rating blends two opponent-adjusted models half and '
+                'half: a season-long ridge fit on side-out rate, and an Elo that carries '
+                'last season and weights recent matches more. Offense and defense are the '
+                'ridge&rsquo;s own numbers, in percentage points of side-out rate against '
+                'an average D1 team. Ranks stay national when a conference is '
+                'selected.</p>', unsafe_allow_html=True)
 
     html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th><th>Team</th><th>Record</th>'
             '<th>Conference</th><th style="text-align:right">Rating</th>'
