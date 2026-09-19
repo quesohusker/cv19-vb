@@ -346,7 +346,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
 # What each board shows beyond rank / player / team / sets / rating. The graded
 # metrics come first in the order they are graded, then a little context.
 PLAYER_COLUMNS = {
-    "Outside hitter": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
+    "Six-rotation hitter": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                        ("Hit% adj", "hit_pct_pass", "dec3"),
                        ("Rec/set", "receptions_per_set", "dec2"),
                        ("Rec err", "reception_err_rate", "pct1"),
@@ -356,9 +356,10 @@ PLAYER_COLUMNS = {
                        ("Blk/set", "blocks_per_set", "dec2"),
                        ("Att/set", "attacks_per_set", "dec2"),
                        ("Aces/set", "aces_per_set", "dec2")],
-    "Opposite": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
+    "Front-row hitter": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                  ("Blk/set", "blocks_per_set", "dec2"),
                  ("Att/set", "attacks_per_set", "dec2"),
+                 ("Rec/set", "receptions_per_set", "dec2"),
                  ("Aces/set", "aces_per_set", "dec2")],
     "Setter": [("Ast/set", "assists_per_set", "dec2"), ("Ast/att", "assist_rate", "dec3"),
                ("Digs/set", "digs_per_set", "dec2"),
@@ -587,9 +588,9 @@ def page_players(season: str, home: str, away: str) -> None:
     log = D.player_log(season, prow.team, pick)
     if log.empty:
         return
-    col, kind = {"Outside hitter": ("hit_pct", "dec3"),
+    col, kind = {"Six-rotation hitter": ("hit_pct", "dec3"),
                  "Middle blocker": ("hit_pct", "dec3"),
-                 "Opposite": ("hit_pct", "dec3"),
+                 "Front-row hitter": ("hit_pct", "dec3"),
                  "Setter": ("assists_per_set", "dec2"),
                  "Back row": ("digs_per_set", "dec2")}[prow.position]
     recent = log.tail(3)[col].mean()
@@ -690,12 +691,14 @@ def page_players(season: str, home: str, away: str) -> None:
         oa = pb["opponent_adjustment"]
         st.markdown(f"- **Usage.** {oa['does_not_fix']}")
         st.markdown(
-            "- **Position labels.** Only about half of teams give their opposite a label "
-            "of her own; the rest are listed as outside hitters and are ranked there. "
-            "Outsides are graded on reception *quality* rather than reception volume so "
-            "that a terminator who never passes is not punished for a role she was never "
-            "given &mdash; passing load is already the control in the efficiency "
-            "adjustment, and grading it again counted the same fact twice.")
+            "- **Boards are split by what a player did, not what the roster called her.** "
+            "43% of players listed as outside hitters take under half a reception per "
+            "set &mdash; only about half of teams give their opposite a label of her own "
+            "&mdash; so ranking on the label ranked a coach's paperwork. The split is "
+            "serve receive, taken at the 37th percentile of each season's attackers, "
+            "and the line is chosen rather than found: the distribution has no clean "
+            "gap, and about 9% of attackers sit close enough to fall either way. "
+            "Receptions per set is shown on both boards so you can see who is near it.")
         st.markdown(
             "- **Small samples early in a season.** The set minimum is a season-long floor, "
             "so in the first weeks a board is ordered on twenty-odd sets and will move a "

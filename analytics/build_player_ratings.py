@@ -127,14 +127,20 @@ import pandas as pd
 
 MIN_SETS = 20
 MIN_SERVE_EVENTS = 3        # aces + service errors, the evidence that she serves
+PASS_SPLIT = 0.37           # percentile of each season's attackers that divides the pin boards
+ATTACKER_SWINGS = 4.0       # swings per set that make a player a reference attacker
+FRONT_ROW_SWINGS = 2.0      # swings per set a front-row hitter must actually take
+SIX_ROT = "Six-rotation hitter"
+FRONT_ROW = "Front-row hitter"
 MIN_RECEPTIONS = 40         # serve receives, the evidence that she is a passer
 
 # source position codes -> the group they are ranked in
 POSITION_GROUPS = {
-    "OH": "Outside hitter",
+    # Every pin label lands in one bucket here and is split by what she actually did.
+    # See split_pins().
+    "OH": "Pin", "OPP": "Pin", "RS": "Pin", "O": "Pin",
     "MB": "Middle blocker", "MH": "Middle blocker",
     "S": "Setter",
-    "OPP": "Opposite", "RS": "Opposite", "O": "Opposite",
     "L": "Back row", "DS": "Back row", "L/DS": "Back row",
 }
 # reference seasons the fixed thresholds are computed from
@@ -227,6 +233,85 @@ def read_playermatch(gis_dir: Path, years: list[int]) -> pd.DataFrame:
             .merge(by_label[["uid", "label_group"]].rename(
                 columns={"label_group": "position"}), on="uid")
             .merge(by_name[["uid", "player"]], on="uid"))
+    return pm
+
+
+def split_pins(pm: pd.DataFrame) -> pd.DataFrame:
+    """Divide the pin hitters by what they did, not by what the roster called them.
+
+    THE LABEL DOES NOT SURVIVE CONTACT WITH THE DATA. Among players taking four or more
+    swings a set, 43% of those listed "OH" take under half a reception per set -- they
+    are doing the opposite's job under the outside's name, because only about half of
+    teams give their opposite a label of her own. Ranking on the label therefore ranks
+    a coach's paperwork. Split on serve receive instead and the two groups separate
+    about twice as sharply: the gap in digs per set goes from 0.75 to 1.35, attacks per
+    set from 0.86 to 1.93.
+
+    THE LINE IS CHOSEN, NOT FOUND, and that is worth stating plainly. The distribution
+    is a spike at zero, a large mass above four, and a flat plateau between -- not two
+    clean humps. The thinnest band moves every season (1.75, 2.25, 1.00, 3.00, 2.50
+    across 2022-2026), so there is no natural boundary to snap to. About 8.7% of
+    attackers sit within half a reception of the line and could defensibly fall either
+    way; everyone else is unambiguous. Receptions per set is shown on both boards so a
+    reader can see how close to the line any player sits.
+
+    THE THRESHOLD IS A PERCENTILE, NOT A FIXED RATE, because serve receive is not
+    recorded the same way every season. The league total barely moves -- about 728,000
+    receptions a year -- but how widely it is attributed does: 18.9% of players with
+    twenty or more sets recorded no reception at all in 2022, 22.3% in 2024, and only
+    5.9% in 2025. Same volleyball, spread over more names. A fixed rate of 1.5 would
+    therefore put the same player on different boards in different seasons, and would
+    also tilt the fixed 2022-2025 reference distributions that every rating is scored
+    against. So the cut is taken at the 37th percentile of each season's ATTACKERS --
+    players swinging four or more times a set, whose receptions are recorded
+    consistently -- and the resulting rate is then applied to every pin hitter that
+    season. 37% is where 1.5 receptions per set sat on average, so the line means what
+    it did before while no longer drifting with the scorer's habits.
+
+    The names describe the job rather than the roster. A front-row-only outside belongs
+    with the opposites because that was her season, and calling that group "Opposite"
+    would be the same kind of lie the labels already tell.
+    """
+    pm = pm.copy()
+    tot = pm.groupby("uid").agg(S=("S", "sum"), rec=("RetAtt", "sum"),
+                                atk=("TotalAttacks", "sum"))
+    tot = tot[tot.S > 0]
+    tot["rps"] = tot.rec / tot.S
+    tot["aps"] = tot.atk / tot.S
+    season = pm.groupby("uid").season.first()
+    pin_uids = set(pm.loc[pm.position == "Pin", "uid"])
+    tot = tot[tot.index.isin(pin_uids)].join(season)
+
+    six: set[str] = set()
+    dropped: set[str] = set()
+    for yr, g in tot.groupby("season"):
+        ref = g[(g.aps >= ATTACKER_SWINGS) & (g.S >= MIN_SETS)]
+        if len(ref) < 100:
+            thr = 1.5
+            print(f"  {yr}: too few reference attackers; falling back to {thr} rec/set")
+        else:
+            thr = float(ref.rps.quantile(PASS_SPLIT))
+        passes = g.index[g.rps >= thr]
+        six.update(passes)
+        # A front-row hitter's whole claim on that board is that she attacks without
+        # passing, so she has to attack. Without this floor the board fills with
+        # reserves: "no reception recorded" and "does not pass" are the same row in the
+        # box score, and in 2022-2024 the recording was sparse enough that the median
+        # front-row hitter had 0.4 kills a set -- a benchwarmer -- against 1.6 in 2025.
+        # Pooling those into one reference would score every player against a
+        # population that changed underneath them. At two swings a set the median holds
+        # between 1.63 and 1.73 across 2022-2025. The six-rotation board needs no such
+        # floor: passing four balls a set is itself proof of a real role.
+        sits = g.index[(g.rps < thr) & (g.aps < FRONT_ROW_SWINGS)]
+        dropped.update(sits)
+        print(f"  {yr}: split at {thr:.2f} rec/set ({PASS_SPLIT:.0%} of {len(ref):,} "
+              f"attackers) -> {len(passes):,} six-rotation, "
+              f"{len(g) - len(passes) - len(sits):,} front-row, "
+              f"{len(sits):,} too few swings to rank")
+    is_pin = pm.position == "Pin"
+    pm.loc[is_pin & pm.uid.isin(six), "position"] = SIX_ROT
+    pm.loc[is_pin & ~pm.uid.isin(six), "position"] = FRONT_ROW
+    pm = pm[~pm.uid.isin(dropped)].copy()
     return pm
 
 
@@ -333,7 +418,7 @@ def adjust_outside_efficiency(d: pd.DataFrame) -> tuple[pd.DataFrame, dict | Non
     """
     d = d.copy()
     d["hit_pct_pass"] = d["hit_pct"]
-    oh = d[(d.position == "Outside hitter") & d.hit_pct.notna()
+    oh = d[(d.position == SIX_ROT) & d.hit_pct.notna()
            & d.receptions_per_set.notna() & d.attacks_per_set.notna()
            & (d.S >= MIN_SETS)]
     fit = oh[oh.season.isin(REFERENCE_SEASONS)]
@@ -537,7 +622,7 @@ def recency(pm: pd.DataFrame, window: int = 3) -> pd.DataFrame:
 
 # (metric, direction, label) per group. direction +1 = higher is better.
 BENCHMARKS = {
-    "Outside hitter": [
+    SIX_ROT: [
         ("kills_per_set", +1, "Kills per set"),
         ("hit_pct_pass", +1, "Hitting efficiency, adjusted for passing load"),
         ("reception_err_rate", -1, "Reception error rate"),
@@ -551,7 +636,7 @@ BENCHMARKS = {
         ("attacks_per_set", +1, "Attacks per set"),
         ("aces_per_set", +1, "Aces per set"),
     ],
-    "Opposite": [
+    FRONT_ROW: [
         ("kills_per_set", +1, "Kills per set"),
         ("hit_pct", +1, "Hitting efficiency"),
         ("blocks_per_set", +1, "Blocks per set"),
@@ -846,6 +931,7 @@ def main() -> None:
     if pm.empty:
         raise SystemExit("No player rows read.")
 
+    pm = split_pins(pm)
     d = derive(player_seasons(pm))
     d, adjustment = adjust_outside_efficiency(d)
 

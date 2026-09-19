@@ -197,7 +197,8 @@ def player_log(season: str, team: str, player: str) -> pd.DataFrame:
 
 ALL_POSITIONS = "All positions"
 
-POSITION_ORDER = ["Outside hitter", "Opposite", "Middle blocker", "Setter", "Back row"]
+POSITION_ORDER = ["Six-rotation hitter", "Front-row hitter", "Middle blocker",
+                  "Setter", "Back row"]
 
 
 def all_positions(season: str, conference: str | None = None,
@@ -232,8 +233,7 @@ def team_board(season: str, team: str, include_unranked: bool = False) -> pd.Dat
     out = p[(p.season == season) & (p.team == team)].copy()
     if not include_unranked:
         out = out[out.ranked]
-    order = {g: i for i, g in enumerate(
-        ["Outside hitter", "Opposite", "Middle blocker", "Setter", "Back row"])}
+    order = {g: i for i, g in enumerate(POSITION_ORDER)}
     out["_o"] = out.position.map(order).fillna(99)
     return (out.sort_values(["_o", "rank_in_position"], na_position="last")
                .drop(columns="_o").reset_index(drop=True))
