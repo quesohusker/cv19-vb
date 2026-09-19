@@ -76,8 +76,9 @@ done
 "$PY" analytics/build_player_ratings.py --gis-dir "${GIS_DIR}/public/data" \
   --years $PLAYER_YEARS --current-season "${YEAR}"
 
-step "9/9  elo ratings"
+step "9/9  elo ratings and the composite power ranking"
 "$PY" analytics/elo_ratings.py
+"$PY" analytics/composite_ratings.py
 
 step "done"
 cat <<MSG

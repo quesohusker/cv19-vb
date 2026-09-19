@@ -494,52 +494,84 @@ def page_rankings(season: str, home: str, away: str) -> None:
                 unsafe_allow_html=True)
     c1, c2 = st.columns([2, 1])
     conf = c1.selectbox("Conference", ["All D1"] + D.conferences(season))
-    min_m = c2.slider("Min matches", 5, 30, 10)
+    min_m = c2.slider("Min matches", 5, 30, 5)
 
     r = D.rankings(season, None if conf == "All D1" else conf, min_m)
     if r.empty:
         st.info("No teams match that filter.")
         return
-    st.markdown('<p class="sublabel">Opponent-adjusted side-out rating, in percentage points '
-                'against an average D1 team. Offense is side-out ability; defense is '
-                'suppressing the opponent&rsquo;s side-out. Ranks stay national when a '
-                'conference is selected.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sublabel">Rating is a 50/50 composite of two models that '
+                'disagree on purpose. The <em>ridge</em> half solves every team against '
+                'every opponent at once but has no memory &mdash; August counts like '
+                'December and each season starts from nothing. The <em>Elo</em> half '
+                'carries last season and weights recent matches more, but updates one '
+                'match at a time and never sees the whole schedule. Each still predicts '
+                'what the other misses, so the blend beats both. Offense and defense are '
+                'the ridge components, in percentage points of side-out rate against an '
+                'average D1 team. Ranks stay national when a conference is selected.</p>',
+                unsafe_allow_html=True)
 
     html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th><th>Team</th><th>Record</th>'
-            '<th>Conference</th><th style="text-align:right">Overall</th>'
+            '<th>Conference</th><th style="text-align:right">Rating</th>'
             '<th style="text-align:right">Offense</th><th style="text-align:right">Defense</th>'
+            '<th style="text-align:right">Elo</th>'
             f'<th style="text-align:right">Grade /{GRADE_MAX}</th></tr></thead><tbody>']
     for _, row in r.iterrows():
         hl = ' class="hl"' if row.team in (home, away) else ""
         rec = f"{int(row.wins)}-{int(row.losses)}" if pd.notna(row.wins) else "&mdash;"
         grade = f"{row.grade:.2f}" if pd.notna(row.grade) else "&mdash;"
+        elo = f"{row.elo:,.0f}" if pd.notna(getattr(row, "elo", None)) else "&mdash;"
         html.append(
-            f'<tr{hl}><td class="n">{int(row.rank_overall)}</td><td>{T.chip(row.team, ".85rem")}</td>'
+            f'<tr{hl}><td class="n">{int(row.rank_composite)}</td><td>{T.chip(row.team, ".85rem")}</td>'
             f'<td>{rec}</td><td>{row.conference or ""}</td>'
-            f'<td class="n">{row.rating_overall:+.1f}</td>'
+            f'<td class="n">{row.rating_composite:+.1f}</td>'
             f'<td class="n">{row.rating_off:+.1f}</td>'
-            f'<td class="n">{row.rating_def:+.1f}</td><td class="n">{grade}</td></tr>')
+            f'<td class="n">{row.rating_def:+.1f}</td>'
+            f'<td class="n">{elo}</td><td class="n">{grade}</td></tr>')
     html.append("</tbody></table></div>")
     st.markdown("".join(html), unsafe_allow_html=True)
     ask_panel(
         f"Power Rankings \u2014 {season}" + ("" if conf == "All D1" else f", {conf}"),
-        "Opponent-adjusted team ratings from one ridge regression over every team-match. "
-        "Side-out rate is the currency: sideout_pct(i receiving against j) = mu + off_i - "
-        "def_j. Ratings are centred so an average D1 team is 0.0, in percentage points of "
-        "side-out rate \u2014 '+6.1' means six more side-outs per hundred receive rallies "
-        "than an average team would manage against the same opponents. rating_overall = "
-        "off + def. Ranks stay national when a conference is selected.",
-        [("Team ratings", r, ["rank_overall", "team", "conference", "wins", "losses",
-                              "rating_overall", "rating_off", "rating_def", "grade",
+        "Team ratings from two opponent-adjusted models, blended half and half. "
+        "MODEL 1, the ridge: one regression over every team-match, with side-out rate as "
+        "the currency \u2014 sideout_pct(i receiving against j) = mu + off_i - def_j. It "
+        "is centred so an average D1 team is 0.0, in percentage points of side-out rate, "
+        "so rating_off '+6.1' means six more side-outs per hundred receive rallies than an "
+        "average team would manage against the same opponents. rating_overall = off + def. "
+        "It solves the whole schedule at once but has no memory: every season starts from "
+        "zero and an August match counts like a December one. "
+        "MODEL 2, Elo: sequential, 400-point logistic scale, updated after every match, "
+        "with margin entering through the K multiplier as the winner's share of all "
+        "rallies. It carries 95% of last season forward and weights recent matches more, "
+        "but updates one match at a time and never sees the schedule whole. "
+        "THE BLEND: both ratings are standardised within the season, averaged 50/50, then "
+        "rescaled to the ridge's spread \u2014 so rating_composite is read like "
+        "rating_overall but is not literally side-outs per hundred. The 50/50 weight was "
+        "fitted, not chosen: trained on three seasons and tested on the fourth it came "
+        "back 52%, 49%, 50% and 49% Elo. Ranks stay national when a conference is "
+        "selected, and rank_composite is what the board is sorted by.",
+        [("Team ratings", r, ["rank_composite", "team", "conference", "wins", "losses",
+                              "rating_composite", "rating_overall", "rank_overall",
+                              "elo", "rank_elo", "rating_off", "rating_def", "grade",
                               "graded_matches"])],
         "pwr",
-        glossary={"rating_off": "side-out ability when receiving",
-                  "rating_def": "suppressing the opponent's side-out",
+        glossary={"rating_composite": "the 50/50 blend the board is ranked by",
+                  "rating_overall": "the ridge half alone, = off + def",
+                  "elo": "the Elo half alone; league mean is 1500, sd about 365",
+                  "rating_off": "side-out ability when receiving (ridge)",
+                  "rating_def": "suppressing the opponent's side-out (ridge)",
                   "grade": f"mean benchmark count out of {GRADE_MAX}, unadjusted"},
         limits=["Ridge shrinks teams with short or lopsided schedules toward average.",
                 "The grade column is unadjusted and will disagree with the rating for "
                 "teams on very soft or very hard schedules. That disagreement is the "
-                "reason both are shown."],
+                "reason both are shown.",
+                "Early in a season the two halves disagree most, because Elo is still "
+                "mostly last season's team while the ridge knows only this one. Fitted "
+                "inside week bands the best weight runs about 55% Elo in September and "
+                "21% by December, but holding the weight flat at 50/50 predicts just as "
+                "well, so the board does not slide it.",
+                "The composite is a rank-ordering device. Read rating_off and rating_def "
+                "when you want a number that is literally side-outs per hundred."],
         examples=["who is underrated by their record?",
                   "is this conference strong on offense or defense?"])
 

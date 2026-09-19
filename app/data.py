@@ -114,7 +114,7 @@ def power_ratings() -> pd.DataFrame:
 
 
 def rankings(season: str, conference: str | None = None,
-             min_matches: int = 10) -> pd.DataFrame:
+             min_matches: int = 5) -> pd.DataFrame:
     """Power rankings joined to record and conference.
 
     Ranks stay national when a conference filter is applied, matching the CFB app.
@@ -126,7 +126,10 @@ def rankings(season: str, conference: str | None = None,
     out = pr.merge(ts, on=["season", "team"], how="left")
     if conference:
         out = out[out.conference == conference]
-    return out.sort_values("rank_overall").reset_index(drop=True)
+    # The board leads with the composite. Fall back to the ridge rank if the composite
+    # stage has not been run, so a half-built app_data still renders.
+    key = "rank_composite" if "rank_composite" in out.columns else "rank_overall"
+    return out.sort_values(key).reset_index(drop=True)
 
 
 @lru_cache(maxsize=1)
