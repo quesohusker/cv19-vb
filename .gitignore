@@ -1,3 +1,9 @@
+# macOS writes one of these into every folder Finder opens, which on an external
+# volume means all of them. They would otherwise block publish.sh, whose
+# cleanliness guard refuses to commit while anything outside app_data is dirty.
+.DS_Store
+**/.DS_Store
+
 # Raw NCAA play-by-play is 8.8 GB and stays out of the repository.
 /data/*
 
