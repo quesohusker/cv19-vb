@@ -75,7 +75,14 @@ def setter_names(playermatch_csv: Path) -> dict[str, set[str]]:
 
 
 def read_summary_pbp(pbp_dir: Path, setters: dict) -> pd.DataFrame:
-    """Kills, and whether a setter set them, from the ncaa-api point summary."""
+    """Kills, and whether a setter set them, from the ncaa-api point summary.
+
+    A kill whose setter is not a designated setter is genuinely out of system. A kill
+    whose TEAM could not be matched to the roster file is a data failure that looks
+    identical -- everything comes back out of system -- and that is exactly how this
+    broke the first time. The two are counted separately and reported, so a naming
+    mismatch is loud instead of a board full of zeroes.
+    """
     rows = []
     files = sorted(pbp_dir.glob("*.json"))
     for i, f in enumerate(files, 1):
@@ -89,7 +96,9 @@ def read_summary_pbp(pbp_dir: Path, setters: dict) -> pd.DataFrame:
             nm = (t.get("nameShort") or t.get("shortName")
                   or (t.get("team") or {}).get("nameShort") or "")
             if tid is not None:
-                teams[str(tid)] = nm
+                # Trailing whitespace is real in this feed -- "LSU New Orleans " is one
+                # of 290 sampled names and the only one that fails an exact match.
+                teams[str(tid)] = (nm or "").strip()
         for p in d.get("periods") or []:
             for e in p.get("playbyplayStats") or []:
                 team = teams.get(str(e.get("teamId")), "")
@@ -105,6 +114,20 @@ def read_summary_pbp(pbp_dir: Path, setters: dict) -> pd.DataFrame:
         if i % 200 == 0:
             print(f"  read {i:,}/{len(files):,} matches", flush=True)
     df = pd.DataFrame(rows, columns=["team", "hitter", "setter", "assisted"])
+    if not df.empty:
+        known = set(setters)
+        unmatched = sorted(set(df.team) - known - {""})
+        share = (~df.team.isin(known)).mean()
+        if unmatched:
+            print(f"  WARNING: {len(unmatched)} team name(s) in the play-by-play have no "
+                  f"roster match, covering {share:.1%} of kills:")
+            for t in unmatched[:8]:
+                print(f"      {t!r}")
+            if share > 0.05:
+                print("  Those kills can only come back out of system. Fix the naming "
+                      "before trusting this output.")
+        else:
+            print(f"  every play-by-play team matched the roster file")
     return df
 
 
@@ -183,8 +206,15 @@ def main() -> None:
         raise SystemExit(f"No play-by-play at {pbp_dir}. Run the pipeline first.")
     print(f"reading {pbp_dir}")
     raw = read_summary_pbp(pbp_dir, setters)
+    if raw.empty:
+        raise SystemExit("No kills parsed. Is the play-by-play cache populated?")
     print(f"  {len(raw):,} kills, {raw.assisted.mean():.1%} with an assist named")
     out = summarise(raw, str(args.year), setters)
+    overall = out.in_system_kills.sum() / max(out.kills_charted.sum(), 1)
+    print(f"  in system overall: {overall:.1%}  (2022-2025 ran 80.6% to 82.7%)")
+    if overall < 0.5:
+        print("  That is far below every prior season. Something is wrong with the "
+              "name matching -- do not publish this.")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     prev = (pd.read_parquet(args.out) if args.out.exists()
