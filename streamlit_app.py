@@ -56,6 +56,47 @@ def fmt(value, kind: str) -> str:
     return f"{value:.1f}"
 
 
+PIN_BOARDS = ("Six-rotation hitter", "Front-row hitter")
+
+
+def pin_split_note() -> None:
+    """Why the two attacking boards are named for the job rather than the position.
+
+    Shown only on the boards it applies to. A reader who arrives at "Six-rotation
+    hitter" expecting "Outside hitter" deserves the reason in one click, without it
+    sitting on top of every other board.
+    """
+    with st.expander("Why &ldquo;six-rotation&rdquo; and &ldquo;front-row&rdquo; "
+                     "instead of outside and opposite?"):
+        st.markdown(
+            "Rosters list a player as OH or OPP, and we used to rank her that way. It "
+            "doesn't work, for a simple reason: **the label often doesn't describe the "
+            "job.**\n\n"
+            "About half of teams don't give their opposite a label of her own &mdash; "
+            "she just gets listed as an outside hitter. So when we checked, **43% of "
+            "players called outside hitters almost never touch serve receive.** They "
+            "are doing the opposite's job under the outside's name. Ranking by label "
+            "meant ranking a team's paperwork, and it left the opposite board with "
+            "fewer than 200 players nationally while the outside board carried 1,200.\n\n"
+            "So the split is on what a player actually does, and the dividing line is "
+            "serve receive:\n\n"
+            "- **Six-rotation hitter** &mdash; she passes *and* attacks. She stays on "
+            "for all six rotations, takes serve after serve, and still has to put balls "
+            "away. Her hitting numbers carry the cost of passing first.\n"
+            "- **Front-row hitter** &mdash; she attacks and blocks, and someone else "
+            "passes. She gets more swings from better sets, so we expect a higher "
+            "hitting percentage, and she is graded on blocking, which the six-rotation "
+            "player does less of.\n\n"
+            "These are genuinely different jobs, and now every player is measured "
+            "against others doing hers. A terminator isn't penalised for passing she "
+            "was never asked to do, and a six-rotation outside isn't compared to "
+            "someone who only plays the front row.\n\n"
+            "One honest caveat: **the line is a judgment call, not a natural gap in the "
+            "data.** Most players are nowhere near it, but about 9% are close enough to "
+            "fall either way. That is why receptions per set is shown on both boards "
+            "&mdash; you can always see how close a player sits to the boundary.")
+
+
 def ask_panel(title: str, context: str, tables, key: str,
               glossary=None, limits=None, examples=(), limit: int | None = 300) -> None:
     """The download-and-ask panel at the foot of every page.
@@ -525,6 +566,7 @@ def page_players(season: str, home: str, away: str) -> None:
         elif scope == "Top 25 per position":
             r = r.groupby("position", group_keys=False).head(25)
         cols, show_pos = TEAM_COLUMNS, True
+        pin_split_note()
         who = team or (f"{home} and {away}" if scope == "Selected teams only" else "D1")
         st.markdown(
             f'<p class="sublabel">Every ranked {who} player in {season}, all five '
@@ -544,6 +586,8 @@ def page_players(season: str, home: str, away: str) -> None:
         elif scope == "Top 100":
             r = r.head(100)
         cols, show_pos = PLAYER_COLUMNS.get(position, []), False
+        if position in PIN_BOARDS:
+            pin_split_note()
         graded = ", ".join(x["label"].lower() for x in pb["groups"].get(position, []))
         bonus = (" Setters who attack carry a small credit on kills per set."
                  if position == "Setter" else "")
