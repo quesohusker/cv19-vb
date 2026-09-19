@@ -73,6 +73,12 @@ BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 for attempt in 1 2 3 4; do
   if git push -u origin "$BRANCH"; then break; fi
   [ "$attempt" -eq 4 ] && { echo "Push failed after 4 attempts." >&2; exit 1; }
+  if ! git diff --quiet "$BRANCH" "origin/$BRANCH" 2>/dev/null; then
+    echo "  the remote moved; rebasing onto it and retrying"
+    git pull --rebase --quiet || {
+      echo "Rebase hit a conflict. Resolve it, then: git push" >&2; exit 1; }
+    continue
+  fi
   sleep $((2 ** attempt))
 done
 
