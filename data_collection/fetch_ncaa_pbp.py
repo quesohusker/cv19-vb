@@ -103,6 +103,15 @@ def main() -> None:
                          f"Run: python3 data_collection/fetch_ncaa_results.py {args.year}")
     out_dir = args.out_dir or Path(f"data/ncaa_api/pbp/{args.year}")
     out_dir.mkdir(parents=True, exist_ok=True)
+    # Resolve once, to a path with no symlinks left in it. This stage runs for forty
+    # minutes and writes ~1,700 files; every one of those writes would otherwise
+    # re-traverse whatever links sit above it, so a link that is moved or replaced
+    # halfway through -- a home directory symlinked for convenience, say -- turns every
+    # remaining write into a failure against a path that no longer means what it did at
+    # startup. Resolving up front pins the run to the real directory it began writing to.
+    out_dir = out_dir.resolve()
+    results = results.resolve()
+    print(f"writing to {out_dir}")
 
     games = [r for r in json.loads(results.read_text()) if r.get("game_id")]
     def cached(gid: str) -> bool:
