@@ -55,6 +55,35 @@ def fetch_one(game_id: str, timeout: int, retries: int = 2):
     return None, "exhausted retries"
 
 
+def write_json(path: Path, data) -> tuple[bool, str | None]:
+    """Write one cached response, atomically, and never take the run down with it.
+
+    Two failure modes seen in the wild, both on a checkout under ~/Documents, which
+    macOS syncs to iCloud Drive by default:
+
+    FIRST, the output directory can disappear underneath a long run. iCloud relocates
+    and evicts folders while it syncs, and a run that writes ~1,700 small files over
+    forty minutes is exactly the shape that provokes it. The directory was created once
+    at startup and 920 files landed before the 921st raised FileNotFoundError and killed
+    the process. So the directory is now re-made before every write -- an idempotent
+    mkdir costs nothing next to an HTTP request -- and a write that still fails counts
+    as a failed match and the loop carries on.
+
+    SECOND, a write interrupted partway leaves a truncated file. The resume check only
+    asks whether a file exists, so a half-written one would be skipped forever and then
+    fail to parse in the rally builder, a long way from here. Writing to a temporary
+    name and renaming into place makes the cached file either whole or absent.
+    """
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(".json.part")
+        tmp.write_text(json.dumps(data))
+        tmp.replace(path)
+        return True, None
+    except OSError as e:
+        return False, f"{type(e).__name__}: {e}"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("year", type=int)
@@ -76,7 +105,14 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     games = [r for r in json.loads(results.read_text()) if r.get("game_id")]
-    todo = [g for g in games if not (out_dir / f"{g['game_id']}.json").exists()]
+    def cached(gid: str) -> bool:
+        f = out_dir / f"{gid}.json"
+        # size, not just existence: a file left truncated by an interrupted run must be
+        # fetched again rather than silently skipped and failed on much later
+        return f.exists() and f.stat().st_size > 2
+    for stale in out_dir.glob("*.json.part"):
+        stale.unlink(missing_ok=True)
+    todo = [g for g in games if not cached(g["game_id"])]
     print(f"{len(games):,} matches in results, {len(games) - len(todo):,} already "
           f"fetched, {len(todo):,} to go")
     if args.limit:
@@ -95,8 +131,13 @@ def main() -> None:
             data["_date"] = g["date"]
             data["_away_team"] = g["away_team"]
             data["_home_team"] = g["home_team"]
-            (out_dir / f"{g['game_id']}.json").write_text(json.dumps(data))
-            ok += 1
+            wrote, werr = write_json(out_dir / f"{g['game_id']}.json", data)
+            if wrote:
+                ok += 1
+            else:
+                failed += 1
+                print(f"  [{i}/{len(todo)}] {g['game_id']} WRITE FAILED ({werr})",
+                      file=sys.stderr)
         if i % 25 == 0 or i == len(todo):
             rate = i / max(time.time() - started, 1e-9)
             left = (len(todo) - i) / max(rate, 1e-9)
