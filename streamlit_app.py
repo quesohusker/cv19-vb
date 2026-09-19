@@ -140,8 +140,21 @@ METRIC_NOTES = {
         "ranking on it alone would reward a middle who takes four safe swings a match "
         "over one carrying a real load."),
     "Setter": (
-        "**Graded on:** assists per set, digs per set, aces per set, plus a small "
-        "credit for a setter who attacks.\n\n"
+        "**Graded on:** assists per set, charted set quality, digs per set, aces per "
+        "set, plus a small credit for a setter who attacks.\n\n"
+        "**Set quality is the best-behaved number in this whole project.** Every set she "
+        "makes is charted great / good / bad, and the rating is (2&times;great + good) "
+        "&divide; total, on a 0&ndash;2 scale. It repeats at +0.78 year over year, and "
+        "its teammate correlation is &minus;0.02 &mdash; knowing one setter's number "
+        "tells you *nothing* about the other setter on her roster, which is exactly "
+        "what you want and exactly what assist rate failed. It also tracks winning "
+        "better than anything else here: +0.76 against team hitting efficiency, +0.64 "
+        "against win percentage. It covers every primary setter in every season.\n\n"
+        "**Bad set %** is shown beside it. A set the hitter can do little with happens "
+        "3.4% of the time and repeats at +0.70 &mdash; a real mistake measure. The "
+        "*charged* setting error is not: a double or a lift is called 364 times in the "
+        "entire dataset against 4.75 million sets, the median setter commits none all "
+        "season, and the rate barely repeats (+0.09). Scorers almost never call it.\n\n"
         "**Ruled out &mdash; assists per set attempt.** This is the one that stings, "
         "because it reads like the only measure of setting *quality* a box score "
         "offers: what share of her sets a hitter put away. It validates beautifully "
@@ -152,12 +165,14 @@ METRIC_NOTES = {
         "tracks winning **because it is the team**: a setter on a good offence has a "
         "high assist rate because her hitters convert, and grading her on it credits "
         "her with their hitting.\n\n"
-        "**What that leaves, stated plainly:** this board measures a setter's volume, "
-        "not her quality. A college volleyball box score does not contain a clean "
-        "measure of setting quality. Charted set quality exists in the source but "
-        "qualifies only 6&ndash;7% of players &mdash; far too thin to rank on. Assists "
-        "per set is kept because it is demonstrably hers (teammate correlation "
-        "&minus;0.70, since two setters split one job) and tracks winning at +0.53."),
+        "*An earlier version of this page said charted set quality was too thin to use, "
+        "covering 6&ndash;7% of players. That was the wrong denominator &mdash; the "
+        "source file lists everyone who ever touched a set, including hitters making an "
+        "emergency one. Among actual setters it covers 68&ndash;90%, and 100% of "
+        "primary setters.*\n\n"
+        "Assists per set is kept alongside because it is demonstrably hers (teammate "
+        "correlation &minus;0.70, since two setters split one job) and tracks winning "
+        "at +0.53."),
     "Back row": (
         "**Graded on:** digs per set, charted dig quality, receptions per set, "
         "reception error rate, aces per set.\n\n"
@@ -510,7 +525,9 @@ PLAYER_COLUMNS = {
                  ("Att/set", "attacks_per_set", "dec2"),
                  ("Rec/set", "receptions_per_set", "dec2"),
                  ("Aces/set", "aces_per_set", "dec2")],
-    "Setter": [("Ast/set", "assists_per_set", "dec2"), ("Ast/att", "assist_rate", "dec3"),
+    "Setter": [("Ast/set", "assists_per_set", "dec2"),
+               ("Set qual", "set_rating", "dec2"),
+               ("Bad set%", "set_bad_pct", "pct1"),
                ("Digs/set", "digs_per_set", "dec2"),
                ("Aces/set", "aces_per_set", "dec2"), ("K/set", "kills_per_set", "dec2")],
     "Back row": [("Digs/set", "digs_per_set", "dec2"),

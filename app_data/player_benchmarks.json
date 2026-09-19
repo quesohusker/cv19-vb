@@ -112,6 +112,12 @@
         "threshold": 3.84708
       },
       {
+        "metric": "set_rating",
+        "direction": "higher_is_better",
+        "label": "Set quality (charted, 0-2)",
+        "threshold": 1.31
+      },
+      {
         "metric": "digs_per_set",
         "direction": "higher_is_better",
         "label": "Digs per set",

@@ -87,10 +87,34 @@ offence has a high assist rate because her hitters convert, and grading her on i
 credits her with their hitting. It fails the same test as charted reception quality,
 by a wider margin.
 
-What that leaves is worth saying out loud: the setter board has no measure of setting
-quality, only of volume. A college volleyball box score does not contain one. Charted
-set quality exists in the source but qualifies 6-7% of players, far too thin to grade.
-Assists per set is kept because it is demonstrably hers -- teammate correlation -0.698,
+CHARTED SET QUALITY REPLACES IT, and is the best-behaved metric in this project. An
+earlier pass here dismissed it as covering 6-7% of players; that was the wrong
+denominator. The file lists every player who ever touched a set, including hitters
+making an emergency one, and against that population 6-7% qualify. Against setters it
+covers 68-90% of everyone ranked and ONE HUNDRED PERCENT of primary setters, in every
+season.
+
+It measures the setter and nothing else. Year-over-year +0.780, the highest recorded
+here; teammate correlation -0.021, meaning a setter's number tells you nothing about
+the other setter on her roster. Remove the team mean and it still holds +0.694, where
+assist rate fell to +0.089. The scale does not drift either -- the league median runs
+1.304, 1.306, 1.313, 1.317, 1.328 across 2022-2026 -- so a fixed cross-season reference
+means what it says.
+
+And it tracks winning better than anything else on the board: +0.761 against team
+hitting efficiency and +0.637 against win percentage, against assists per set's +0.578
+and +0.531. With a teammate correlation of zero, that link is the setter's own
+contribution rather than her hitters' credited to her, which is exactly what assist
+rate could not claim.
+
+MISTAKES ARE MEASURABLE, BUT NOT THE ONES THAT GET CHARGED. A setting error -- a
+double, a lift -- is called 364 times in the entire dataset against 4.75 million sets;
+the median qualified setter commits none all season, and the rate repeats at +0.091.
+A BAD SET, one the hitter can do little with, happens 3.4% of the time and repeats at
++0.700 with a teammate correlation of -0.029. It is already inside the rating, since a
+bad set scores zero in it, and is carried separately as a displayed column.
+
+Assists per set stays alongside: it is demonstrably hers -- teammate correlation -0.698,
 since two setters split the same job -- and tracks winning at +0.53.
 
 SETTERS GET A SMALL ATTACKING BONUS. A setter who attacks brings something the
@@ -375,10 +399,12 @@ def touch_quality(gis_dir: Path, years: list[int], kind: str = "dig") -> pd.Data
             if not v.get("qualified") or not v.get("total"):
                 continue
             name = key.split("|")[0]
-            rows.append({"season": str(year), "team": v.get("school", ""),
-                         "_key": name,
-                         f"{kind}_rating": (2 * v["great"] + v["good"]) / v["total"],
-                         f"{kind}_touches": v["total"]})
+            row = {"season": str(year), "team": v.get("school", ""), "_key": name,
+                   f"{kind}_rating": (2 * v["great"] + v["good"]) / v["total"],
+                   f"{kind}_touches": v["total"]}
+            if "bad" in v:
+                row[f"{kind}_bad_pct"] = v["bad"] / v["total"]
+            rows.append(row)
     if not rows:
         print(f"  no {kind}-quality files found; skipping")
         return pd.DataFrame(columns=["season", "team", "_key", f"{kind}_rating"])
@@ -662,6 +688,7 @@ BENCHMARKS = {
     ],
     "Setter": [
         ("assists_per_set", +1, "Assists per set"),
+        ("set_rating", +1, "Set quality (charted, 0-2)"),
         ("digs_per_set", +1, "Digs per set"),
         ("aces_per_set", +1, "Aces per set"),
     ],
@@ -974,14 +1001,16 @@ def main() -> None:
 
     print("\nreading charted touch quality")
     d["_key"] = d.player.map(norm_name)
-    dq = touch_quality(args.gis_dir, args.years, "dig")
-    if not dq.empty:
-        d = d.merge(dq, on=["season", "team", "_key"], how="left")
-    if "dig_rating" not in d:
-        d["dig_rating"] = pd.NA
+    for kind in ("dig", "set"):
+        q = touch_quality(args.gis_dir, args.years, kind)
+        if not q.empty:
+            d = d.merge(q, on=["season", "team", "_key"], how="left")
+        if f"{kind}_rating" not in d:
+            d[f"{kind}_rating"] = pd.NA
     # only where most of the position is covered; elsewhere it would rank the 1% of
     # middles who happen to be charted against each other
     d.loc[d.position != "Back row", "dig_rating"] = pd.NA
+    d.loc[d.position != "Setter", "set_rating"] = pd.NA
 
     print("\nchecking who is still on the floor")
     d = d.merge(recency(pm), on="uid", how="left")
@@ -1019,6 +1048,7 @@ def main() -> None:
             "blocks_per_set", "digs_per_set", "receptions_per_set",
             "reception_err_rate", "assists_per_set", "assist_rate",
             "aces_per_set", "serve_err_per_set", "dig_rating", "dig_touches",
+            "set_rating", "set_touches", "set_bad_pct",
             "opponent_adjusted",
             "last_played", "team_matches_missed", "recent_sets", "recent_set_share",
             "active", "ranked",
