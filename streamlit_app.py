@@ -107,6 +107,19 @@ METRIC_NOTES = {
         "She passes and attacks, so her hitting is measured against what her passing "
         "load predicts. An outside taking six serves a set gets the out-of-system ball "
         "more often, and raw efficiency punishes her for it.\n\n"
+        "**In-system kill %.** In system means the designated setter delivered "
+        "the ball; out of system the pass or dig was bad and a libero or an outside "
+        "put up the second touch instead. The difference is not subtle &mdash; "
+        "across 1.3 million attacks, in system produced a 36.3% kill rate at .211, "
+        "out of system 30.2% at .157.\n\n"
+        "It is a **control, never a benchmark.** A hitter's in-system share "
+        "correlates +0.25 with her own efficiency, so a low number marks someone "
+        "getting worse balls, not someone heroically terminating garbage &mdash; "
+        "grading it would simply reward whoever is fed best. What it earns her is "
+        "credit: a hitter at 68% in system who hits .250 did more than one at 90% "
+        "who hits .250, and the board could not otherwise tell them apart. It is "
+        "hers rather than her team's &mdash; teammate correlation +0.06, only 8.6% "
+        "of the variance explained by the team she plays for.\n\n"
         "**Ruled out &mdash; receptions per set.** It looks like the obvious way to "
         "credit a six-rotation player, and it double-counts: the efficiency adjustment "
         "already accounts for passing load, so grading volume on top scores the same "
@@ -124,6 +137,19 @@ METRIC_NOTES = {
         "Someone else passes, so she is measured purely on terminating and blocking. "
         "Her efficiency is used raw &mdash; no passing adjustment &mdash; because she "
         "is swinging at in-system balls and should be held to that standard.\n\n"
+        "**In-system kill %.** In system means the designated setter delivered "
+        "the ball; out of system the pass or dig was bad and a libero or an outside "
+        "put up the second touch instead. The difference is not subtle &mdash; "
+        "across 1.3 million attacks, in system produced a 36.3% kill rate at .211, "
+        "out of system 30.2% at .157.\n\n"
+        "It is a **control, never a benchmark.** A hitter's in-system share "
+        "correlates +0.25 with her own efficiency, so a low number marks someone "
+        "getting worse balls, not someone heroically terminating garbage &mdash; "
+        "grading it would simply reward whoever is fed best. What it earns her is "
+        "credit: a hitter at 68% in system who hits .250 did more than one at 90% "
+        "who hits .250, and the board could not otherwise tell them apart. It is "
+        "hers rather than her team's &mdash; teammate correlation +0.06, only 8.6% "
+        "of the variance explained by the team she plays for.\n\n"
         "**Ruled out &mdash; charted block quality.** The source publishes a blocking "
         "efficiency, and it does not repeat: once the team effect is removed, a "
         "player's year-over-year correlation is +0.26. Blocks per set is cruder and far "
@@ -134,6 +160,19 @@ METRIC_NOTES = {
         "Attack volume is graded deliberately: a middle who gets set often is being "
         "trusted, and that is part of being good. A block assist counts as half a "
         "block, since two players share one.\n\n"
+        "**In-system kill %.** In system means the designated setter delivered "
+        "the ball; out of system the pass or dig was bad and a libero or an outside "
+        "put up the second touch instead. The difference is not subtle &mdash; "
+        "across 1.3 million attacks, in system produced a 36.3% kill rate at .211, "
+        "out of system 30.2% at .157.\n\n"
+        "It is a **control, never a benchmark.** A hitter's in-system share "
+        "correlates +0.25 with her own efficiency, so a low number marks someone "
+        "getting worse balls, not someone heroically terminating garbage &mdash; "
+        "grading it would simply reward whoever is fed best. What it earns her is "
+        "credit: a hitter at 68% in system who hits .250 did more than one at 90% "
+        "who hits .250, and the board could not otherwise tell them apart. It is "
+        "hers rather than her team's &mdash; teammate correlation +0.06, only 8.6% "
+        "of the variance explained by the team she plays for.\n\n"
         "**Ruled out &mdash; charted block quality** (+0.26 year-over-year once the "
         "team effect is removed), and **hitting efficiency alone**. Middles post the "
         "highest efficiency of any position because they swing at the easiest balls; "
@@ -515,15 +554,18 @@ PLAYER_COLUMNS = {
                        ("Rec/set", "receptions_per_set", "dec2"),
                        ("Rec err", "reception_err_rate", "pct1"),
                        ("Digs/set", "digs_per_set", "dec2"),
+                       ("In-sys%", "in_system_kill_pct", "pct1"),
                        ("Aces/set", "aces_per_set", "dec2")],
     "Middle blocker": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                        ("Blk/set", "blocks_per_set", "dec2"),
                        ("Att/set", "attacks_per_set", "dec2"),
+                       ("In-sys%", "in_system_kill_pct", "pct1"),
                        ("Aces/set", "aces_per_set", "dec2")],
     "Front-row hitter": [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                  ("Blk/set", "blocks_per_set", "dec2"),
                  ("Att/set", "attacks_per_set", "dec2"),
                  ("Rec/set", "receptions_per_set", "dec2"),
+                 ("In-sys%", "in_system_kill_pct", "pct1"),
                  ("Aces/set", "aces_per_set", "dec2")],
     "Setter": [("Ast/set", "assists_per_set", "dec2"),
                ("Set qual", "set_rating", "dec2"),

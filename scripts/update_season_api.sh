@@ -29,7 +29,7 @@ PLAYERMATCH="${GIS_DIR}/public/data/wvb_playermatch_div1_${YEAR}.csv"
 
 step() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
 
-step "1/7  box-score source"
+step "1/8  box-score source"
 if [ -d "${GIS_DIR}/.git" ]; then
   echo "  updating ${GIS_DIR}"
   git -C "${GIS_DIR}" pull --ff-only --quiet || echo "  (pull skipped; using what is on disk)"
@@ -39,21 +39,21 @@ else
 fi
 [ -f "${PLAYERMATCH}" ] || { echo "No ${PLAYERMATCH}. That season is not published there." >&2; exit 1; }
 
-step "2/7  match results (ncaa-api scoreboard, ~25 requests)"
+step "2/8  match results (ncaa-api scoreboard, ~25 requests)"
 "$PY" data_collection/fetch_ncaa_results.py "${YEAR}"
 
-step "3/7  team box scores"
+step "3/8  team box scores"
 "$PY" data_collection/ingest_gis_boxscores.py "${YEAR}" \
   --gis-dir "${GIS_DIR}/public/data" --results "${RESULTS}"
 
-step "4/7  play-by-play (one request per match -- the long one, resumable)"
+step "4/8  play-by-play (one request per match -- the long one, resumable)"
 echo "Safe to interrupt: every match is cached and re-running fetches only what is missing."
 "$PY" data_collection/fetch_ncaa_pbp.py "${YEAR}" ${PBP_LIMIT:+--limit "${PBP_LIMIT}"}
 
-step "5/7  rally table"
+step "5/8  rally table"
 "$PY" analytics/rally_from_ncaa_api.py "${YEAR}" --serve-attempts "${PLAYERMATCH}"
 
-step "6/7  match metrics and app data"
+step "6/8  match metrics and app data"
 YEARS=""
 for f in data/ncaavolleyballr/data-csv/wvb_teammatch_div1_*.csv; do
   [ -e "$f" ] || continue
@@ -64,7 +64,10 @@ echo "seasons with both a rally table and box scores:${YEARS}"
 "$PY" analytics/build_match_metrics.py --years $YEARS
 "$PY" analytics/build_app_data.py
 
-step "7/7  position rankings for individual players"
+step "7/8  in-system kill share"
+"$PY" analytics/in_system_kills.py "${YEAR}" --gis-dir "${GIS_DIR}/public/data"
+
+step "8/8  position rankings for individual players"
 PLAYER_YEARS=""
 for f in "${GIS_DIR}"/public/data/wvb_playermatch_div1_*.csv; do
   [ -e "$f" ] || continue

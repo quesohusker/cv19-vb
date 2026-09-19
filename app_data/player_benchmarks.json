@@ -177,6 +177,19 @@
     "n": 3391,
     "note": "fitted with attack volume controlled; pooling without it gives -0.0003 and adjusts nothing, because high-volume attackers both pass more and hit better"
   },
+  "in_system": {
+    "applied": false,
+    "thin_seasons": [
+      "2026"
+    ],
+    "coverage": {
+      "2022": 0.506,
+      "2023": 0.497,
+      "2024": 0.496,
+      "2025": 0.627,
+      "2026": 0.0
+    }
+  },
   "opponent_adjustment": {
     "model": "rate(player i vs team j) = mu + player_i - opponent_j, per season",
     "fit": "alternating weighted means, weighted by the denominator; ridge 25 on opponent effects only",

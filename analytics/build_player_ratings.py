@@ -445,7 +445,67 @@ def derive(df: pd.DataFrame) -> pd.DataFrame:
     return d
 
 
-def adjust_outside_efficiency(d: pd.DataFrame) -> tuple[pd.DataFrame, dict | None]:
+def adjust_for_in_system(d: pd.DataFrame, path: Path) -> tuple[pd.DataFrame, dict | None]:
+    """Score a hitter's efficiency against the quality of ball she was actually given.
+
+    In system means the designated setter delivered it. Out of system, the pass or dig
+    was bad and a libero or an outside put up the second touch instead. The difference
+    is large and league-wide: across 1.3 million 2024 attacks, in system produced a
+    36.3% kill rate at .211, out of system 30.2% at .157.
+
+    THIS SUPERSEDES THE PASSING-LOAD ADJUSTMENT, which was a proxy for exactly this and
+    is kept only as a fallback. Passing load asks "how often is she likely to be
+    hitting a ball she just passed"; in-system share measures which ball she actually
+    got. When both are available the direct measurement wins.
+
+    It is used as a CONTROL, never graded. A hitter's in-system share correlates +0.251
+    with her own efficiency, so a low share marks someone getting worse balls, not
+    someone heroically terminating garbage -- grading it would reward whoever is fed
+    best. What it earns her is credit: a hitter at 68% in system hitting .250 did more
+    than one at 90% hitting .250, and without this the boards cannot tell them apart.
+
+    It is hers, not her team's: teammate correlation +0.056, only 8.6% of the variance
+    explained by the team she plays for, and a split-half of 0.680 within a season
+    (0.810 over a full one).
+
+    COVERAGE GATES IT. The adjustment is applied only when every ranked season has it,
+    because the reference distributions pool 2022-2025 and scoring the current season
+    on a different quantity than the reference was built from is the one mistake that
+    quietly corrupts every rating. Until the pipeline has parsed the current season's
+    play-by-play, everything falls back to the passing-load proxy.
+    """
+    d = d.copy()
+    d["in_system_kill_pct"] = pd.NA
+    if not path.exists():
+        print(f"  no {path}; using the passing-load proxy")
+        return d, None
+    isk = pd.read_parquet(path)
+    isk = isk[isk.kills_charted >= 30]
+    # Collapse before joining. Two players on one roster can normalise to the same
+    # name, and a left merge on a duplicated key silently multiplies rows -- which
+    # then breaks every later .loc that assumes one row per player.
+    isk = (isk.sort_values("kills_charted", ascending=False)
+              .drop_duplicates(["season", "team", "_key"]))
+    lookup = isk.set_index(["season", "team", "_key"]).in_system_kill_pct
+    idx = pd.MultiIndex.from_arrays([d.season, d.team, d._key])
+    d["in_system_kill_pct"] = lookup.reindex(idx).to_numpy()
+
+    ranked = d[d.S >= MIN_SETS]
+    cover = ranked.groupby("season").in_system_kill_pct.apply(lambda c: c.notna().mean())
+    print("  in-system coverage of ranked players by season: "
+          + ", ".join(f"{k} {v:.0%}" for k, v in cover.items()))
+    thin = [k for k, v in cover.items() if v < 0.40]
+    if thin:
+        print(f"  {', '.join(thin)} below 40% -- falling back to the passing-load proxy "
+              f"everywhere, so every season is scored on the same quantity")
+        return d, {"applied": False, "thin_seasons": thin,
+                   "coverage": {k: round(float(v), 3) for k, v in cover.items()}}
+    return d, {"applied": True,
+               "coverage": {k: round(float(v), 3) for k, v in cover.items()}}
+
+
+def adjust_outside_efficiency(d: pd.DataFrame, in_system: dict | None = None
+                              ) -> tuple[pd.DataFrame, dict | None]:
     """Score an outside's efficiency against what her passing load predicts.
 
     The fit has to control for attack volume, because pooling hides the effect
@@ -461,6 +521,37 @@ def adjust_outside_efficiency(d: pd.DataFrame) -> tuple[pd.DataFrame, dict | Non
     """
     d = d.copy()
     d["hit_pct_pass"] = d["hit_pct"]
+    if in_system and in_system.get("applied"):
+        # The direct measurement is available for every ranked season, so use it and
+        # leave the proxy alone. Fitted across all attacking boards, not just the
+        # six-rotation one: a middle fed out of system is hitting a bad ball too.
+        # (numpy is imported at module scope; a local import here would shadow it and
+        #  break the fallback path below, which is exactly what it did once.)
+        att = d[(d.S >= MIN_SETS) & d.hit_pct.notna()
+                & d.in_system_kill_pct.notna()
+                & d.position.isin((SIX_ROT, FRONT_ROW, "Middle blocker"))]
+        fit = att[att.season.isin(REFERENCE_SEASONS)]
+        if len(fit) >= 200:
+            x = fit.in_system_kill_pct.astype(float).to_numpy()
+            X = np.column_stack([np.ones(len(fit)), x])
+            y = fit.hit_pct.astype(float).to_numpy()
+            b0, b_sys = (float(v) for v in np.linalg.lstsq(X, y, rcond=None)[0])
+            mean_sys = float(x.mean())
+            rows = d.index.isin(att.index)
+            d.loc[rows, "hit_pct_pass"] = (
+                d.loc[rows, "hit_pct"].astype(float)
+                - b_sys * (d.loc[rows, "in_system_kill_pct"].astype(float) - mean_sys))
+            print(f"  in-system efficiency adjustment: hit% = {b0:.4f} "
+                  f"{b_sys:+.5f} x in-system kill share   (n={len(fit):,})")
+            print(f"    a hitter at {mean_sys - 0.15:.2f} in-system, against a league "
+                  f"mean of {mean_sys:.2f}, is credited "
+                  f"{abs(b_sys) * 0.15 * 1000:.0f} points of efficiency")
+            return d, {"basis": "in-system kill share", "slope": round(b_sys, 5),
+                       "mean_in_system": round(mean_sys, 4), "n": int(len(fit)),
+                       "applies_to": [SIX_ROT, FRONT_ROW, "Middle blocker"],
+                       "note": ("supersedes the passing-load proxy: this measures which "
+                                "ball she actually got rather than guessing from how "
+                                "much she passed")}
     oh = d[(d.position == SIX_ROT) & d.hit_pct.notna()
            & d.receptions_per_set.notna() & d.attacks_per_set.notna()
            & (d.S >= MIN_SETS)]
@@ -959,6 +1050,8 @@ def main() -> None:
                     default=[2022, 2023, 2024, 2025, 2026])
     ap.add_argument("--gis-dir", type=Path, default=Path("../volleyball-gis/public/data"))
     ap.add_argument("--out-dir", type=Path, default=Path("app_data"))
+    ap.add_argument("--in-system", type=Path,
+                    default=Path("data/in_system_kills.parquet"))
     ap.add_argument("--current-season", help="season still being played; only players "
                     "active in it are ranked (default: the latest season read)")
     args = ap.parse_args()
@@ -976,7 +1069,10 @@ def main() -> None:
 
     pm = split_pins(pm)
     d = derive(player_seasons(pm))
-    d, adjustment = adjust_outside_efficiency(d)
+    d["_key"] = d.player.map(norm_name)
+    print("\nreading in-system kill share")
+    d, in_system = adjust_for_in_system(d, args.in_system)
+    d, adjustment = adjust_outside_efficiency(d, in_system)
 
     print("\nseparating each player from the opponents she faced")
     metrics = sorted(({m for specs in BENCHMARKS.values() for m, _, _ in specs}
@@ -1000,7 +1096,6 @@ def main() -> None:
     d["opponent_adjusted"] = d.hit_pct_adj.notna() | d.kills_per_set_adj.notna()
 
     print("\nreading charted touch quality")
-    d["_key"] = d.player.map(norm_name)
     for kind in ("dig", "set"):
         q = touch_quality(args.gis_dir, args.years, kind)
         if not q.empty:
@@ -1049,6 +1144,7 @@ def main() -> None:
             "reception_err_rate", "assists_per_set", "assist_rate",
             "aces_per_set", "serve_err_per_set", "dig_rating", "dig_touches",
             "set_rating", "set_touches", "set_bad_pct",
+            "in_system_kill_pct",
             "opponent_adjusted",
             "last_played", "team_matches_missed", "recent_sets", "recent_set_share",
             "active", "ranked",
@@ -1078,6 +1174,7 @@ def main() -> None:
                                          "production repeats (split-half .82) where "
                                          "efficiency on ~20 season attempts does not (.25)")},
         "outside_passing_adjustment": adjustment,
+        "in_system": in_system,
         "opponent_adjustment": {
             "model": "rate(player i vs team j) = mu + player_i - opponent_j, per season",
             "fit": ("alternating weighted means, weighted by the denominator; ridge 25 "

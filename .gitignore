@@ -16,8 +16,16 @@
 #
 # The current season is deliberately excluded: it is rebuilt on every update and
 # would churn constantly.
+# Per-hitter in-system kill share for 2022-2025, derived from the touch play-by-play
+# that is no longer reachable. Small, and the reference distributions depend on it.
+!/data/in_system_kills.parquet
+
 !/data/rallies/
 /data/rallies/*
+# Per-hitter in-system kill share for 2022-2025, derived from the touch play-by-play
+# that is no longer reachable. Small, and the reference distributions depend on it.
+!/data/in_system_kills.parquet
+
 !/data/rallies/wvb_rallies_div1_202[1-5].parquet
 
 !/data/ncaavolleyballr/
