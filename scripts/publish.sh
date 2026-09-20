@@ -19,9 +19,11 @@ cd "$ROOT"
 
 step() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
 
-DIRTY="$(git status --porcelain -- . ':!app_data' | head -5)"
+PUBLISHED=(app_data data/in_system_kills.parquet)
+
+DIRTY="$(git status --porcelain -- . ':!app_data' ':!data/in_system_kills.parquet' | head -5)"
 if [ -n "$DIRTY" ]; then
-  echo "Uncommitted changes outside app_data:" >&2
+  echo "Uncommitted changes outside the published data:" >&2
   echo "$DIRTY" >&2
   echo >&2
   echo "Commit or stash them first, so the publish commit contains only data." >&2
@@ -34,12 +36,12 @@ if [ "$SKIP_UPDATE" -eq 0 ]; then
 fi
 
 step "what would be published"
-if git diff --quiet -- app_data && git diff --cached --quiet -- app_data; then
-  echo "app_data is unchanged -- nothing new to publish."
+if git diff --quiet -- "${PUBLISHED[@]}" && git diff --cached --quiet -- "${PUBLISHED[@]}"; then
+  echo "The published data is unchanged -- nothing new to publish."
   echo "(If the season has new matches, the pipeline may have found none yet.)"
   exit 0
 fi
-git diff --stat -- app_data
+git diff --stat -- "${PUBLISHED[@]}"
 
 "${ROOT}/.venv/bin/python" - "$YEAR" <<'PY' || true
 import subprocess, sys, io
@@ -67,7 +69,7 @@ if [ "$ASSUME_YES" -eq 0 ]; then
 fi
 
 step "publish"
-git add app_data
+git add -- "${PUBLISHED[@]}"
 git commit -q -m "Update ${YEAR} season data"
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 for attempt in 1 2 3 4; do
