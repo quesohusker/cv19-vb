@@ -626,7 +626,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
                  f"Ranks are national. Minimum {min_m} matches.",
         filename=f"power_rankings_{season}"
                  + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
-        key="png_pwr",
+        key="png_pwr", max_rows=25,
         highlight_rows=[i for i, x in enumerate(png_rows) if x["Team"] in (home, away)])
     ask_panel(
         f"Power Rankings \u2014 {season}" + ("" if conf == "All D1" else f", {conf}"),

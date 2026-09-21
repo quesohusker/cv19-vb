@@ -163,6 +163,11 @@ def table_bytes(df: pd.DataFrame, *, title=None, subtitle=None,
     if drop:
         df = df.drop(columns=drop)
     if max_rows and len(df) > max_rows:
+        # Say so on the image. A cropped table that does not admit it is cropped
+        # reads as the whole board, and this one gets posted where nobody can see
+        # the page it came from.
+        note = f"Top {max_rows} of {len(df):,}"
+        footer = f"{note} · {footer}" if footer else note
         df = df.head(max_rows)
 
     cols = list(df.columns)
