@@ -13,6 +13,7 @@ import streamlit.components.v1 as components
 
 from app import data as D
 from app import llm as L
+from app import png as PNG
 from app import theme as T
 
 st.set_page_config(page_title="QuesoHusker's Volleyball", page_icon="🏐", layout="wide")
@@ -432,6 +433,16 @@ def page_comparison(season: str, home: str, away: str) -> None:
     st.markdown('<p class="sublabel">Green = better of the two on the season. '
                 'Offense rows favor the higher value; allowed rows favor the lower.</p>',
                 unsafe_allow_html=True)
+    # The image is drawn from the same `rows` the table above was built from, so the
+    # two cannot drift. Which side was better is colour on screen and is simply lost
+    # here -- a still image has no good way to say it without a legend.
+    PNG.button(
+        st, pd.DataFrame([{"Stat": lab, f"{home} last": hl, f"{home} season": hsv,
+                           f"{away} last": al, f"{away} season": asv}
+                          for lab, hl, hsv, _, al, asv, _ in rows]),
+        title=f"{home} vs {away} \u2014 {season}",
+        subtitle=f"Last match: {home} {h_opp} \u00b7 {away} {a_opp}",
+        filename=f"{PNG.slug(home)}_vs_{PNG.slug(away)}_{season}.png", key="png_cmp")
     ask_panel(
         f"Stat Comparison \u2014 {home} vs {away}, {season}",
         "Two teams' season averages side by side. Offense rows are the team's own value; "
@@ -478,6 +489,18 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
             f'<th class="sub sep">{frames[1][2]}</th>'
             f'<th class="sub">Season</th></tr></thead><tbody>']
 
+    # Collected alongside the HTML so the image cannot drift from the table. On
+    # screen "cleared" is the pill colour; an image has no colour legend, so the
+    # image spells it with a tick instead.
+    bench_rows = []
+
+    TICK, CROSS = "\u2713", "\u2717"
+
+    def mark(text, met):
+        if met is None:
+            return text or "\u2014"
+        return f"{text} {TICK if met else CROSS}"
+
     for b in D.graded_benchmarks():
         metric, flag = b["metric"], b["flag_column"]
         kind = "dec3" if "efficiency" in b["label"] or "margin" in metric else "pct1"
@@ -485,13 +508,20 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
             kind = "dec2"
         if metric == "won_set1":
             kind = "yn"   # the match cell is a result, not a rate
-        cells = []
+        cells, plain_cells = [], []
         for team, (avg, last, _) in zip((home, away), frames):
             last_met = None if pd.isna(last.get(flag)) else bool(last[flag])
-            cells.append(T.bench_pill(team, fmt(last.get(metric), kind), last_met))
+            last_txt = fmt(last.get(metric), kind)
+            cells.append(T.bench_pill(team, last_txt, last_met))
+            plain_cells.append(mark(PNG.plain(last_txt), last_met))
             rate = avg.get(flag)
-            cells.append(T.bench_pill(team, f"{rate * 100:.0f}%" if pd.notna(rate) else "",
-                                      None if pd.isna(rate) else rate >= 0.5))
+            rate_txt = f"{rate * 100:.0f}%" if pd.notna(rate) else ""
+            rate_met = None if pd.isna(rate) else rate >= 0.5
+            cells.append(T.bench_pill(team, rate_txt, rate_met))
+            plain_cells.append(mark(rate_txt, rate_met))
+        bench_rows.append({"Benchmark": b["label"],
+                           f"{home} last": plain_cells[0], f"{home} season": plain_cells[1],
+                           f"{away} last": plain_cells[2], f"{away} season": plain_cells[3]})
         html.append(f'<tr><td class="lab">{b["label"]}</td><td class="num">{cells[0]}</td>'
                     f'<td class="num">{cells[1]}</td><td class="num sep">{cells[2]}</td>'
                     f'<td class="num">{cells[3]}</td></tr>')
@@ -506,6 +536,16 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                 f'<td class="num sep"><b>{totals[1][0]}</b></td>'
                 f'<td class="num"><b>{totals[1][1]}</b></td></tr></tbody></table>')
     st.markdown("".join(html), unsafe_allow_html=True)
+    bench_rows.append({"Benchmark": f"Met (of {GRADE_MAX})",
+                       f"{home} last": totals[0][0], f"{home} season": totals[0][1],
+                       f"{away} last": totals[1][0], f"{away} season": totals[1][1]})
+    PNG.button(
+        st, pd.DataFrame(bench_rows),
+        title=f"The Volleyball {GRADE_MAX} \u2014 {home} vs {away}, {season}",
+        subtitle=f"{frames[0][2]} \u00b7 {frames[1][2]}   "
+                 f"(\u2713 cleared, \u2717 missed)",
+        filename=f"v{GRADE_MAX}_{PNG.slug(home)}_vs_{PNG.slug(away)}_{season}.png",
+        key="png_bm")
     st.markdown('<p class="sublabel">Match cells show that match&rsquo;s value; season cells '
                 'show the share of the team&rsquo;s matches in which it cleared that '
                 'benchmark. Pick any match above &mdash; each side defaults to its most '
@@ -557,6 +597,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
             '<th style="text-align:right">Offense</th><th style="text-align:right">Defense</th>'
             '<th style="text-align:right">Elo</th>'
             f'<th style="text-align:right">Grade /{GRADE_MAX}</th></tr></thead><tbody>']
+    png_rows = []
     for _, row in r.iterrows():
         hl = ' class="hl"' if row.team in (home, away) else ""
         rec = f"{int(row.wins)}-{int(row.losses)}" if pd.notna(row.wins) else "&mdash;"
@@ -569,8 +610,24 @@ def page_rankings(season: str, home: str, away: str) -> None:
             f'<td class="n">{row.rating_off:+.1f}</td>'
             f'<td class="n">{row.rating_def:+.1f}</td>'
             f'<td class="n">{elo}</td><td class="n">{grade}</td></tr>')
+        png_rows.append({"Rank": int(row.rank_composite), "Team": row.team,
+                         "Record": PNG.plain(rec), "Conference": row.conference or "",
+                         "Rating": f"{row.rating_composite:+.1f}",
+                         "Offense": f"{row.rating_off:+.1f}",
+                         "Defense": f"{row.rating_def:+.1f}",
+                         "Elo": PNG.plain(elo), f"Grade /{GRADE_MAX}": PNG.plain(grade)})
     html.append("</tbody></table></div>")
     st.markdown("".join(html), unsafe_allow_html=True)
+    PNG.button(
+        st, pd.DataFrame(png_rows),
+        title=f"Power Rankings \u2014 {season}"
+              + ("" if conf == "All D1" else f", {conf}"),
+        subtitle="50/50 blend of a season-long ridge rating and Elo. "
+                 f"Ranks are national. Minimum {min_m} matches.",
+        filename=f"power_rankings_{season}"
+                 + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
+        key="png_pwr",
+        highlight_rows=[i for i, x in enumerate(png_rows) if x["Team"] in (home, away)])
     ask_panel(
         f"Power Rankings \u2014 {season}" + ("" if conf == "All D1" else f", {conf}"),
         "Team ratings from two opponent-adjusted models, blended half and half. "
@@ -668,6 +725,36 @@ def sort_key(v) -> str:
     by what it means rather than by how it reads.
     """
     return "" if v is None or (isinstance(v, float) and pd.isna(v)) or pd.isna(v) else str(v)
+
+
+
+def player_png_df(r, cols, show_position: bool = False) -> pd.DataFrame:
+    """The same board player_table draws, as a frame of display strings for the image.
+
+    Kept next to player_table deliberately: the two build the same columns from the
+    same specs, so a change to one that is not made to the other is visible in a
+    single screenful rather than hiding in another file.
+    """
+    out = []
+    for _, row in r.iterrows():
+        d = {"Rank": int(row.rank_in_position) if pd.notna(row.rank_in_position) else "\u2014",
+             "90% band": (f"{int(row.rank_low)}\u2013{int(row.rank_high)}"
+                          if pd.notna(row.rank_low) else "\u2014"),
+             "In conf": (f"{int(row.rank_in_conference)}/{int(row.players_in_conference)}"
+                         if pd.notna(row.rank_in_conference) else "\u2014"),
+             "Player": row.player}
+        if show_position:
+            d["Pos"] = row.position
+        d["Team"] = row.team
+        d["Conference"] = row.conference or ""
+        d["Sets"] = PNG.plain(fmt(row.get("sets"), "dec1"))
+        d["Rating"] = PNG.plain(fmt(row.get("rating"), "dec1"))
+        d["Bench"] = (f"{row.benchmarks_met:.0f}/{int(row.benchmarks_of)}"
+                      if pd.notna(row.benchmarks_met) else "\u2014")
+        for lab, c, k in cols:
+            d[lab] = PNG.plain(fmt(row.get(c), k))
+        out.append(d)
+    return pd.DataFrame(out)
 
 
 def player_table(r, cols, home: str, away: str, show_position: bool = False) -> str:
@@ -859,6 +946,13 @@ def page_players(season: str, home: str, away: str) -> None:
             f"rank.")
 
     sortable(player_table(r, cols, home, away, show_position=show_pos), len(r))
+    _pdf = player_png_df(r, cols, show_position=show_pos)
+    PNG.button(
+        st, _pdf,
+        title=f"{position} \u2014 {season}" + ("" if conf == "All D1" else f", {conf}"),
+        subtitle=f"Minimum {pb['min_sets']} sets. Rank and 90% band are national.",
+        filename=f"{PNG.slug(position)}_{season}.png", key="png_players",
+        highlight_rows=[i for i, t in enumerate(r.team) if t in (home, away)])
     st.markdown('<p class="tiny" style="color:#6f7681">The band is where this player '
                 'plausibly sits, at 90% confidence. It is measured, not assumed: every '
                 'player&rsquo;s season is split odd/even and scored twice, and the spread '
@@ -1021,10 +1115,15 @@ def page_about() -> None:
         "cleared. Thresholds are empirical, not chosen by feel: each is the value that best "
         "separated winning from losing performances across 2021-2023, constrained so that "
         "30-70% of team-matches clear it, then validated out of sample on 2024.")
-    st.dataframe(pd.DataFrame(D.graded_benchmarks())[["label", "phase", "direction", "threshold"]]
-                 .rename(columns={"label": "Benchmark", "phase": "Phase",
-                                  "direction": "Direction", "threshold": "Threshold"}),
-                 width='stretch', hide_index=True)
+    _bench = pd.DataFrame(D.graded_benchmarks())[["label", "phase", "direction", "threshold"]]
+    _bench = _bench.rename(columns={"label": "Benchmark", "phase": "Phase",
+                                    "direction": "Direction", "threshold": "Threshold"})
+    st.dataframe(_bench, width='stretch', hide_index=True)
+    PNG.button(
+        st, _bench.assign(Threshold=lambda d: d.Threshold.map(lambda v: f"{v:g}")),
+        title=f"The Volleyball {GRADE_MAX} \u2014 benchmark definitions",
+        subtitle="Thresholds fitted on 2021\u20132023, validated out of sample on 2024.",
+        filename="benchmark_definitions.png", key="png_about")
 
     st.subheader("Grade tracks season success")
     st.dataframe(pd.DataFrame([{"Season": k, "r (grade vs win%)": v}
