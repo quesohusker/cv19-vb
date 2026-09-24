@@ -77,6 +77,58 @@ def power_rankings(season: str, conference: str | None = None,
     return out.sort_values("grade", ascending=False).reset_index(drop=True)
 
 
+
+def schedule_strength(season: str, conference: str | None = None,
+                      min_matches: int = 5) -> pd.DataFrame:
+    """Schedule difficulty per team, with the rating it is being compared against.
+
+    SOS is computed in the ratings pipeline as the mean rating_overall of the teams a
+    side actually played. It is reported, never folded into the rating: the ridge
+    already adjusts for opponents. Ranks stay national under a conference filter, the
+    same as every other board here.
+    """
+    pr = power_ratings()
+    pr = pr[(pr.season == season) & (pr.n_matches >= min_matches)]
+    if "sos" not in pr.columns:
+        return pd.DataFrame()
+    ts = team_seasons()[["season", "team", "conference", "wins", "losses", "grade"]]
+    out = pr.merge(ts, on=["season", "team"], how="left")
+    if conference:
+        out = out[out.conference == conference]
+    return out.sort_values("rank_sos").reset_index(drop=True)
+
+
+def conference_schedule(season: str, min_teams: int = 4) -> pd.DataFrame:
+    """Mean schedule difficulty and mean rating by conference.
+
+    Both columns are needed together: a conference can look hard because its members
+    are good (they play each other) rather than because it reached outside for tough
+    non-conference opponents. The gap between the two is the interesting number.
+    """
+    d = schedule_strength(season)
+    if d.empty:
+        return d
+    d = d[d.conference.notna() & (d.conference != "")]
+    g = d.groupby("conference").agg(teams=("team", "size"), sos=("sos", "mean"),
+                                    rating=("rating_overall", "mean"))
+    g = g[g.teams >= min_teams].reset_index()
+    g["gap"] = g.sos - g.rating
+    return g.sort_values("sos", ascending=False).reset_index(drop=True)
+
+
+def team_schedule(season: str, team: str) -> pd.DataFrame:
+    """Every opponent a team played, with that opponent's rating and the result."""
+    tm = team_matches(season, team)
+    if tm.empty:
+        return tm
+    pr = power_ratings()
+    pr = pr[pr.season == season].set_index("team")
+    out = tm[["match_date", "opponent", "won", "sets_for", "sets_against"]].copy()
+    out["opp_rating"] = pr.rating_overall.reindex(out.opponent).to_numpy()
+    out["opp_rank"] = pr.rank_composite.reindex(out.opponent).to_numpy()
+    return out.sort_values("opp_rating", ascending=False).reset_index(drop=True)
+
+
 def team_matches(season: str, team: str) -> pd.DataFrame:
     m = matches()
     return m[(m.season == season) & (m.team == team)].sort_values("match_date")

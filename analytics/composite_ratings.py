@@ -42,17 +42,21 @@ roughly .008 of log loss on the ridge alone, but it rescales every published rat
 in every season, so it is a deliberate decision rather than something to slip in
 here.)
 
-THE WEIGHTS
------------
-Fitted, not chosen. Train on three seasons, test on the fourth, every time:
+THE WEIGHTS, AND WHY SOS ENDED UP AT ZERO
+-----------------------------------------
+Elo and ridge are fitted, not chosen: train on three seasons, test on the fourth, and
+the answer came back 52%, 49%, 50%, 49% Elo. So half and half.
 
-    hold out 2022   elo 41%  ridge 48%  sos 11%
-    hold out 2023   elo 40%  ridge 49%  sos 11%
-    hold out 2024   elo 41%  ridge 48%  sos 11%
-    hold out 2025   elo 40%  ridge 49%  sos 12%
+SOS was fitted too, and won: 40/48/12 was the global optimum of 1,326 weights on the
+simplex, first or near-first in every holdout. It is still set to zero, deliberately,
+because the win is smaller than it looks. Across 12,508 out-of-sample forecasts it
+flipped 424 picks for a net of ZERO extra correct (+4, -1, -6, +3). No team entered or
+left the top 25. All it improved was calibration, by .003 of log loss.
 
-So 40 / 48 / 12. A rounder 40/40/20 was tried and is worse in all four seasons, which
-is the useful part: schedule earns a real share, and a small one.
+Set against that, the ridge already solves every team against every opponent at once,
+so a reader who sees schedule inside the rating AND beside it is right to ask which
+one is being counted. It is published as its own page instead. The weight constant is
+left in place so the decision can be revisited with one number.
 
 THE SCALE
 ---------
@@ -71,9 +75,15 @@ from pathlib import Path
 
 import pandas as pd
 
-ELO_WEIGHT = 0.40
-RIDGE_WEIGHT = 0.48
-SOS_WEIGHT = 0.12
+# Strength of schedule is COMPUTED here and published, but carries no weight in the
+# rating. It tested positive (z = 7.4 to 7.8, better held-out log loss in all four
+# seasons) and 40/48/12 was the fitted optimum, but the gain is calibration only: across
+# 12,508 forecasts it changed 424 picks for a net of ZERO extra correct, moved no team
+# in or out of the top 25, and the ridge already adjusts for opponents. It is published
+# as its own page instead, where a reader can weigh it themselves.
+ELO_WEIGHT = 0.50
+RIDGE_WEIGHT = 0.50
+SOS_WEIGHT = 0.00
 
 
 def strength_of_schedule(matches: pd.DataFrame, ratings: pd.DataFrame) -> pd.DataFrame:

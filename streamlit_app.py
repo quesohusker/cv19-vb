@@ -68,8 +68,8 @@ def rating_note() -> None:
     """
     with st.expander("How the power rating is calculated"):
         st.markdown(
-            "The rating is **a blend of three opponent-adjusted measures: the ridge rating at 48%, Elo at 40%, and strength of schedule at 12%.**\n\n"
-            "**The ridge part** fits one regression over every team-match in the season. "
+            "The rating is **a 50/50 blend of two models that disagree on purpose.**\n\n"
+            "**The ridge half** fits one regression over every team-match in the season. "
             "Side-out rate is the currency &mdash; how often a team wins the rally when "
             "it is receiving &mdash; and every team's offense and every opponent's "
             "defense are solved at the same time, so strength of schedule is built in "
@@ -86,18 +86,15 @@ def rating_note() -> None:
             "made before the match it predicts, the ridge called 77.0&ndash;78.9% and Elo "
             "77.5&ndash;79.2%. But they miss *different* matches, so the blend beat both "
             "of them in all four seasons.\n\n"
-            "**Strength of schedule gets a third share, which looks like cheating.** The "
-            "ridge already solves every team against every opponent at once, so schedule "
-            "ought to be inside the rating and a separate term ought to be redundant. It "
-            "is not. Added to the blend, the mean rating of the teams a side actually "
-            "played is strongly significant in all four seasons and improves the forecast "
-            "every time, and its sign says the rating *under*-credits hard schedules. The "
-            "culprit is the ridge penalty, which pulls opponents toward average and so "
-            "understates how good the strong ones were. SOS is the correction.\n\n"
-            "**Why these weights.** They were fitted, not chosen. Trained on three seasons "
-            "and tested on the fourth, they came back 40/48/12 every time, to within a "
-            "point. A rounder 40/40/20 was tried and is worse in all four seasons, so "
-            "schedule earns a real share and a small one.\n\n"
+            "**Strength of schedule is not a separate ingredient here, on purpose.** The "
+            "ridge solves every team against every opponent at once, so who you played "
+            "is already inside the rating. Adding a schedule term on top was tested: it "
+            "improves the calibration slightly, but across 12,508 out-of-sample forecasts "
+            "it changed 424 picks for a net of *zero* extra correct, and moved no team in "
+            "or out of the top 25. Schedule has its own page instead, where you can read "
+            "it directly rather than have it folded into a number twice.\n\n"
+            "**Why half and half.** The weight was fitted, not chosen. Trained on three "
+            "seasons and tested on the fourth, it came back 52%, 49%, 50% and 49% Elo.\n\n"
             "**Read it as a ranking, not a rate.** The three parts are standardised and "
             "weighted, then stretched back to the ridge's scale so the number still looks "
             "familiar. A +27 means *as far above average as a +27 ridge rating would be*, "
@@ -591,17 +588,16 @@ def page_rankings(season: str, home: str, away: str) -> None:
         st.info("No teams match that filter.")
         return
     rating_note()
-    st.markdown('<p class="sublabel">The Power Ranking blends three opponent-adjusted '
-                'measures: a season-long ridge regression model (48%), an Elo that carries '
-                'last season and weights recent matches more (40%), and strength of '
-                'schedule (12%). SOS is the mean rating of the teams actually played. '
-                'Ranks stay national when a conference is selected.</p>',
+    st.markdown('<p class="sublabel">The Power Ranking blends two opponent-adjusted '
+                'models with each contributing equally to the ranking: a season-long ridge '
+                'regression model and an Elo that carries last season and weights recent '
+                'matches more. Ranks stay national when a conference is selected.</p>',
                 unsafe_allow_html=True)
 
     html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th><th>Team</th><th>Record</th>'
             '<th>Conference</th><th style="text-align:right">Rating</th>'
             '<th style="text-align:right">Offense</th><th style="text-align:right">Defense</th>'
-            '<th style="text-align:right">SOS</th><th style="text-align:right">Elo</th>'
+            '<th style="text-align:right">Elo</th>'
             f'<th style="text-align:right">Grade /{GRADE_MAX}</th></tr></thead><tbody>']
     png_rows = []
     for _, row in r.iterrows():
@@ -609,21 +605,18 @@ def page_rankings(season: str, home: str, away: str) -> None:
         rec = f"{int(row.wins)}-{int(row.losses)}" if pd.notna(row.wins) else "&mdash;"
         grade = f"{row.grade:.2f}" if pd.notna(row.grade) else "&mdash;"
         elo = f"{row.elo:,.0f}" if pd.notna(getattr(row, "elo", None)) else "&mdash;"
-        sos = (f"{row.sos:+.1f}" if pd.notna(getattr(row, "sos", None)) else "&mdash;")
         html.append(
             f'<tr{hl}><td class="n">{int(row.rank_composite)}</td><td>{T.chip(row.team, ".85rem")}</td>'
             f'<td>{rec}</td><td>{row.conference or ""}</td>'
             f'<td class="n">{row.rating_composite:+.1f}</td>'
             f'<td class="n">{row.rating_off:+.1f}</td>'
             f'<td class="n">{row.rating_def:+.1f}</td>'
-            f'<td class="n">{sos}</td><td class="n">{elo}</td>'
-            f'<td class="n">{grade}</td></tr>')
+            f'<td class="n">{elo}</td><td class="n">{grade}</td></tr>')
         png_rows.append({"Rank": int(row.rank_composite), "Team": row.team,
                          "Record": PNG.plain(rec), "Conference": row.conference or "",
                          "Rating": f"{row.rating_composite:+.1f}",
                          "Offense": f"{row.rating_off:+.1f}",
                          "Defense": f"{row.rating_def:+.1f}",
-                         "SOS": PNG.plain(sos),
                          "Elo": PNG.plain(elo), f"Grade /{GRADE_MAX}": PNG.plain(grade)})
     html.append("</tbody></table></div>")
     st.markdown("".join(html), unsafe_allow_html=True)
@@ -631,7 +624,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
         st, pd.DataFrame(png_rows),
         title=f"Power Rankings \u2014 {season}"
               + ("" if conf == "All D1" else f", {conf}"),
-        subtitle="Ridge rating 48%, Elo 40%, strength of schedule 12%. "
+        subtitle="50/50 blend of a season-long ridge rating and Elo. "
                  f"Ranks are national. Minimum {min_m} matches.",
         filename=f"power_rankings_{season}"
                  + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
@@ -651,27 +644,23 @@ def page_rankings(season: str, home: str, away: str) -> None:
         "with margin entering through the K multiplier as the winner's share of all "
         "rallies. It carries 95% of last season forward and weights recent matches more, "
         "but updates one match at a time and never sees the schedule whole. "
-        "MODEL 3, strength of schedule: the mean rating_overall of the opponents a team "
-        "actually played, in the same side-out units. It is in the blend even though the "
-        "ridge already adjusts for opponents, because it still carries signal the rating "
-        "misses (z = 7.4 to 7.8 in every season) and its sign says the rating "
-        "UNDER-credits hard schedules. The cause is the ridge penalty, which shrinks "
-        "opponent effects toward average and so understates strong opponents. "
-        "THE BLEND: all three are standardised within the season, weighted 40% Elo / 48% "
-        "ridge / 12% SOS, then rescaled to the ridge's spread \u2014 so rating_composite "
-        "is read like rating_overall but is not literally side-outs per hundred. The "
-        "weights were fitted, not chosen: trained on three seasons and tested on the "
-        "fourth they came back 40/48/12 every time. Ranks stay national when a conference "
-        "is selected, and rank_composite is what the board is sorted by.",
+        "THE BLEND: both ratings are standardised within the season, averaged 50/50, then "
+        "rescaled to the ridge's spread \u2014 so rating_composite is read like "
+        "rating_overall but is not literally side-outs per hundred. The 50/50 weight was "
+        "fitted, not chosen: trained on three seasons and tested on the fourth it came "
+        "back 52%, 49%, 50% and 49% Elo. Strength of schedule is reported (sos, rank_sos) but carries NO weight in the rating: the ridge already adjusts for opponents, and a "
+        "schedule term on top changed 424 picks out of 12,508 for a net of zero extra "
+        "correct. Ranks stay national when a conference is selected, and rank_composite "
+        "is what the board is sorted by.",
         [("Team ratings", r, ["rank_composite", "team", "conference", "wins", "losses",
                               "rating_composite", "rating_overall", "rank_overall",
                               "elo", "rank_elo", "sos", "rank_sos", "rating_off",
                               "rating_def", "grade", "graded_matches"])],
         "pwr",
-        glossary={"rating_composite": "the 40/48/12 blend the board is ranked by",
+        glossary={"rating_composite": "the 50/50 blend the board is ranked by",
                   "rating_overall": "the ridge component alone, = off + def",
                   "elo": "the Elo component alone; league mean is 1500, sd about 365",
-                  "sos": "mean rating_overall of the opponents played, same units",
+                  "sos": "mean rating_overall of the opponents played; NOT in the rating",
                   "rank_sos": "national rank by schedule difficulty, 1 = hardest",
                   "rating_off": "side-out ability when receiving (ridge)",
                   "rating_def": "suppressing the opponent's side-out (ridge)",
@@ -680,16 +669,189 @@ def page_rankings(season: str, home: str, away: str) -> None:
                 "The grade column is unadjusted and will disagree with the rating for "
                 "teams on very soft or very hard schedules. That disagreement is the "
                 "reason both are shown.",
-                "Early in a season the parts disagree most. Elo is still mostly last "
-                "season's team, the ridge knows only this one, and SOS is the noisiest "
-                "of the three because it is an average of other teams' ratings, which "
-                "are themselves unsettled. The weights are held flat all season: a "
-                "sliding weight was fitted and tested and predicted no better.",
+                "Early in a season the two halves disagree most, because Elo is still "
+                "mostly last season's team while the ridge knows only this one. The "
+                "weight is held flat all season: a sliding weight was fitted and tested "
+                "and predicted no better.",
                 "The composite is a rank-ordering device. Read rating_off and rating_def "
                 "when you want a number that is literally side-outs per hundred."],
         examples=["who is underrated by their record?",
                   "is this conference strong on offense or defense?"])
 
+
+
+# ------------------------------------------------------------------- schedule
+def schedule_note() -> None:
+    """Why schedule has a page of its own rather than a share of the rating."""
+    with st.expander("What this measures, and why it is not in the Power Ranking"):
+        st.markdown(
+            "**SOS is the mean rating of the teams a side actually played**, in the "
+            "ridge model's own units. A +12 schedule means the average opponent was "
+            "twelve points of side-out rate better than a typical D1 team. Every match "
+            "counts once, so playing someone strong twice counts twice, and opponents "
+            "with no rating of their own drop out of the average rather than being "
+            "scored as average.\n\n"
+            "**It deliberately carries no weight in the Power Ranking.** The ridge half "
+            "of that rating already solves every team against every opponent at the same "
+            "time, so who you played is inside the number before schedule is mentioned. "
+            "Bolting a schedule term on top was tested properly: fitted across four "
+            "seasons it wanted about 12%, and it did improve calibration. But across "
+            "12,508 out-of-sample forecasts it changed 424 picks for a net of **zero** "
+            "extra correct, and moved no team into or out of the top 25. Counting "
+            "schedule twice to move nothing is a bad trade, so it lives here instead.\n\n"
+            "**Read it against the rating, not on its own.** A hard schedule is not an "
+            "achievement and an easy one is not a crime. The pair is what tells you "
+            "something: a good rating on a hard schedule is the real thing, and a good "
+            "record on an easy one is worth a second look.\n\n"
+            "**The conference table has two columns for a reason.** A league can look "
+            "hard because its own members are strong and play each other, or because it "
+            "reached outside for tough non-conference matches. The gap between mean "
+            "schedule and mean rating separates those. A negative gap means the league "
+            "is stronger than the schedules its teams actually face."
+        )
+
+
+def page_schedule(season: str, home: str, away: str) -> None:
+    st.markdown('<h1 class="app">Strength of <span class="accent">Schedule</span></h1>',
+                unsafe_allow_html=True)
+    c1, c2 = st.columns([2, 1])
+    conf = c1.selectbox("Conference", ["All D1"] + D.conferences(season), key="sosconf")
+    scope = c2.selectbox("Show", ["Top 50", "Selected teams only", "Everyone"],
+                         key="sosscope")
+
+    r = D.schedule_strength(season, None if conf == "All D1" else conf)
+    if r.empty:
+        st.info("No schedule data for that season yet.")
+        return
+    schedule_note()
+    st.markdown('<p class="sublabel">Mean rating of the opponents each team actually '
+                'played, in points of side-out rate against an average D1 team. This is '
+                'reported, not scored: the Power Ranking already adjusts for opponents, '
+                'so schedule is not counted again there. Ranks stay national when a '
+                'conference is selected.</p>', unsafe_allow_html=True)
+
+    if scope == "Selected teams only":
+        r = r[r.team.isin([home, away])]
+    elif scope == "Top 50":
+        r = r.head(50)
+
+    html = ['<div class="scroller"><table class="grid"><thead><tr><th>SOS rank</th>'
+            '<th>Team</th><th>Record</th><th>Conference</th>'
+            '<th style="text-align:right">SOS</th>'
+            '<th style="text-align:right">Matches</th>'
+            '<th style="text-align:right">Rating</th>'
+            '<th style="text-align:right">Power rank</th></tr></thead><tbody>']
+    png_rows = []
+    for _, row in r.iterrows():
+        hl = ' class="hl"' if row.team in (home, away) else ""
+        rec = f"{int(row.wins)}-{int(row.losses)}" if pd.notna(row.wins) else "&mdash;"
+        pw = int(row.rank_composite) if pd.notna(row.rank_composite) else "&mdash;"
+        html.append(
+            f'<tr{hl}><td class="n">{int(row.rank_sos)}</td>'
+            f'<td>{T.chip(row.team, ".85rem")}</td><td>{rec}</td>'
+            f'<td>{row.conference or ""}</td>'
+            f'<td class="n">{row.sos:+.1f}</td>'
+            f'<td class="n">{int(row.sos_matches)}</td>'
+            f'<td class="n">{row.rating_composite:+.1f}</td>'
+            f'<td class="n">{pw}</td></tr>')
+        png_rows.append({"SOS rank": int(row.rank_sos), "Team": row.team,
+                         "Record": PNG.plain(rec), "Conference": row.conference or "",
+                         "SOS": f"{row.sos:+.1f}", "Matches": int(row.sos_matches),
+                         "Rating": f"{row.rating_composite:+.1f}",
+                         "Power rank": PNG.plain(str(pw))})
+    html.append("</tbody></table></div>")
+    st.markdown("".join(html), unsafe_allow_html=True)
+    PNG.button(st, pd.DataFrame(png_rows),
+               title=f"Strength of Schedule \u2014 {season}"
+                     + ("" if conf == "All D1" else f", {conf}"),
+               subtitle="Mean opponent rating in points of side-out rate. "
+                        "Ranks are national.",
+               filename=f"schedule_{season}"
+                        + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
+               key="png_sos", max_rows=50,
+               highlight_rows=[i for i, x in enumerate(png_rows)
+                               if x["Team"] in (home, away)])
+
+    st.subheader(f"{home}'s schedule")
+    sched = D.team_schedule(season, home)
+    if sched.empty:
+        st.info("No matches for that team in this season.")
+    else:
+        sh = ['<div class="scroller"><table class="grid"><thead><tr><th>Opponent</th>'
+              '<th style="text-align:right">Their rating</th>'
+              '<th style="text-align:right">Their rank</th>'
+              '<th>Date</th><th>Result</th></tr></thead><tbody>']
+        for _, x in sched.iterrows():
+            res = ("W" if x.won else "L") + f" {int(x.sets_for)}-{int(x.sets_against)}"
+            rk = int(x.opp_rank) if pd.notna(x.opp_rank) else "&mdash;"
+            rt = f"{x.opp_rating:+.1f}" if pd.notna(x.opp_rating) else "&mdash;"
+            sh.append(f'<tr><td>{T.chip(x.opponent, ".85rem")}</td>'
+                      f'<td class="n">{rt}</td><td class="n">{rk}</td>'
+                      f'<td>{pd.to_datetime(x.match_date):%b %d}</td>'
+                      f'<td>{res}</td></tr>')
+        sh.append("</tbody></table></div>")
+        st.markdown("".join(sh), unsafe_allow_html=True)
+        st.markdown('<p class="sublabel">Sorted by opponent strength. The mean of the '
+                    '&ldquo;their rating&rdquo; column is this team&rsquo;s SOS.</p>',
+                    unsafe_allow_html=True)
+
+    st.subheader("By conference")
+    cs = D.conference_schedule(season)
+    if not cs.empty:
+        ch = ['<div class="scroller"><table class="grid"><thead><tr><th>Conference</th>'
+              '<th style="text-align:right">Teams</th>'
+              '<th style="text-align:right">Mean SOS</th>'
+              '<th style="text-align:right">Mean rating</th>'
+              '<th style="text-align:right">Gap</th></tr></thead><tbody>']
+        for _, x in cs.iterrows():
+            ch.append(f'<tr><td>{x.conference}</td><td class="n">{int(x.teams)}</td>'
+                      f'<td class="n">{x.sos:+.1f}</td>'
+                      f'<td class="n">{x.rating:+.1f}</td>'
+                      f'<td class="n">{x.gap:+.1f}</td></tr>')
+        ch.append("</tbody></table></div>")
+        st.markdown("".join(ch), unsafe_allow_html=True)
+        st.markdown('<p class="sublabel">Gap is mean schedule minus mean rating. '
+                    'Negative means the league is stronger than the schedules its own '
+                    'teams face, which is what a pile of soft non-conference looks '
+                    'like. Positive means its teams play up.</p>',
+                    unsafe_allow_html=True)
+
+    ask_panel(
+        f"Strength of Schedule \u2014 {season}"
+        + ("" if conf == "All D1" else f", {conf}"),
+        "Schedule difficulty per team. SOS is the mean rating_overall of the opponents a "
+        "team actually played, in the ridge model's units: percentage points of side-out "
+        "rate against an average D1 team, centred so an average team is 0.0. Every match "
+        "counts once, so a repeated opponent counts twice; opponents with no rating are "
+        "excluded from the mean rather than treated as average. IMPORTANT: SOS carries "
+        "no weight in the Power Ranking. The ridge model there already solves every team "
+        "against every opponent simultaneously, so schedule is inside that rating "
+        "already. A schedule term was fitted on top and tested, and although it wanted "
+        "about 12% and improved calibration, it changed 424 picks out of 12,508 "
+        "out-of-sample forecasts for a net of zero extra correct and moved nobody in or "
+        "out of the top 25. The conference table's gap column is mean SOS minus mean "
+        "rating for that league.",
+        [("Schedule strength", r, ["rank_sos", "team", "conference", "wins", "losses",
+                                   "sos", "sos_matches", "rating_composite",
+                                   "rank_composite", "rating_overall", "grade"]),
+         (f"{home} \u2014 every opponent played", D.team_schedule(season, home), None),
+         ("By conference", D.conference_schedule(season), None)],
+        "sos",
+        glossary={"sos": "mean rating of the opponents played, side-out points",
+                  "sos_matches": "how many of a team's matches had a rated opponent",
+                  "rating_composite": "the Power Ranking rating, for comparison",
+                  "gap": "mean SOS minus mean rating, by conference"},
+        limits=["Schedule is descriptive. A hard one is not an achievement and an easy "
+                "one is not a crime; read it next to the rating.",
+                "It is the noisiest thing on this site early in a season, because it is "
+                "an average of other teams' ratings and those are themselves unsettled.",
+                "Opponents outside D1 carry no rating and drop out of the mean, so a "
+                "team with several of them is averaged over fewer matches. The Matches "
+                "column says how many counted.",
+                "A conference's mean SOS is dragged toward its own strength once league "
+                "play starts, because most of its matches are against itself."],
+        examples=["who has the best record against nobody?",
+                  "which conference actually plays up?"])
 
 
 # ----------------------------------------------------------------- players
@@ -1193,7 +1355,7 @@ st.sidebar.caption(f"NCAA women's D1 · {min(D.seasons())}-{max(D.seasons())} ·
                    f"{D.meta()['team_match_rows']:,} graded team-matches")
 
 tabs = st.tabs(["Stat Comparison", f"The Volleyball {GRADE_MAX}", "Power Rankings",
-                "Position Rankings", "How it works"])
+                "Strength of Schedule", "Position Rankings", "How it works"])
 with tabs[0]:
     page_comparison(season, home, away)
 with tabs[1]:
@@ -1201,6 +1363,8 @@ with tabs[1]:
 with tabs[2]:
     page_rankings(season, home, away)
 with tabs[3]:
-    page_players(season, home, away)
+    page_schedule(season, home, away)
 with tabs[4]:
+    page_players(season, home, away)
+with tabs[5]:
     page_about()
