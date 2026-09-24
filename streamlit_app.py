@@ -68,8 +68,8 @@ def rating_note() -> None:
     """
     with st.expander("How the power rating is calculated"):
         st.markdown(
-            "The rating is **a 50/50 blend of two models that disagree on purpose.**\n\n"
-            "**The ridge half** fits one regression over every team-match in the season. "
+            "The rating is **a blend of three opponent-adjusted measures: the ridge rating at 48%, Elo at 40%, and strength of schedule at 12%.**\n\n"
+            "**The ridge part** fits one regression over every team-match in the season. "
             "Side-out rate is the currency &mdash; how often a team wins the rally when "
             "it is receiving &mdash; and every team's offense and every opponent's "
             "defense are solved at the same time, so strength of schedule is built in "
@@ -86,15 +86,20 @@ def rating_note() -> None:
             "made before the match it predicts, the ridge called 77.0&ndash;78.9% and Elo "
             "77.5&ndash;79.2%. But they miss *different* matches, so the blend beat both "
             "of them in all four seasons.\n\n"
-            "**Why half and half.** The weight was fitted, not chosen. Trained on three "
-            "seasons and tested on the fourth, it came back 52%, 49%, 50% and 49% Elo. "
-            "It does drift within a season &mdash; nearer 55% Elo in September, when Elo "
-            "still has last year's team and the ridge has barely any schedule, and nearer "
-            "20% by December &mdash; but sliding it predicts no better than holding it "
-            "flat, because by the time the ridge earns the larger share the two ratings "
-            "already agree.\n\n"
-            "**Read it as a ranking, not a rate.** The two halves are standardised and "
-            "averaged, then stretched back to the ridge's scale so the number still looks "
+            "**Strength of schedule gets a third share, which looks like cheating.** The "
+            "ridge already solves every team against every opponent at once, so schedule "
+            "ought to be inside the rating and a separate term ought to be redundant. It "
+            "is not. Added to the blend, the mean rating of the teams a side actually "
+            "played is strongly significant in all four seasons and improves the forecast "
+            "every time, and its sign says the rating *under*-credits hard schedules. The "
+            "culprit is the ridge penalty, which pulls opponents toward average and so "
+            "understates how good the strong ones were. SOS is the correction.\n\n"
+            "**Why these weights.** They were fitted, not chosen. Trained on three seasons "
+            "and tested on the fourth, they came back 40/48/12 every time, to within a "
+            "point. A rounder 40/40/20 was tried and is worse in all four seasons, so "
+            "schedule earns a real share and a small one.\n\n"
+            "**Read it as a ranking, not a rate.** The three parts are standardised and "
+            "weighted, then stretched back to the ridge's scale so the number still looks "
             "familiar. A +27 means *as far above average as a +27 ridge rating would be*, "
             "not 27 extra side-outs per hundred. The Offense and Defense columns are the "
             "ridge's own numbers and those **are** literally side-outs per hundred: "
@@ -586,16 +591,17 @@ def page_rankings(season: str, home: str, away: str) -> None:
         st.info("No teams match that filter.")
         return
     rating_note()
-    st.markdown('<p class="sublabel">The Power Ranking blends two opponent-adjusted '
-                'models with each contributing equally to the ranking: a season-long ridge '
-                'regression model and an Elo that carries last season and weights recent '
-                'matches more. Ranks stay national when a conference is selected.</p>',
+    st.markdown('<p class="sublabel">The Power Ranking blends three opponent-adjusted '
+                'measures: a season-long ridge regression model (48%), an Elo that carries '
+                'last season and weights recent matches more (40%), and strength of '
+                'schedule (12%). SOS is the mean rating of the teams actually played. '
+                'Ranks stay national when a conference is selected.</p>',
                 unsafe_allow_html=True)
 
     html = ['<div class="scroller"><table class="grid"><thead><tr><th>Rank</th><th>Team</th><th>Record</th>'
             '<th>Conference</th><th style="text-align:right">Rating</th>'
             '<th style="text-align:right">Offense</th><th style="text-align:right">Defense</th>'
-            '<th style="text-align:right">Elo</th>'
+            '<th style="text-align:right">SOS</th><th style="text-align:right">Elo</th>'
             f'<th style="text-align:right">Grade /{GRADE_MAX}</th></tr></thead><tbody>']
     png_rows = []
     for _, row in r.iterrows():
@@ -603,18 +609,21 @@ def page_rankings(season: str, home: str, away: str) -> None:
         rec = f"{int(row.wins)}-{int(row.losses)}" if pd.notna(row.wins) else "&mdash;"
         grade = f"{row.grade:.2f}" if pd.notna(row.grade) else "&mdash;"
         elo = f"{row.elo:,.0f}" if pd.notna(getattr(row, "elo", None)) else "&mdash;"
+        sos = (f"{row.sos:+.1f}" if pd.notna(getattr(row, "sos", None)) else "&mdash;")
         html.append(
             f'<tr{hl}><td class="n">{int(row.rank_composite)}</td><td>{T.chip(row.team, ".85rem")}</td>'
             f'<td>{rec}</td><td>{row.conference or ""}</td>'
             f'<td class="n">{row.rating_composite:+.1f}</td>'
             f'<td class="n">{row.rating_off:+.1f}</td>'
             f'<td class="n">{row.rating_def:+.1f}</td>'
-            f'<td class="n">{elo}</td><td class="n">{grade}</td></tr>')
+            f'<td class="n">{sos}</td><td class="n">{elo}</td>'
+            f'<td class="n">{grade}</td></tr>')
         png_rows.append({"Rank": int(row.rank_composite), "Team": row.team,
                          "Record": PNG.plain(rec), "Conference": row.conference or "",
                          "Rating": f"{row.rating_composite:+.1f}",
                          "Offense": f"{row.rating_off:+.1f}",
                          "Defense": f"{row.rating_def:+.1f}",
+                         "SOS": PNG.plain(sos),
                          "Elo": PNG.plain(elo), f"Grade /{GRADE_MAX}": PNG.plain(grade)})
     html.append("</tbody></table></div>")
     st.markdown("".join(html), unsafe_allow_html=True)
@@ -622,7 +631,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
         st, pd.DataFrame(png_rows),
         title=f"Power Rankings \u2014 {season}"
               + ("" if conf == "All D1" else f", {conf}"),
-        subtitle="50/50 blend of a season-long ridge rating and Elo. "
+        subtitle="Ridge rating 48%, Elo 40%, strength of schedule 12%. "
                  f"Ranks are national. Minimum {min_m} matches.",
         filename=f"power_rankings_{season}"
                  + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
@@ -630,7 +639,7 @@ def page_rankings(season: str, home: str, away: str) -> None:
         highlight_rows=[i for i, x in enumerate(png_rows) if x["Team"] in (home, away)])
     ask_panel(
         f"Power Rankings \u2014 {season}" + ("" if conf == "All D1" else f", {conf}"),
-        "Team ratings from two opponent-adjusted models, blended half and half. "
+        "Team ratings from three opponent-adjusted measures, blended 48% ridge / 40% Elo / 12% strength of schedule. "
         "MODEL 1, the ridge: one regression over every team-match, with side-out rate as "
         "the currency \u2014 sideout_pct(i receiving against j) = mu + off_i - def_j. It "
         "is centred so an average D1 team is 0.0, in percentage points of side-out rate, "
@@ -642,20 +651,28 @@ def page_rankings(season: str, home: str, away: str) -> None:
         "with margin entering through the K multiplier as the winner's share of all "
         "rallies. It carries 95% of last season forward and weights recent matches more, "
         "but updates one match at a time and never sees the schedule whole. "
-        "THE BLEND: both ratings are standardised within the season, averaged 50/50, then "
-        "rescaled to the ridge's spread \u2014 so rating_composite is read like "
-        "rating_overall but is not literally side-outs per hundred. The 50/50 weight was "
-        "fitted, not chosen: trained on three seasons and tested on the fourth it came "
-        "back 52%, 49%, 50% and 49% Elo. Ranks stay national when a conference is "
-        "selected, and rank_composite is what the board is sorted by.",
+        "MODEL 3, strength of schedule: the mean rating_overall of the opponents a team "
+        "actually played, in the same side-out units. It is in the blend even though the "
+        "ridge already adjusts for opponents, because it still carries signal the rating "
+        "misses (z = 7.4 to 7.8 in every season) and its sign says the rating "
+        "UNDER-credits hard schedules. The cause is the ridge penalty, which shrinks "
+        "opponent effects toward average and so understates strong opponents. "
+        "THE BLEND: all three are standardised within the season, weighted 40% Elo / 48% "
+        "ridge / 12% SOS, then rescaled to the ridge's spread \u2014 so rating_composite "
+        "is read like rating_overall but is not literally side-outs per hundred. The "
+        "weights were fitted, not chosen: trained on three seasons and tested on the "
+        "fourth they came back 40/48/12 every time. Ranks stay national when a conference "
+        "is selected, and rank_composite is what the board is sorted by.",
         [("Team ratings", r, ["rank_composite", "team", "conference", "wins", "losses",
                               "rating_composite", "rating_overall", "rank_overall",
-                              "elo", "rank_elo", "rating_off", "rating_def", "grade",
-                              "graded_matches"])],
+                              "elo", "rank_elo", "sos", "rank_sos", "rating_off",
+                              "rating_def", "grade", "graded_matches"])],
         "pwr",
-        glossary={"rating_composite": "the 50/50 blend the board is ranked by",
-                  "rating_overall": "the ridge half alone, = off + def",
-                  "elo": "the Elo half alone; league mean is 1500, sd about 365",
+        glossary={"rating_composite": "the 40/48/12 blend the board is ranked by",
+                  "rating_overall": "the ridge component alone, = off + def",
+                  "elo": "the Elo component alone; league mean is 1500, sd about 365",
+                  "sos": "mean rating_overall of the opponents played, same units",
+                  "rank_sos": "national rank by schedule difficulty, 1 = hardest",
                   "rating_off": "side-out ability when receiving (ridge)",
                   "rating_def": "suppressing the opponent's side-out (ridge)",
                   "grade": f"mean benchmark count out of {GRADE_MAX}, unadjusted"},
@@ -663,11 +680,11 @@ def page_rankings(season: str, home: str, away: str) -> None:
                 "The grade column is unadjusted and will disagree with the rating for "
                 "teams on very soft or very hard schedules. That disagreement is the "
                 "reason both are shown.",
-                "Early in a season the two halves disagree most, because Elo is still "
-                "mostly last season's team while the ridge knows only this one. Fitted "
-                "inside week bands the best weight runs about 55% Elo in September and "
-                "21% by December, but holding the weight flat at 50/50 predicts just as "
-                "well, so the board does not slide it.",
+                "Early in a season the parts disagree most. Elo is still mostly last "
+                "season's team, the ridge knows only this one, and SOS is the noisiest "
+                "of the three because it is an average of other teams' ratings, which "
+                "are themselves unsettled. The weights are held flat all season: a "
+                "sliding weight was fitted and tested and predicted no better.",
                 "The composite is a rank-ordering device. Read rating_off and rating_def "
                 "when you want a number that is literally side-outs per hundred."],
         examples=["who is underrated by their record?",
