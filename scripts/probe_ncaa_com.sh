@@ -82,7 +82,7 @@ fi
 echo
 echo "=== 3. public ncaa-api mirror (same data, different host) ==="
 get "ncaa-api scoreboard" \
-  "https://ncaa-api.henrygd.me/scoreboard/volleyball-women/d1/${DATE}" "$TMP/api.json" \
+  "${NCAA_API_BASE:-https://ncaa-api.henrygd.me}/scoreboard/volleyball-women/d1/${DATE}" "$TMP/api.json" \
   && python3 -c "import json;d=json.load(open('$TMP/api.json'));print('  games:',len(d.get('games',[])))"
 
 echo

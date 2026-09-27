@@ -21,7 +21,7 @@
 set -uo pipefail
 DATE="${1:-$(date -v-2d +%Y/%m/%d 2>/dev/null || date -d '2 days ago' +%Y/%m/%d)}"
 N="${2:-8}"
-BASE="https://ncaa-api.henrygd.me"
+BASE="${NCAA_API_BASE:-https://ncaa-api.henrygd.me}"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 curl -sS -m 30 "${BASE}/scoreboard/volleyball-women/d1/${DATE}" -o "$TMP/sb.json" || exit 1

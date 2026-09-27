@@ -20,7 +20,7 @@
 set -uo pipefail
 
 DATE="${1:-$(date -v-2d +%Y/%m/%d 2>/dev/null || date -d '2 days ago' +%Y/%m/%d)}"
-BASE="https://ncaa-api.henrygd.me"
+BASE="${NCAA_API_BASE:-https://ncaa-api.henrygd.me}"
 OUT="samples/ncaa_api"
 mkdir -p "$OUT"
 

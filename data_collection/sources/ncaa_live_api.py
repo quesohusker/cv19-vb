@@ -19,19 +19,22 @@ instance) and ncaa.com are denied by this sandbox's egress policy, so this
 collector has only been checked for import/syntax correctness. The public
 instance is also rate-limited to 5 req/sec/IP and explicitly described by
 its author as a demo, not for reliable long-term use -- for anything beyond
-occasional pulls, self-host it (`docker run --rm -p 3000:3000 henrygd/ncaa-api`)
-and point API_BASE at your own instance.
+occasional pulls, self-host it (`docker run -d -p 3000:3000 henrygd/ncaa-api`)
+and set NCAA_API_BASE=http://localhost:3000, which every stage of the
+current-season pipeline reads.
 """
 from __future__ import annotations
 
 import json
+import os
 import time
 
 import requests
 
 from .common import DATA_ROOT, DEFAULT_HEADERS
 
-API_BASE = "https://ncaa-api.henrygd.me"  # override with a self-hosted instance
+API_BASE = os.environ.get(                # override with a self-hosted instance
+    "NCAA_API_BASE", "https://ncaa-api.henrygd.me").rstrip("/")
 DIVISIONS = ["d1", "d2", "d3"]
 SPORTS = ["volleyball-women", "volleyball-men"]
 REQUEST_DELAY_S = 0.25  # stay well under the 5 req/sec/IP public-instance limit

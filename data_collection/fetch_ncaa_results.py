@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import urllib.error
@@ -39,7 +40,13 @@ import urllib.request
 from datetime import date, timedelta
 from pathlib import Path
 
-BASE = "https://ncaa-api.henrygd.me"
+# Set NCAA_API_BASE to point every stage at a self-hosted instance:
+#   docker run --rm -p 3000:3000 henrygd/ncaa-api
+#   export NCAA_API_BASE=http://localhost:3000
+# The default is the author's public demo instance, rate limited to 5 req/sec and
+# described by him as not for reliable long-term use. This pipeline now makes two calls
+# per match -- box score and play-by-play -- so a full season is ~4,400 requests.
+BASE = os.environ.get("NCAA_API_BASE", "https://ncaa-api.henrygd.me").rstrip("/")
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 

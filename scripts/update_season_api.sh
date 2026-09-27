@@ -25,35 +25,66 @@ fi
 
 GIS_DIR="${GIS_DIR:-$ROOT/../volleyball-gis}"
 RESULTS="data/ncaa_api/results_volleyball-women_d1_${YEAR}.json"
-PLAYERMATCH="${GIS_DIR}/public/data/wvb_playermatch_div1_${YEAR}.csv"
+# Player box scores come from the ncaa-api now, not volleyball-gis, and land here in
+# the shape volleyball-gis published. See data_collection/build_playermatch.py.
+PM_DIR="${PM_DIR:-data/playermatch}"
+PLAYERMATCH="${PM_DIR}/wvb_playermatch_div1_${YEAR}.csv"
 
 step() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
 
-step "1/9  box-score source"
+# Stages 2, 3 and 6 make ~4,400 requests between them -- two per match plus the
+# scoreboard. Against the public demo instance that is slow and impolite; against a
+# local container it is neither.
+API="${NCAA_API_BASE:-https://ncaa-api.henrygd.me}"
+echo "ncaa-api: ${API}"
+case "${API}" in
+  *ncaa-api.henrygd.me*)
+    cat <<'HINT'
+  That is the author's public demo instance, rate limited to 5 req/sec. For a full
+  season, self-host instead and re-run:
+    docker run -d -p 3000:3000 henrygd/ncaa-api
+    export NCAA_API_BASE=http://localhost:3000
+HINT
+    ;;
+esac
+
+step "1/11  historical player box scores (volleyball-gis, back years only)"
+# volleyball-gis stopped publishing partway through the 2026 season, so it is no longer
+# the current-season source -- stages 3 and 4 below replace it. It is still the only
+# source for 2021-2025, which build_player_ratings fits its fixed thresholds on, so the
+# clone is kept up to date and stage 4 copies those seasons in beside the generated one.
 if [ -d "${GIS_DIR}/.git" ]; then
   echo "  updating ${GIS_DIR}"
   git -C "${GIS_DIR}" pull --ff-only --quiet || echo "  (pull skipped; using what is on disk)"
 else
-  echo "  cloning volleyball-gis into ${GIS_DIR} (~400 MB)"
-  git clone --depth 1 https://github.com/jpitel24/volleyball-gis "${GIS_DIR}"
+  echo "  cloning volleyball-gis into ${GIS_DIR}"
+  git clone https://github.com/jpitel24/volleyball-gis "${GIS_DIR}"
 fi
-[ -f "${PLAYERMATCH}" ] || { echo "No ${PLAYERMATCH}. That season is not published there." >&2; exit 1; }
 
-step "2/9  match results (ncaa-api scoreboard, ~25 requests)"
+step "2/11  match results (ncaa-api scoreboard, ~25 requests)"
 "$PY" data_collection/fetch_ncaa_results.py "${YEAR}"
 
-step "3/9  team box scores"
-"$PY" data_collection/ingest_gis_boxscores.py "${YEAR}" \
-  --gis-dir "${GIS_DIR}/public/data" --results "${RESULTS}"
+step "3/11  player box scores (one request per match -- resumable)"
+echo "Safe to interrupt: every match is cached and re-running fetches only what is missing."
+"$PY" data_collection/fetch_ncaa_boxscores.py "${YEAR}" ${BOX_LIMIT:+--limit "${BOX_LIMIT}"}
 
-step "4/9  play-by-play (one request per match -- the long one, resumable)"
+step "4/11  playermatch CSV (drop-in for the volleyball-gis file)"
+"$PY" data_collection/build_playermatch.py "${YEAR}" \
+  --out-dir "${PM_DIR}" --gis-dir "${GIS_DIR}/public/data" --import-historical
+[ -f "${PLAYERMATCH}" ] || { echo "No ${PLAYERMATCH} -- stage 4 produced nothing." >&2; exit 1; }
+
+step "5/11  team box scores"
+"$PY" data_collection/ingest_gis_boxscores.py "${YEAR}" \
+  --gis-dir "${PM_DIR}" --results "${RESULTS}"
+
+step "6/11  play-by-play (one request per match -- the long one, resumable)"
 echo "Safe to interrupt: every match is cached and re-running fetches only what is missing."
 "$PY" data_collection/fetch_ncaa_pbp.py "${YEAR}" ${PBP_LIMIT:+--limit "${PBP_LIMIT}"}
 
-step "5/9  rally table"
+step "7/11  rally table"
 "$PY" analytics/rally_from_ncaa_api.py "${YEAR}" --serve-attempts "${PLAYERMATCH}"
 
-step "6/9  match metrics and app data"
+step "8/11  match metrics and app data"
 YEARS=""
 for f in data/ncaavolleyballr/data-csv/wvb_teammatch_div1_*.csv; do
   [ -e "$f" ] || continue
@@ -64,19 +95,19 @@ echo "seasons with both a rally table and box scores:${YEARS}"
 "$PY" analytics/build_match_metrics.py --years $YEARS
 "$PY" analytics/build_app_data.py
 
-step "7/9  in-system kill share"
-"$PY" analytics/in_system_kills.py "${YEAR}" --gis-dir "${GIS_DIR}/public/data"
+step "9/11  in-system kill share"
+"$PY" analytics/in_system_kills.py "${YEAR}" --gis-dir "${PM_DIR}"
 
-step "8/9  position rankings for individual players"
+step "10/11  position rankings for individual players"
 PLAYER_YEARS=""
-for f in "${GIS_DIR}"/public/data/wvb_playermatch_div1_*.csv; do
+for f in "${PM_DIR}"/wvb_playermatch_div1_*.csv; do
   [ -e "$f" ] || continue
   y="${f##*_}"; PLAYER_YEARS="${PLAYER_YEARS} ${y%.csv}"
 done
-"$PY" analytics/build_player_ratings.py --gis-dir "${GIS_DIR}/public/data" \
+"$PY" analytics/build_player_ratings.py --gis-dir "${PM_DIR}" \
   --years $PLAYER_YEARS --current-season "${YEAR}"
 
-step "9/9  elo ratings and the composite power ranking"
+step "11/11  elo ratings and the composite power ranking"
 "$PY" analytics/elo_ratings.py
 "$PY" analytics/composite_ratings.py
 

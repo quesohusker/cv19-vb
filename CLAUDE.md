@@ -11,9 +11,11 @@ is a read-only front end; everything it shows is built by the pipeline into `app
 ./scripts/publish.sh 2026 --skip-update    # publish what is already built
 ```
 
-Nine stages. 1-4 fetch (GIS box scores, ncaa-api scoreboard, ncaa-api play-by-play),
-5-6 build rallies and app data, 7 in-system kill share, 8 player ratings, 9 Elo and
-the composite.
+Eleven stages. 1 refresh the volleyball-gis clone (back years only), 2-4 ncaa-api
+scoreboard, player box scores and the playermatch CSV built from them, 5 team box
+scores, 6-7 play-by-play and rallies, 8 match metrics and app data, 9 in-system kill
+share, 10 player ratings, 11 Elo and the composite. `NCAA_API_BASE` points the fetch
+stages at a self-hosted ncaa-api instead of the rate-limited public demo.
 
 `publish.sh` refuses to run while anything outside the published data is dirty. The
 published set is `app_data/` plus `data/in_system_kills.parquet`, both of which the
@@ -21,18 +23,20 @@ pipeline rewrites every run.
 
 ## Where the data comes from, and the difference that keeps biting
 
-Two independent sources, and confusing them wastes hours:
+Two sources, and confusing them wastes hours:
 
-- **`../volleyball-gis`** (a GitHub repo) publishes player box scores. Everything
-  counting-based comes from here: the benchmark grade, the player boards.
-- **ncaa-api** (`ncaa-api.henrygd.me`) supplies the scoreboard (who won, set scores)
-  and the play-by-play. The rally table, and therefore every rate the ratings are
-  built on, comes from here.
+- **ncaa-api** (`ncaa-api.henrygd.me`) supplies the scoreboard (who won, set scores),
+  the play-by-play, and, since late September 2026, the current season's player box
+  scores (`fetch_ncaa_boxscores.py` -> `build_playermatch.py` -> `data/playermatch/`,
+  written in volleyball-gis's column layout so every reader works unchanged).
+- **`../volleyball-gis`** (a GitHub repo) is the only source of player box scores for
+  2021-2025, which the player boards' fixed thresholds are fitted on. Stage 4 copies
+  those seasons into `data/playermatch/`. It stopped publishing 2026 after 2026-09-20,
+  which is why the current season moved off it.
 
 Stage 2 reporting "195 final of 195" means the SCOREBOARD is complete for that date.
-It says nothing about whether box scores exist. As of late September 2026 the GIS
-repo stopped publishing daily refreshes after 2026-09-20 while still committing app
-code, which froze the app at that date with no fault in this pipeline.
+It says nothing about whether box scores exist; stage 3 reports that separately, and a
+contest that returns no player rows is left uncached and retried on the next run.
 
 `build_match_metrics.py` inner-joins box to rally, so a match missing from either
 source is absent entirely. Note `build_match_metrics.py:159` turns a blank stat into

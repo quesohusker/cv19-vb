@@ -219,8 +219,8 @@ def main() -> None:
         # every /teams/<id> path, so the app footer should not claim otherwise
         "source": ("NCAA play-by-play and box scores. 2021-2025 via "
                    "JeffreyRStevens/ncaavolleyballr; 2026 onward from the ncaa-api "
-                   "mirror (results, play-by-play) and jpitel24/volleyball-gis "
-                   "(player box scores)"),
+                   "mirror (results, play-by-play, player box scores). Player "
+                   "boards for 2021-2025 from jpitel24/volleyball-gis"),
         "sport": "women's volleyball", "division": "D1",
         "seasons": sorted(matches.season.unique().tolist()),
         "seasons_rebuilt": rebuilt,

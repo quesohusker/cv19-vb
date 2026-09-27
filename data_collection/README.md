@@ -23,6 +23,40 @@ python -m sources.ncaavolleyballr
 python -m sources.mattwaite_early_years
 ```
 
+## The current season
+
+`sources/` covers the seasons somebody else has already scraped and published.
+The in-progress season has nobody to download from, so four scripts at the top
+level of this directory build it from the ncaa-api mirror instead. They run in
+order and `scripts/update_season_api.sh` is the thing that runs them:
+
+| Script | What it does |
+|---|---|
+| `fetch_ncaa_results.py` | Scoreboard by date → one results file. The only endpoint that *enumerates* matches, so it is where every gameID comes from. ~25 requests, and it skips dates already settled. |
+| `fetch_ncaa_boxscores.py` | `/game/<id>/boxscore` per match → per-player counting stats. Resumable. |
+| `fetch_ncaa_pbp.py` | `/game/<id>/play-by-play` per match → point-summary rallies. Resumable. |
+| `build_playermatch.py` | The cached box scores → `wvb_playermatch_div1_<year>.csv`, in the column layout volleyball-gis published, so every existing reader works unchanged. |
+
+Player box scores used to come from
+[jpitel24/volleyball-gis](https://github.com/jpitel24/volleyball-gis), which
+stopped publishing partway through 2026. It is still the only source for
+2021–2025, so the clone is kept and `build_playermatch.py --import-historical`
+copies those seasons in beside the generated one; after that the pipeline does
+not need the clone at all. Moving to the API also made the box-score/result join
+exact — volleyball-gis ContestIDs are stats.ncaa.org contests and had to be
+matched on (date, unordered team pair), which drops ~6% of team-matches, mostly
+same-day repeat pairings at tournaments.
+
+**`NCAA_API_BASE`** points all of the above (and the probe scripts) at a
+different instance. The default is the author's public demo host, rate limited to
+5 req/sec and explicitly not meant for sustained use; a full season is ~4,400
+requests, so self-host for anything beyond a slice:
+
+```bash
+docker run -d -p 3000:3000 henrygd/ncaa-api
+export NCAA_API_BASE=http://localhost:3000
+```
+
 ## Sources, and what each one covers
 
 | Script | Source | Coverage | Status in this sandbox |
