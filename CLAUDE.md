@@ -72,6 +72,55 @@ message and module docstring; read those before changing any of it.
   win% carries a negative coefficient. "Wins more than its rallies say" is schedule
   strength, not clutch, and the apparent skill vanishes once schedule is controlled.
 
+## Open for the 2027 season: the seventh benchmark
+
+Deferred deliberately, not forgotten. Changing a benchmark mid-season would make the
+current year's grades incomparable to the ones already published, so this waits for
+the rollover.
+
+**Won set 1 does not survive its own test.** Thresholds fitted on 2021-2023 and scored
+out of sample on 2024, measured as the lift in win rate between teams that cleared a
+benchmark and teams that missed it, split by how long the match went:
+
+    benchmark            3 sets   4 sets   5 sets
+    Out-hit opponent     +98.1%   +82.7%   +35.8%
+    Side-out %           +85.6%   +58.8%   +24.4%
+    Point-score %        +85.9%   +58.9%   +24.4%
+    Hit eff / Opp hit    +80.7%   +54.2%   +19.7%
+    Ace-to-error         +37.2%   +20.4%    +5.8%
+    Won set 1            +99.6%   +33.1%    -1.2%
+
+Won set 1 is the strongest benchmark on the board in a sweep and the only one that is
+NEGATIVE in a five-setter. That shape is the signature of a metric restating the
+result rather than describing the play: in a three-set match "won set 1" is nearly
+"won the match". Pooled across all matches it looks fine, which is how it got in.
+
+Judge any candidate on five-set matches alone. Pooled numbers reward a metric for
+being close to the scoreboard. Two candidates were tested and rejected on exactly
+that basis -- "first to 20 in 2+ sets" (+94.1% in sweeps, +0.5% in five-setters) and
+"swept the opponent", which has zero counterexamples in 49,000 matches because it is
+the result, not a correlate of it.
+
+What the out-of-sample five-set lift says about the alternatives:
+
+    rally win %     +0.424   but 99.4% explained by side-out and point-score together,
+                             so it is their pooled form and fails the redundancy rule
+    kill %          +0.177   usable now; a component of hitting efficiency
+    first-ball SO   +0.153   NULL for 2026, the feed cannot reconstruct it
+    transition SO   +0.136   NULL for 2026, same reason
+    attack error %  +0.123   usable now; the other component of hitting efficiency
+    long volleys    +0.102   the most independent thing tested (overlap .26-.36 against
+                             out-hit's .36-.66) but needs touch detail, NULL for 2026
+
+At grade level, out of sample on 2024: the current seven score r=0.3756 against winning
+inside five-set matches, and simply DROPPING Won set 1 scores 0.4050 -- better than any
+replacement tried. Season-level correlation barely moves (0.8331 to 0.8271).
+
+So the live recommendation for 2027 is six benchmarks rather than a substitution,
+unless the feed regains touch detail, in which case long volleys is worth re-testing
+as a seventh because it measures something nothing else on the board does.
+
+
 ## App conventions
 
 - Six tabs. Every page ends with an **Ask an LLM** panel (a Markdown export of what the
