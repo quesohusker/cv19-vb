@@ -251,9 +251,33 @@ def player_log(season: str, team: str, player: str) -> pd.DataFrame:
 
 
 ALL_POSITIONS = "All positions"
+PIN_HITTERS = "Pin hitters (both)"
+PIN_BOARDS = ("Six-rotation hitter", "Front-row hitter")
 
 POSITION_ORDER = ["Six-rotation hitter", "Front-row hitter", "Middle blocker",
                   "Setter", "Back row"]
+
+
+def pin_hitters(season: str, conference: str | None = None) -> pd.DataFrame:
+    """The two pin boards shown together, each player still rated on her own board.
+
+    They are one position to a fan and two jobs to the model: a six-rotation hitter is
+    graded on passing and digging, a front-row hitter on blocking, because that is what
+    each is actually asked to do. Putting them in one table is a reading convenience, so
+    rating and rank_in_position are left exactly as they were computed -- within her own
+    board, against her own benchmarks. Nothing here re-ranks anyone.
+
+    The consequence to be honest about: two players in this table can show the same
+    rating and not be comparable, which is why the position column is not optional here.
+    """
+    p = players()
+    out = p[(p.season == season) & p.ranked & p.position.isin(PIN_BOARDS)].copy()
+    if conference:
+        out = out[out.conference == conference]
+    # Interleaved by rank rather than stacked board after board, so the top of the table
+    # is the best pins rather than all of one kind.
+    return (out.sort_values(["rank_in_position", "position"], na_position="last")
+               .reset_index(drop=True))
 
 
 def all_positions(season: str, conference: str | None = None,

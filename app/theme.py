@@ -139,7 +139,11 @@ def bench_pill(team: str, value: str, met: bool | None) -> str:
 CSS = f"""
 <style>
   html, body, [class*="css"] {{ font-family: {FONT}; }}
-  .block-container {{ padding-top: 2.2rem; }}
+  /* Streamlit pads the main column by 5rem a side even in wide mode, which costs the
+     dense boards about 150px of table width -- enough to decide whether fifteen columns
+     fit without a horizontal scrollbar. Give it back. */
+  .block-container {{ padding-top: 2.2rem;
+                      padding-left: 1.5rem; padding-right: 1.5rem; max-width: 100%; }}
   h1.app {{ font-size:2rem; font-weight:800; margin:0 0 4px; }}
   h1.app .accent {{ color:{ACCENT}; }}
   .sublabel {{ color:{MUTED}; font-size:.85rem; margin:.2rem 0 1rem; }}

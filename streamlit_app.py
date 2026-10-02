@@ -889,11 +889,28 @@ PLAYER_COLUMNS = {
 }
 
 
+# Shown when the two pin boards are read together: the metrics both are graded on,
+# plus the one each is graded on alone (reception error for the six-rotation hitter,
+# blocks for the front-row one) so a reader can see why they are scored differently.
+PIN_COLUMNS = [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
+               ("Blk/set", "blocks_per_set", "dec2"),
+               ("Rec/set", "receptions_per_set", "dec2"),
+               ("Digs/set", "digs_per_set", "dec2"),
+               ("In-sys%", "in_system_kill_pct", "pct1"),
+               ("Aces/set", "aces_per_set", "dec2")]
+
 TEAM_COLUMNS = [("K/set", "kills_per_set", "dec2"), ("Hit%", "hit_pct", "dec3"),
                 ("Blk/set", "blocks_per_set", "dec2"), ("Digs/set", "digs_per_set", "dec2"),
                 ("Rec/set", "receptions_per_set", "dec2"),
                 ("Ast/set", "assists_per_set", "dec2"),
                 ("Aces/set", "aces_per_set", "dec2")]
+
+
+# The all-positions board is the widest thing on the site, and "Six-rotation hitter"
+# spelled out in every row is what pushes it over the frame. The board is sorted and
+# grouped by position anyway, so the column is a marker rather than a label.
+POS_SHORT = {"Six-rotation hitter": "6-rot", "Front-row hitter": "Front row",
+             "Middle blocker": "Middle", "Setter": "Setter", "Back row": "Back row"}
 
 
 def sort_key(v) -> str:
@@ -917,8 +934,6 @@ def player_png_df(r, cols, show_position: bool = False) -> pd.DataFrame:
     out = []
     for _, row in r.iterrows():
         d = {"Rank": int(row.rank_in_position) if pd.notna(row.rank_in_position) else "\u2014",
-             "90% band": (f"{int(row.rank_low)}\u2013{int(row.rank_high)}"
-                          if pd.notna(row.rank_low) else "\u2014"),
              "In conf": (f"{int(row.rank_in_conference)}/{int(row.players_in_conference)}"
                          if pd.notna(row.rank_in_conference) else "\u2014"),
              "Player": row.player}
@@ -928,8 +943,6 @@ def player_png_df(r, cols, show_position: bool = False) -> pd.DataFrame:
         d["Conference"] = row.conference or ""
         d["Sets"] = PNG.plain(fmt(row.get("sets"), "dec1"))
         d["Rating"] = PNG.plain(fmt(row.get("rating"), "dec1"))
-        d["Bench"] = (f"{row.benchmarks_met:.0f}/{int(row.benchmarks_of)}"
-                      if pd.notna(row.benchmarks_met) else "\u2014")
         for lab, c, k in cols:
             d[lab] = PNG.plain(fmt(row.get(c), k))
         out.append(d)
@@ -943,39 +956,33 @@ def player_table(r, cols, home: str, away: str, show_position: bool = False) -> 
     pos_h = '<th class="srt" data-t="s">Pos</th>' if show_position else ""
     html = ['<div class="scroller"><table class="grid"><thead><tr>'
             '<th class="srt" data-t="n">Rank</th>'
-            '<th class="srt" data-t="n" style="text-align:right">90% band</th>'
             '<th class="srt" data-t="n" style="text-align:right">In conf</th>'
             '<th class="srt" data-t="s">Player</th>'
             f'{pos_h}<th class="srt" data-t="s">Team</th>'
             '<th class="srt" data-t="s">Conference</th>'
             '<th class="srt" data-t="n" style="text-align:right">Sets</th>'
             '<th class="srt" data-t="n" style="text-align:right">Rating</th>'
-            '<th class="srt" data-t="n" style="text-align:right">Bench</th>'
             f'{head}</tr></thead><tbody>']
     for _, row in r.iterrows():
         hl = ' class="hl"' if row.team in (home, away) else ""
         rank = int(row.rank_in_position) if pd.notna(row.rank_in_position) else "&mdash;"
-        band = (f'{int(row.rank_low)}&ndash;{int(row.rank_high)}'
-                if pd.notna(row.rank_low) else "&mdash;")
         cr = (f'{int(row.rank_in_conference)}/{int(row.players_in_conference)}'
               if pd.notna(row.rank_in_conference) else "&mdash;")
-        bench = (f'{row.benchmarks_met:.0f}/{int(row.benchmarks_of)}'
-                 if pd.notna(row.benchmarks_met) else "&mdash;")
-        pos_c = (f'<td class="ph" data-s="{row.position}">{row.position}</td>'
+        pos_c = (f'<td class="ph" data-s="{row.position}">'
+                 f'{POS_SHORT.get(row.position, row.position)}</td>'
                  if show_position else "")
         cells = "".join(
             f'<td class="n" data-s="{sort_key(row.get(c))}">{fmt(row.get(c), k)}</td>'
             for _, c, k in cols)
         html.append(
             f'<tr{hl}><td class="n" data-s="{sort_key(row.rank_in_position)}">{rank}</td>'
-            f'<td class="n" data-s="{sort_key(row.rank_low)}" style="color:#9aa0a6">{band}</td>'
             f'<td class="n" data-s="{sort_key(row.rank_in_conference)}">{cr}</td>'
-            f'<td data-s="{row.player}"><b>{row.player}</b></td>{pos_c}'
+            f'<td class="pl" data-s="{row.player}" title="{row.player}">'
+            f'<b>{row.player}</b></td>{pos_c}'
             f'<td data-s="{row.team}">{T.chip(row.team, ".85rem")}</td>'
             f'<td data-s="{row.conference or ""}">{row.conference or ""}</td>'
             f'<td class="n" data-s="{sort_key(row.sets)}">{row.sets:.0f}</td>'
             f'<td class="n" data-s="{sort_key(row.rating)}">{row.rating:.1f}</td>'
-            f'<td class="n" data-s="{sort_key(row.benchmarks_met)}">{bench}</td>'
             f'{cells}</tr>')
     html.append("</tbody></table></div>")
     return "".join(html)
@@ -1018,28 +1025,100 @@ document.querySelectorAll('table.grid th.srt').forEach(function (th, i) {
 """
 
 
-ROW_PX = 45          # a row carrying a team chip, measured in the rendered component
-HEAD_PX = 32
-VISIBLE_ROWS = 25    # show the whole table up to here, then scroll inside the frame
+ROW_PX = 26          # one line plus padding, measured in the rendered component
+HEAD_PX = 24         # one line; the widened container means names no longer wrap
+VISIBLE_ROWS = 50    # show the whole table up to here, then scroll inside the frame
+
+
+FIT_JS = """
+<script>
+// Size the frame to what actually rendered, rather than to a guess made server-side.
+// Row height is not a constant: it depends on which board is showing and on whether a
+// player's name wrapped, and the boards here range from 26px rows to 53px. Measuring
+// is the only way to get a frame that is exactly as tall as its table on every board.
+(function () {
+  function fit() {
+    var sc = document.querySelector('.scroller');
+    var t = sc && sc.querySelector('table.grid');
+    if (!t) return;
+    var head = t.querySelector('thead');
+    var rows = t.querySelectorAll('tbody tr');
+    var headH = head ? head.getBoundingClientRect().height : 0;
+    var n = rows.length;
+    var shown = Math.min(n, VISIBLE_ROWS);
+    // Sum the rows actually shown instead of multiplying one row's height, so a board
+    // where two names wrap and the rest do not still comes out right.
+    var bodyH = 0;
+    for (var i = 0; i < shown; i++) bodyH += rows[i].getBoundingClientRect().height;
+    var total = Math.ceil(headH + bodyH) + 2;
+    sc.style.maxHeight = total + 'px';
+    // Only past VISIBLE_ROWS is a vertical scrollbar wanted; below it the frame is the
+    // table and there is nothing to scroll.
+    sc.style.overflowY = (n > VISIBLE_ROWS) ? 'auto' : 'hidden';
+    if (window.parent !== window) {
+      window.parent.postMessage({isStreamlitMessage: true,
+                                 type: 'streamlit:setFrameHeight',
+                                 height: total}, '*');
+    }
+  }
+  fit();
+  window.addEventListener('load', fit);
+  window.addEventListener('resize', fit);
+  setTimeout(fit, 60);
+  setTimeout(fit, 400);
+})();
+</script>
+"""
 
 
 def sortable(html: str, rows: int) -> None:
     """Render a grid table as a component so its headers can be clicked to sort.
 
-    The frame is sized to the table: a short board shows whole with no scrollbar of its
-    own, and anything longer than VISIBLE_ROWS scrolls inside the frame under its sticky
-    header rather than stretching the page to two thousand rows. The row height is
-    measured rather than guessed -- 45px with a team chip in the cell -- and rounded up,
-    because being a few pixels generous costs a sliver of whitespace while being a few
-    pixels short clips the last row behind the frame edge.
+    Two rules about scrollbars, both deliberate.
+
+    Vertically the frame is the table: a six-row board is six rows tall and nothing
+    scrolls, and only past VISIBLE_ROWS does it scroll inside the frame under its sticky
+    header rather than stretching the page to two thousand rows. The height is measured
+    in the browser by FIT_JS, not computed here, because row height is not a constant --
+    it runs from 26px to 53px across these boards depending on the columns and on whether
+    a name wrapped. The height passed below is only a starting value for the first paint.
+
+    Horizontally there is never a scrollbar, which means the table has to be made to FIT
+    rather than clipped: the component tightens its own padding and type and lets both
+    column names and cells wrap, so the widest board comes in under the frame. overflow-x
+    is hidden as a backstop, not as the mechanism.
     """
     shown = min(max(rows, 1), VISIBLE_ROWS)
-    inner = HEAD_PX + shown * ROW_PX + 4
+    # Fifty rows of a 1px rounding error is half a row of clipping, so the capped case
+    # gets a little headroom. It costs nothing: FIT_JS caps the scroller at exactly
+    # fifty rows, and any slack left over is below the scrollbar, not inside it.
+    inner = HEAD_PX + shown * ROW_PX + 4 + (36 if rows > VISIBLE_ROWS else 0)
     components.html(
         T.CSS
         + f'<style>body{{margin:0;background:{T.BG};color:{T.TEXT};font-family:{T.FONT}}}'
-          f'.scroller{{max-height:{inner}px}}</style>'
-        + html + SORT_JS,
+          f'.scroller{{max-height:{inner}px;overflow-x:hidden;overflow-y:auto;'
+          f'scrollbar-width:thin}}'
+          # Wide boards only fit because of these. Column names wrap instead of forcing a
+          # column as wide as its longest word, cells wrap too, padding comes down from
+          # 10px, and the type drops a step. Without them the widest board overflows and
+          # the browser puts back the horizontal scrollbar this exists to remove.
+          'table.grid{font-size:.73rem;table-layout:auto}'
+          'table.grid th.srt{white-space:normal}'
+          'table.grid th{padding:5px 5px;vertical-align:bottom}'
+          'table.grid td{padding:4px 5px;white-space:nowrap}'
+          # One 29-character name ("Maria Eduarda Pereira Tonella") is enough to
+          # push the full board past the frame, and it only appears once you show
+          # every player. Cap the column and ellipsize; the full name is on hover.
+          'table.grid td.pl{max-width:170px;overflow:hidden;text-overflow:ellipsis}'
+          # The team chip sets its own size inline, so only !important reaches it. It is
+          # the widest unbreakable thing in a row ("Southern California" cannot wrap and
+          # still look like a pill), which makes it the column that decides whether the
+          # whole table fits.
+          'table.grid td span{font-size:.74rem!important;padding:.1rem .4rem!important}'
+          '</style>'
+        + html
+        + f'<script>var VISIBLE_ROWS={VISIBLE_ROWS};</script>'
+        + SORT_JS + FIT_JS,
         height=inner + 2, scrolling=False)
 
 
@@ -1047,20 +1126,43 @@ def page_players(season: str, home: str, away: str) -> None:
     st.markdown('<h1 class="app">Position <span class="accent">Rankings</span></h1>',
                 unsafe_allow_html=True)
     pb = D.player_benchmarks()
-    positions = [D.ALL_POSITIONS] + D.positions()
+    positions = [D.ALL_POSITIONS, D.PIN_HITTERS] + D.positions()
     c1, c2, c3 = st.columns([1.3, 1.2, 1.2])
     position = c1.selectbox("Position", positions,
                             index=positions.index("Outside hitter")
                             if "Outside hitter" in positions else 0)
     conf = c2.selectbox("Conference", ["All D1"] + D.player_conferences(season), key="pconf")
     every = position == D.ALL_POSITIONS
+    pins = position == D.PIN_HITTERS
     scope_opts = (["Selected teams only", "One team", "Top 25 per position", "Everyone"]
                   if every else
                   ["Top 50", "Top 100", "Selected teams only", "Everyone"])
     scope = c3.selectbox("Show", scope_opts, key="pscope")
 
     conference = None if conf == "All D1" else conf
-    if every:
+    if pins:
+        r = D.pin_hitters(season, conference)
+        if scope == "Selected teams only":
+            r = r[r.team.isin([home, away])]
+        elif scope == "Top 50":
+            r = r.head(50)
+        elif scope == "Top 100":
+            r = r.head(100)
+        cols, show_pos = PIN_COLUMNS, True
+        metric_note(None)
+        pin_split_note()
+        st.markdown(
+            f'<p class="sublabel">Both pin boards in one table, interleaved by rank. '
+            f'Each player is still rated on <em>her own</em> board and against her own '
+            f'benchmarks &mdash; a six-rotation hitter on passing and digging, a '
+            f'front-row hitter on blocking &mdash; because that is what each is actually '
+            f'asked to do. Nothing here re-ranks anyone, so two rows can show the same '
+            f'rating and not be comparable. The position column says which board a '
+            f'rating came from, and it is the thing to read first. Minimum '
+            f'{pb["min_sets"]} sets, and in {pb["recency_rule"]["current_season"]} at '
+            f'least one set in the team&rsquo;s last three matches.</p>',
+            unsafe_allow_html=True)
+    elif every:
         team = None
         if scope == "One team":
             teams = D.player_teams(season)
@@ -1129,7 +1231,7 @@ def page_players(season: str, home: str, away: str) -> None:
     PNG.button(
         st, _pdf,
         title=f"{position} \u2014 {season}" + ("" if conf == "All D1" else f", {conf}"),
-        subtitle=f"Minimum {pb['min_sets']} sets. Rank and 90% band are national.",
+        subtitle=f"Minimum {pb['min_sets']} sets. Ranks are national.",
         filename=f"{PNG.slug(position)}_{season}.png", key="png_players",
         highlight_rows=[i for i, t in enumerate(r.team) if t in (home, away)])
     st.markdown('<p class="tiny" style="color:#6f7681">The band is where this player '
