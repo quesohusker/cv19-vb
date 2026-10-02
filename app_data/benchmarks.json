@@ -55,7 +55,7 @@
   },
   {
     "metric": "hit_margin",
-    "label": "Out-hit the opponent",
+    "label": "Hitting margin",
     "phase": "attack vs defense",
     "graded": true,
     "direction": "higher_is_better",

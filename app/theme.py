@@ -136,6 +136,19 @@ def bench_pill(team: str, value: str, met: bool | None) -> str:
     return f'<span style="color:{MUTED};font-weight:600">{value}</span>'
 
 
+def rank_note(rank: int | None, pool: int | None = None) -> str:
+    """'(4)' after a season figure: where the team sits on that metric in the pool.
+
+    Muted and a size down, because it annotates the number beside it rather than
+    competing with it.
+    """
+    if rank is None:
+        return ""
+    of = f"/{pool}" if pool else ""
+    return (f' <span style="color:{MUTED};font-weight:600;font-size:.72rem">'
+            f'({rank}{of})</span>')
+
+
 CSS = f"""
 <style>
   html, body, [class*="css"] {{ font-family: {FONT}; }}

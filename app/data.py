@@ -321,3 +321,45 @@ def team_board(season: str, team: str, include_unranked: bool = False) -> pd.Dat
 def player_teams(season: str) -> list[str]:
     p = players()
     return sorted(p[(p.season == season) & p.ranked].team.unique().tolist())
+
+
+def team_conference(season: str, team: str) -> str | None:
+    """A team's conference, or None when the season file does not carry one."""
+    ts = team_seasons()
+    row = ts[(ts.season == season) & (ts.team == team)]
+    if row.empty or pd.isna(row.conference.iloc[0]):
+        return None
+    return str(row.conference.iloc[0])
+
+
+@lru_cache(maxsize=16)
+def metric_ranks(season: str, conference: str | None = None,
+                 min_matches: int = 5) -> pd.DataFrame:
+    """Where each team sits on every graded metric, as a rank over a pool of teams.
+
+    The season cell on the benchmark page is the team's own average, so the rank
+    beside it has to rank the same quantity: each team's season average, not any
+    single match. Direction comes from the benchmark, so 1 is always the best
+    team on that metric. `conference` restricts the pool; None ranks nationally.
+    Teams with fewer than `min_matches` graded matches are left out of the pool,
+    for the same reason every other board here drops them: a three-match average
+    is not comparable with a twenty-match one.
+    """
+    m = matches()
+    m = m[m.season == season]
+    if conference:
+        m = m[m.conference == conference]
+    cols = [b["metric"] for b in graded_benchmarks() if b["metric"] in m.columns]
+    if m.empty or not cols:
+        return pd.DataFrame()
+    g = m.groupby("team")
+    played = g.size()
+    avg = g[cols].mean().loc[played[played >= min_matches].index]
+    out = pd.DataFrame(index=avg.index)
+    for b in graded_benchmarks():
+        metric = b["metric"]
+        if metric not in avg.columns:
+            continue
+        out[metric] = avg[metric].rank(
+            ascending=b["direction"] != "higher_is_better", method="min")
+    return out

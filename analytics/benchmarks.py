@@ -172,7 +172,7 @@ VOLLEYBALL_7 = [
     ("opp_hit_pct",     -1, 0.1987, "Opp hitting efficiency <= .199", "defense"),
     ("ace_to_err",      +1, 0.5333, "Ace-to-service-error >= 0.53",   "serve"),
     # --- the two hitting numbers against each other, which neither absolute captures ---
-    ("hit_margin",      +1, 0.0000, "Out-hit the opponent",           "attack vs defense"),
+    ("hit_margin",      +1, 0.0000, "Hitting margin",                "attack vs defense"),
 ]
 
 # Kept for reference; VOLLEYBALL_7 is the graded set.

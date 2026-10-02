@@ -32,7 +32,7 @@ percentage, stable across all five seasons.
 | Point-score % ≥ 41.9% | serve phase |
 | Opp hitting efficiency ≤ .199 | defense |
 | Ace-to-service-error ≥ 0.53 | serve |
-| Out-hit the opponent | attack vs defense |
+| Hitting margin | attack vs defense |
 
 **Power ratings** rank teams. One ridge regression per season fits
 `sideout = μ + off_i − def_j` over every team-match; since point-score rate is one

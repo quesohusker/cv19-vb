@@ -469,6 +469,31 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                 'that best separated winning from losing performances across 2021-2023, '
                 'validated out of sample.</p>', unsafe_allow_html=True)
 
+    # Where the season figure sits on each metric. Two options only, because the
+    # two sides can be in different conferences: "conference" means each team is
+    # ranked inside its own, not both inside one.
+    hc, ac = D.team_conference(season, home), D.team_conference(season, away)
+    conf_label = hc if hc and hc == ac else "conference"
+    pool_choice = st.radio("Season rank", ["National", conf_label.title()],
+                           horizontal=True, key="bench_pool")
+    national = pool_choice == "National"
+    pools = {t: D.metric_ranks(season, None if national else c)
+             for t, c in ((home, hc), (away, ac))}
+
+    def head_pool(conf: str | None) -> str:
+        return "national" if national else (conf or "conference")
+
+    def team_rank(pool, team: str, metric: str) -> int | None:
+        """The team's rank on one metric, or None when it is not in the pool.
+
+        A team under the five-match floor, or a metric the season file does not
+        carry, leaves the cell unannotated rather than guessing at a rank.
+        """
+        if pool.empty or metric not in pool.columns or team not in pool.index:
+            return None
+        v = pool.at[team, metric]
+        return None if pd.isna(v) else int(v)
+
     # one picker per side: the two teams have different schedules, so a single
     # opponent list cannot serve both. Each defaults to that team's most recent match.
     c1, c2 = st.columns(2)
@@ -487,9 +512,10 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
             f'<tr><th></th><th class="grp" colspan="2">{T.chip(home)}</th>'
             f'<th class="grp sep" colspan="2">{T.chip(away)}</th></tr>',
             f'<tr><th class="lab">Benchmark</th>'
-            f'<th class="sub">{frames[0][2]}</th><th class="sub">Season</th>'
+            f'<th class="sub">{frames[0][2]}</th>'
+            f'<th class="sub">Season ({head_pool(hc)})</th>'
             f'<th class="sub sep">{frames[1][2]}</th>'
-            f'<th class="sub">Season</th></tr></thead><tbody>']
+            f'<th class="sub">Season ({head_pool(ac)})</th></tr></thead><tbody>']
 
     # Collected alongside the HTML so the image cannot drift from the table. On
     # screen "cleared" is the pill colour; an image has no colour legend, so the
@@ -531,8 +557,11 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                 else val <= b["threshold"])
             if season_met is not None:
                 season_hits[team] = season_hits.get(team, 0) + int(season_met)
-            cells.append(T.bench_pill(team, season_txt, season_met))
-            plain_cells.append(mark(PNG.plain(season_txt), season_met))
+            rank = team_rank(pools[team], team, metric)
+            cells.append(T.bench_pill(team, season_txt, season_met)
+                         + T.rank_note(rank))
+            plain_cells.append(mark(PNG.plain(season_txt), season_met)
+                               + (f" ({rank})" if rank else ""))
         bench_rows.append({"Benchmark": b["label"],
                            f"{home} last": plain_cells[0], f"{home} season": plain_cells[1],
                            f"{away} last": plain_cells[2], f"{away} season": plain_cells[3]})
@@ -569,7 +598,9 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                 'season figure is the team&rsquo;s average, so it can clear a benchmark '
                 'the team misses in any given match and the other way round. &ldquo;Won '
                 'set 1&rdquo; is the one row that has to read differently, because a '
-                'season of yes-or-no results is a rate. Pick any match above &mdash; each '
+                'season of yes-or-no results is a rate. The figure in parentheses is '
+                'where the team&rsquo;s season average ranks on that metric, in '
+                'whichever pool is picked above. Pick any match above &mdash; each '
                 'side defaults to its most recent.</p>', unsafe_allow_html=True)
     ask_panel(
         f"The Volleyball {GRADE_MAX} \u2014 {home} vs {away}, {season}",

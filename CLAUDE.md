@@ -131,6 +131,12 @@ as a seventh because it measures something nothing else on the board does.
   drift.
 - Explanations live in a collapsible `st.expander` above the table, in the app's own
   voice: what it measures, what was ruled out, and why.
+- The Volleyball 7 season column carries a rank in parentheses. It ranks each team's
+  *season average* on that metric, from `D.metric_ranks`, over teams with five or more
+  graded matches — never a rank of the single match beside it. The radio offers
+  national or conference, and "conference" means each side inside its own, so a
+  cross-conference pairing ranks the two in different pools. It reads "Big Ten" only
+  when both sides share a conference.
 - `matplotlib` is required for the PNG export. It fails soft — no button rather than a
   broken page — so a missing dependency is silent. Check for the button, not an error.
 
