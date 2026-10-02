@@ -503,6 +503,7 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
             return text or "\u2014"
         return f"{text} {TICK if met else CROSS}"
 
+    season_hits: dict[str, int] = {}
     for b in D.graded_benchmarks():
         metric, flag = b["metric"], b["flag_column"]
         kind = "dec3" if "efficiency" in b["label"] or "margin" in metric else "pct1"
@@ -510,17 +511,28 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
             kind = "dec2"
         if metric == "won_set1":
             kind = "yn"   # the match cell is a result, not a rate
+        # ... but a season of results is a rate again, so the two cells read differently
+        # on this row alone: "Yes" for the match, "93%" for the season behind it.
+        season_kind = "pct1" if metric == "won_set1" else kind
         cells, plain_cells = [], []
         for team, (avg, last, _) in zip((home, away), frames):
             last_met = None if pd.isna(last.get(flag)) else bool(last[flag])
             last_txt = fmt(last.get(metric), kind)
             cells.append(T.bench_pill(team, last_txt, last_met))
             plain_cells.append(mark(PNG.plain(last_txt), last_met))
-            rate = avg.get(flag)
-            rate_txt = f"{rate * 100:.0f}%" if pd.notna(rate) else ""
-            rate_met = None if pd.isna(rate) else rate >= 0.5
-            cells.append(T.bench_pill(team, rate_txt, rate_met))
-            plain_cells.append(mark(rate_txt, rate_met))
+            # The season cell is the season played as one long match: the team's own
+            # average of the same quantity, judged against the same threshold. It used
+            # to be the share of matches that cleared the benchmark, which answered a
+            # different question and could not be compared with the cell beside it.
+            val = avg.get(metric)
+            season_txt = fmt(val, season_kind)
+            season_met = None if pd.isna(val) else (
+                val >= b["threshold"] if b["direction"] == "higher_is_better"
+                else val <= b["threshold"])
+            if season_met is not None:
+                season_hits[team] = season_hits.get(team, 0) + int(season_met)
+            cells.append(T.bench_pill(team, season_txt, season_met))
+            plain_cells.append(mark(PNG.plain(season_txt), season_met))
         bench_rows.append({"Benchmark": b["label"],
                            f"{home} last": plain_cells[0], f"{home} season": plain_cells[1],
                            f"{away} last": plain_cells[2], f"{away} season": plain_cells[3]})
@@ -529,10 +541,14 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                     f'<td class="num">{cells[3]}</td></tr>')
 
     totals = []
-    for avg, last, _ in frames:
+    for team, (avg, last, _) in zip((home, away), frames):
         # a benchmark with a missing input is not graded; show what it was graded out of
         of = int(last.graded_on) if pd.notna(last.get("graded_on")) else GRADE_MAX
-        totals.append((f"{int(last.grade)} / {of}", f"{avg.grade:.2f} / {GRADE_MAX}"))
+        # The season total counts what the season's own numbers clear, to match the
+        # column above it. The average grade per match is a different statistic and
+        # lives on the team board as `grade`.
+        totals.append((f"{int(last.grade)} / {of}",
+                       f"{season_hits.get(team, 0)} / {GRADE_MAX}"))
     html.append(f'<tr><td class="lab"><b>Met (of {GRADE_MAX})</b></td>'
                 f'<td class="num"><b>{totals[0][0]}</b></td><td class="num"><b>{totals[0][1]}</b></td>'
                 f'<td class="num sep"><b>{totals[1][0]}</b></td>'
@@ -548,10 +564,13 @@ def page_benchmarks(season: str, home: str, away: str) -> None:
                  f"(\u2713 cleared, \u2717 missed)",
         filename=f"v{GRADE_MAX}_{PNG.slug(home)}_vs_{PNG.slug(away)}_{season}.png",
         key="png_bm")
-    st.markdown('<p class="sublabel">Match cells show that match&rsquo;s value; season cells '
-                'show the share of the team&rsquo;s matches in which it cleared that '
-                'benchmark. Pick any match above &mdash; each side defaults to its most '
-                'recent.</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sublabel">Both columns are the same quantity against the same '
+                'threshold: one match on the left, the whole season on the right. The '
+                'season figure is the team&rsquo;s average, so it can clear a benchmark '
+                'the team misses in any given match and the other way round. &ldquo;Won '
+                'set 1&rdquo; is the one row that has to read differently, because a '
+                'season of yes-or-no results is a rate. Pick any match above &mdash; each '
+                'side defaults to its most recent.</p>', unsafe_allow_html=True)
     ask_panel(
         f"The Volleyball {GRADE_MAX} \u2014 {home} vs {away}, {season}",
         f"Every team-match is scored against {GRADE_MAX} benchmarks and the grade is how "

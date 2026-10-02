@@ -147,7 +147,10 @@ CSS = f"""
   h1.app {{ font-size:2rem; font-weight:800; margin:0 0 4px; }}
   h1.app .accent {{ color:{ACCENT}; }}
   .sublabel {{ color:{MUTED}; font-size:.85rem; margin:.2rem 0 1rem; }}
-  table.cmp {{ border-collapse:collapse; width:100%; font-size:.85rem; margin-top:.3rem; }}
+  /* Capped rather than full width: with five columns on a wide screen the cells
+     drift so far apart that a row stops reading as a row. */
+  table.cmp {{ border-collapse:collapse; width:100%; max-width:980px;
+               font-size:.85rem; margin-top:.3rem; }}
   table.cmp th, table.cmp td {{ padding:2px 8px; border-bottom:1px solid {BORDER}; }}
   table.cmp td.num {{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }}
   table.cmp td.lab, table.cmp th.lab {{ text-align:left; white-space:nowrap; color:{ROW_LABEL}; }}
