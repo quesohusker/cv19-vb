@@ -1755,7 +1755,7 @@ def page_expected(season: str, home: str, away: str) -> None:
     proj = "proj_w" in x.columns
 
     html = ['<div class="scroller"><table class="grid"><thead><tr>'
-            '<th class="srt" data-t="n">#</th><th class="srt" data-t="s">Team</th>'
+            '<th class="srt" data-t="s">Team</th>'
             '<th class="srt" data-t="s">Conference</th>'
             '<th class="srt" data-t="n" style="text-align:right">Record</th>'
             '<th class="srt" data-t="n" style="text-align:right">Expected</th>'
@@ -1769,12 +1769,11 @@ def page_expected(season: str, home: str, away: str) -> None:
                if proj else "")
             + '</tr></thead><tbody>']
     png_rows = []
-    for i, row in enumerate(x.itertuples(), 1):
+    for row in x.itertuples():
         hl = ' class="hl"' if row.team in (home, away) else ""
         z = "&mdash;" if pd.isna(row.z) else f"{row.z:+.1f}"
         html.append(
-            f'<tr{hl}><td class="n" data-s="{i}">{i}</td>'
-            f'<td data-s="{row.team}">{T.chip(row.team, ".85rem")}</td>'
+            f'<tr{hl}><td data-s="{row.team}">{T.chip(row.team, ".85rem")}</td>'
             f'<td data-s="{row.conference or ""}">{row.conference or ""}</td>'
             f'<td class="n" data-s="{row.wins / row.matches:.4f}">'
             f'{int(row.wins)}-{int(row.losses)}</td>'
@@ -1791,7 +1790,7 @@ def page_expected(season: str, home: str, away: str) -> None:
                f'<td class="n" data-s="{row.win_out:.6f}">{_pct(row.win_out)}</td>'
                if proj else "")
             + '</tr>')
-        png_row = {"#": i, "Team": row.team, "Conference": row.conference or "",
+        png_row = {"Team": row.team, "Conference": row.conference or "",
                    "Record": f"{int(row.wins)}-{int(row.losses)}",
                    "Expected": f"{row.xw:.1f}-{row.xl:.1f}",
                    "Wins vs expected": f"{row.diff:+.1f}",
@@ -1808,7 +1807,8 @@ def page_expected(season: str, home: str, away: str) -> None:
         st, pd.DataFrame(png_rows),
         title=f"Expected Wins — {season}" + ("" if conf == "All D1" else f", {conf}"),
         subtitle="Actual record against the sum of pre-match win chances. "
-                 "Sorted luckiest first.",
+                 + ("Sorted by projected total wins." if proj
+                    else "Sorted by expected wins."),
         filename=f"expected_wins_{season}"
                  + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
         key="png_xw", max_rows=25,

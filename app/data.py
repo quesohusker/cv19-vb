@@ -490,7 +490,9 @@ def expected_wins(season: str, conference: str | None = None,
     out = out[out.matches >= min_matches]
     if conference:
         out = out[out.conference == conference]
-    return out.sort_values("diff", ascending=False).reset_index(drop=True)
+    # Expected total wins: projected season total when the schedule is in, else to date.
+    key = "proj_w" if "proj_w" in out.columns else "xw"
+    return out.sort_values(key, ascending=False).reset_index(drop=True)
 
 
 def team_predictions(season: str, team: str) -> pd.DataFrame:

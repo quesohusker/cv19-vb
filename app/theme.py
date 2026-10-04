@@ -184,10 +184,10 @@ CSS = f"""
   /* click-to-sort affordances, used when the table is rendered as a component */
   table.grid th.srt {{ cursor:pointer; user-select:none; white-space:nowrap; }}
   table.grid th.srt:hover {{ color:{TEXT}; }}
-  table.grid th.srt::after {{ content:"\2195"; opacity:.28; margin-left:5px;
+  table.grid th.srt::after {{ content:"\\2195"; opacity:.28; margin-left:5px;
                               font-size:.85em; }}
-  table.grid th.srt.asc::after {{ content:"\2191"; opacity:1; color:{ACCENT}; }}
-  table.grid th.srt.desc::after {{ content:"\2193"; opacity:1; color:{ACCENT}; }}
+  table.grid th.srt.asc::after {{ content:"\\2191"; opacity:1; color:{ACCENT}; }}
+  table.grid th.srt.desc::after {{ content:"\\2193"; opacity:1; color:{ACCENT}; }}
   table.grid td {{ padding:7px 10px; border-bottom:1px solid {BORDER}; }}
   table.grid td.n {{ text-align:right; font-variant-numeric:tabular-nums; }}
   table.grid tr:hover {{ background:{HOVER}; }}
