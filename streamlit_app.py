@@ -2,10 +2,12 @@
 
 Read-only front end over the precomputed tables in app_data/. Mirrors the structure
 and design system of the CFB app: global season + two-team selection, a stat
-comparison, a benchmark scorecard, and opponent-adjusted power rankings. No game
-predictions -- volleyball match outcomes are not what this project set out to forecast.
+comparison, a benchmark scorecard, opponent-adjusted power rankings, and a matchup
+predictor built on those rankings, with the expected-wins table that follows from it.
 """
 from __future__ import annotations
+
+import math
 
 import pandas as pd
 import streamlit as st
@@ -1498,6 +1500,395 @@ def page_about() -> None:
         examples=["why seven benchmarks?", "what is deliberately not measured?"])
 
 
+# ------------------------------------------------------------------- predictor
+def _pct(p: float) -> str:
+    """A probability as a reader wants it: whole percents, never a false 100% or 0%."""
+    if p > 0.995:
+        return "&gt;99%"
+    if p < 0.005:
+        return "&lt;1%"
+    return f"{p:.0%}"
+
+
+def _bar_colors(a: str, b: str) -> tuple[str, str]:
+    """Each side's primary colour, unless the two would read as one bar.
+
+    Nebraska and Wisconsin are both red. When the primaries sit this close, the second
+    team takes the neutral slate so the split is still visible.
+    """
+    ca, cb = T.team_colors(a)[0], T.team_colors(b)[0]
+
+    def rgb(h: str) -> tuple[int, ...]:
+        h = h.lstrip("#")
+        return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+    if sum((x - y) ** 2 for x, y in zip(rgb(ca), rgb(cb))) ** 0.5 < 90:
+        cb = T.NEUTRAL[1]
+    return ca, cb
+
+
+def ratings_asof(season: str) -> str:
+    mp = D.match_predictions()
+    s = mp[mp.season == season] if not mp.empty else mp
+    if s.empty:
+        return f"the end of {season}"
+    last = pd.to_datetime(s.date.max())
+    return (f"{last:%b} {last.day}, {last.year}" if season == D.matchup_model().get(
+        "current_season") else f"the end of {season}")
+
+
+def predictor_note() -> None:
+    m = D.matchup_model()
+    c = m["coef"]
+    v = pd.DataFrame(m["validation"])
+    with st.expander("How the predictor works, and how well it has done"):
+        st.markdown(
+            "**Three numbers.** The chance of winning comes from the gap between the two "
+            "teams on the two ratings the Power Rankings page already publishes, plus a "
+            "home edge:\n\n"
+            f"- every 100 points of **Elo** is worth {c['elo_per_100']:.2f} on the "
+            "log-odds scale,\n"
+            f"- every 10 points of **ridge rating** is worth {c['ridge_per_10']:.2f},\n"
+            f"- **hosting** is worth {c['home']:.2f}, about "
+            f"{1 / (1 + math.exp(-c['home'])):.0%} for the host between two even teams. "
+            "The feed has no neutral-site flag, so tournament hosts count as hosts and "
+            "the edge is an average over both.\n\n"
+            f"Fitted on {', '.join(m['fit_seasons'])}, using only what was known before "
+            "each match: Elo as it stood going into the match, and a ridge refitted every week on "
+            f"the matches already played. {m['current_season']} is never in the fit, so "
+            "every match below for that season is a genuine out-of-sample test.\n\n"
+            "**Why both ratings.** Held out a season at a time, the blend beats either "
+            "rating alone on log loss in every season. Elo carries last season and "
+            "weights recent form; the ridge solves the whole schedule at once. They miss "
+            "in different places.\n\n"
+            "**Scorelines** are not computed by treating sets as coin flips. That method "
+            "says 26% of near-even matches end in sweeps; 35% do. Matches are more "
+            "lopsided than independent sets allow, so the 3-0 / 3-1 / 3-2 odds come "
+            "from what actually happened to favourites of the same size.")
+        acc = v.pivot(index="spec", columns="season", values="accuracy").loc[
+            ["blend", "elo", "ridge"]]
+        ll = v.pivot(index="spec", columns="season", values="log_loss").loc[
+            ["blend", "elo", "ridge"]]
+        names = {"blend": "Elo + ridge (this model)", "elo": "Elo alone",
+                 "ridge": "Ridge alone"}
+        html = ['<table class="cmp"><thead><tr><th class="lab">Held-out season</th>']
+        html += [f'<th class="sub">{s}</th>' for s in acc.columns]
+        html.append("</tr></thead><tbody>")
+        for spec in acc.index:
+            html.append(f'<tr><td class="lab">{names[spec]} &mdash; picks right</td>'
+                        + "".join(f'<td class="num">{x:.1%}</td>' for x in acc.loc[spec])
+                        + "</tr>")
+        for spec in ll.index:
+            html.append(f'<tr><td class="lab">{names[spec]} &mdash; log loss</td>'
+                        + "".join(f'<td class="num">{x:.3f}</td>' for x in ll.loc[spec])
+                        + "</tr>")
+        html.append("</tbody></table>")
+        st.markdown("".join(html), unsafe_allow_html=True)
+        st.markdown('<p class="sublabel">Log loss rewards confidence that turns out right '
+                    'and punishes confidence that turns out wrong; lower is better. It is '
+                    'the honest score. Picks right only counts the side of 50% a forecast '
+                    'landed on.</p>', unsafe_allow_html=True)
+        cal = pd.DataFrame(m["calibration_current"])
+        html = ['<table class="cmp"><thead><tr><th class="lab">Favourite called at</th>'
+                '<th class="sub">Matches</th><th class="sub">Predicted</th>'
+                '<th class="sub">Won</th></tr></thead><tbody>']
+        for r in cal.itertuples():
+            html.append(f'<tr><td class="lab">{r.bin}</td><td class="num">{r.n:,}</td>'
+                        f'<td class="num">{r.predicted:.1%}</td>'
+                        f'<td class="num">{r.actual:.1%}</td></tr>')
+        html.append("</tbody></table>")
+        st.markdown(f"**Calibration, {m['current_season']} so far.** When the model calls "
+                    "a favourite at 70-80%, it should win about 75% of the time.")
+        st.markdown("".join(html), unsafe_allow_html=True)
+        st.markdown(f'<p class="sublabel">In {m["current_season"]} favourites have won '
+                    'two to three points less often than called in the 50-90% range. '
+                    'Across the fitted seasons the gap is under a point. Early-season '
+                    'ratings are the likeliest cause; it is small next to the noise in '
+                    'any one match, and it is reported rather than corrected.</p>',
+                    unsafe_allow_html=True)
+
+
+def page_matchup(season: str, home: str, away: str) -> None:
+    st.markdown('<h1 class="app">Matchup <span class="accent">Predictor</span></h1>',
+                unsafe_allow_html=True)
+    if not D.matchup_model():
+        st.info("The predictor has not been built yet. Run analytics/matchup_model.py.")
+        return
+    if home == away:
+        st.info("Pick two different teams above.")
+        return
+    st.markdown(f'<p class="sublabel">Win probability from the two ratings on the Power '
+                f'Rankings page, Elo and the ridge, plus the home edge. Ratings as of '
+                f'{ratings_asof(season)}.</p>', unsafe_allow_html=True)
+
+    labels = [f"{home} hosts", "Neutral floor", f"{away} hosts"]
+    pick = st.radio("Venue", labels, index=1, horizontal=True, key="mp_venue")
+    venue = D.VENUES[labels.index(pick)]
+    r = D.predict(season, home, away, venue)
+    if r is None:
+        st.info("One of these teams has no rating for this season yet. A team needs five "
+                "matches to be rated.")
+        return
+
+    ca, cb = _bar_colors(home, away)
+    best = max(((home, k, v) for k, v in r["sets_a"].items()),
+               key=lambda x: x[2])
+    best_b = max(((away, k, v) for k, v in r["sets_b"].items()), key=lambda x: x[2])
+    best = best if best[2] >= best_b[2] else best_b
+    big = "font-size:2.6rem;font-weight:800;line-height:1.05;margin-top:.35rem"
+    st.markdown(
+        f'<div style="max-width:980px;margin:.3rem 0 .6rem">'
+        f'<div style="display:flex;justify-content:space-between;align-items:flex-end">'
+        f'<div>{T.chip(home)}<div style="{big}">{_pct(r["p_a"])}</div></div>'
+        f'<div style="text-align:right">{T.chip(away)}'
+        f'<div style="{big}">{_pct(r["p_b"])}</div></div></div>'
+        f'<div style="display:flex;height:12px;border-radius:6px;overflow:hidden;'
+        f'margin-top:.5rem"><div style="width:{r["p_a"] * 100:.1f}%;background:{ca}">'
+        f'</div><div style="flex:1;background:{cb}"></div></div>'
+        f'<p class="sublabel" style="margin-top:.5rem">Most likely result: '
+        f'<b>{best[0]} {best[1].replace("_", "-")}</b> ({_pct(best[2])}) &middot; '
+        f'goes five sets: {_pct(r["five_sets"])}</p></div>',
+        unsafe_allow_html=True)
+
+    # scorelines and the ratings behind them, side by side as one narrow table
+    rows = [("Wins 3-0", r["sets_a"]["3_0"], r["sets_b"]["3_0"]),
+            ("Wins 3-1", r["sets_a"]["3_1"], r["sets_b"]["3_1"]),
+            ("Wins 3-2", r["sets_a"]["3_2"], r["sets_b"]["3_2"])]
+    html = ['<table class="cmp"><thead><tr><th></th>'
+            f'<th class="grp">{T.chip(home, ".85rem")}</th>'
+            f'<th class="grp sep">{T.chip(away, ".85rem")}</th></tr></thead><tbody>']
+    for lab, a, b in rows:
+        html.append(f'<tr><td class="lab">{lab}</td><td class="num">{_pct(a)}</td>'
+                    f'<td class="num sep">{_pct(b)}</td></tr>')
+    html.append(f'<tr><td class="lab"><b>Wins the match</b></td>'
+                f'<td class="num"><b>{_pct(r["p_a"])}</b></td>'
+                f'<td class="num sep"><b>{_pct(r["p_b"])}</b></td></tr>')
+    facts = [("Power ranking", f'#{r["rank_a"]}', f'#{r["rank_b"]}'),
+             ("Elo", f'{r["elo_a"]:,.0f}', f'{r["elo_b"]:,.0f}'),
+             ("Ridge rating", f'{r["ridge_a"]:+.1f}', f'{r["ridge_b"]:+.1f}'),
+             ("Projected side-out %", f'{r["sideout_a"]:.1f}%', f'{r["sideout_b"]:.1f}%')]
+    for lab, a, b in facts:
+        html.append(f'<tr><td class="lab">{lab}</td><td class="num">{a}</td>'
+                    f'<td class="num sep">{b}</td></tr>')
+    html.append("</tbody></table>")
+    st.markdown("".join(html), unsafe_allow_html=True)
+    st.markdown(f'<p class="sublabel">Each rating on its own: Elo alone gives {home} '
+                f'{_pct(r["p_elo"])}, the ridge alone {_pct(r["p_ridge"])}, the two '
+                f'together {_pct(r["p_a"])}. Projected side-out is what the ridge expects '
+                f'each side to manage receiving serve against the other, on a neutral '
+                f'floor.</p>', unsafe_allow_html=True)
+
+    h2h = D.head_to_head(season, home, away)
+    if not h2h.empty:
+        lines = []
+        for x in h2h.itertuples():
+            res = f"{'W' if x.won else 'L'} {int(x.sf)}-{int(x.sa)}"
+            where = "vs" if x.venue == "home" else "at"
+            lines.append(f"{x.date:%b} {x.date.day} {where} {away}: <b>{res}</b>, "
+                         f"given {_pct(x.p)} beforehand")
+        st.markdown(f'<p class="sublabel"><b>Already this season</b> ({home}’s '
+                    f'side): ' + " &middot; ".join(lines) + "</p>",
+                    unsafe_allow_html=True)
+
+    png = pd.DataFrame(
+        [{"": lab, home: PNG.plain(_pct(a)), away: PNG.plain(_pct(b))} for lab, a, b in rows]
+        + [{"": "Wins the match", home: PNG.plain(_pct(r["p_a"])),
+            away: PNG.plain(_pct(r["p_b"]))}]
+        + [{"": lab, home: a, away: b} for lab, a, b in facts])
+    PNG.button(st, png, title=f"{home} vs {away} — {pick.lower()}, {season}",
+               subtitle=f"Ratings as of {ratings_asof(season)}. Elo + ridge + home edge.",
+               filename=f"matchup_{PNG.slug(home)}_vs_{PNG.slug(away)}_{season}.png",
+               key="png_mp")
+    predictor_note()
+    m = D.matchup_model()
+    ask_panel(
+        f"Matchup prediction — {home} vs {away}, {pick.lower()}, {season}",
+        "A win probability from a three-number logistic regression on two published team "
+        "ratings. Elo: sequential, 400-point scale, carries last season. Ridge: "
+        "sideout_pct(i receiving against j) = mu + off_i - def_j, fitted on the whole "
+        "season to date, centred so an average D1 team is 0.0, in points of side-out "
+        f"rate. Coefficients: {m['coef']['elo_per_100']:.3f} per 100 Elo, "
+        f"{m['coef']['ridge_per_10']:.3f} per 10 ridge points, {m['coef']['home']:.3f} "
+        "for the host, all on the log-odds scale. Fitted on pre-match information only "
+        f"over {', '.join(m['fit_seasons'])}; {m['current_season']} is held out. "
+        "Scoreline odds are empirical: the share of each result among past favourites of "
+        "the same size, scaled to sum to the match probability.",
+        [("Prediction", png, None),
+         ("Held-out performance by season", pd.DataFrame(m["validation"]), None),
+         (f"Calibration, {m['current_season']}", pd.DataFrame(m["calibration_current"]),
+          None)],
+        "mp",
+        limits=["Ratings are as of the latest match. A team that has changed since "
+                "(injury, lineup) is not seen until results show it.",
+                "The feed has no neutral-site flag, so the home edge is averaged over true "
+                "home matches and tournament hosts.",
+                "Projected side-out ignores venue; the ridge has no home term."],
+        examples=["how sure is this?", "what would have to change for the underdog?"])
+
+
+# ------------------------------------------------------------------- expected wins
+def page_expected(season: str, home: str, away: str) -> None:
+    st.markdown('<h1 class="app">Expected <span class="accent">Wins</span></h1>',
+                unsafe_allow_html=True)
+    m = D.matchup_model()
+    if not m:
+        st.info("The predictor has not been built yet. Run analytics/matchup_model.py.")
+        return
+    if season <= m["burn_in_season"]:
+        st.info(f"Expected wins start in {m['fit_seasons'][0]}. {m['burn_in_season']} is "
+                "the season the ratings learn from: every team starts it at the same Elo, "
+                "so there is no honest pre-match number to add up.")
+        return
+    st.markdown('<p class="sublabel">Expected wins add up the chance the Matchup '
+                'Predictor gave a team before each match it has played. The gap to its '
+                'real record is how far results ran ahead of the ratings, or behind '
+                'them.</p>', unsafe_allow_html=True)
+
+    c1, c2 = st.columns([2, 1])
+    conf = c1.selectbox("Conference", ["All D1"] + D.conferences(season), key="xw_conf")
+    min_m = c2.slider("Min matches", 5, 30, 5, key="xw_min")
+    x = D.expected_wins(season, None if conf == "All D1" else conf, min_m)
+    if x.empty:
+        st.info("No teams match that filter.")
+        return
+    expected_note()
+
+    html = ['<div class="scroller"><table class="grid"><thead><tr>'
+            '<th class="srt" data-t="n">#</th><th class="srt" data-t="s">Team</th>'
+            '<th class="srt" data-t="s">Conference</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Record</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Expected</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Wins vs expected</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Luck (&sigma;)</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Upset wins</th>'
+            '<th class="srt" data-t="n" style="text-align:right">Upset losses</th>'
+            '</tr></thead><tbody>']
+    png_rows = []
+    for i, row in enumerate(x.itertuples(), 1):
+        hl = ' class="hl"' if row.team in (home, away) else ""
+        z = "&mdash;" if pd.isna(row.z) else f"{row.z:+.1f}"
+        html.append(
+            f'<tr{hl}><td class="n" data-s="{i}">{i}</td>'
+            f'<td data-s="{row.team}">{T.chip(row.team, ".85rem")}</td>'
+            f'<td data-s="{row.conference or ""}">{row.conference or ""}</td>'
+            f'<td class="n" data-s="{row.wins / row.matches:.4f}">'
+            f'{int(row.wins)}-{int(row.losses)}</td>'
+            f'<td class="n" data-s="{row.xw / row.matches:.4f}">'
+            f'{row.xw:.1f}-{row.xl:.1f}</td>'
+            f'<td class="n" data-s="{row.diff:.4f}">{row.diff:+.1f}</td>'
+            f'<td class="n" data-s="{sort_key(row.z)}">{z}</td>'
+            f'<td class="n" data-s="{int(row.upset_wins)}">{int(row.upset_wins)}</td>'
+            f'<td class="n" data-s="{int(row.upset_losses)}">{int(row.upset_losses)}</td>'
+            '</tr>')
+        png_rows.append({"#": i, "Team": row.team, "Conference": row.conference or "",
+                         "Record": f"{int(row.wins)}-{int(row.losses)}",
+                         "Expected": f"{row.xw:.1f}-{row.xl:.1f}",
+                         "Wins vs expected": f"{row.diff:+.1f}",
+                         "Luck (sd)": PNG.plain(z),
+                         "Upset W": int(row.upset_wins), "Upset L": int(row.upset_losses)})
+    html.append("</tbody></table></div>")
+    sortable("".join(html), len(x))
+    PNG.button(
+        st, pd.DataFrame(png_rows),
+        title=f"Expected Wins — {season}" + ("" if conf == "All D1" else f", {conf}"),
+        subtitle="Actual record against the sum of pre-match win chances. "
+                 "Sorted luckiest first.",
+        filename=f"expected_wins_{season}"
+                 + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
+        key="png_xw", max_rows=25,
+        highlight_rows=[i for i, r in enumerate(png_rows) if r["Team"] in (home, away)])
+
+    # one team, match by match
+    t = D.team_predictions(season, home)
+    if not t.empty:
+        n = len(t)
+        w, xw = int(t.won.sum()), float(t.p.sum())
+        sd = float((t.p * (1 - t.p)).sum()) ** 0.5
+        st.markdown(f"### {T.chip(home)} match by match", unsafe_allow_html=True)
+        st.markdown(f'<p class="sublabel">{w}-{n - w} against {xw:.1f}-{n - xw:.1f} '
+                    f'expected: {w - xw:+.1f} wins, '
+                    f'{(w - xw) / sd if sd else 0:+.1f}&sigma;. The chance shown is the '
+                    f'one the predictor gave before the match.</p>', unsafe_allow_html=True)
+        html = ['<table class="cmp"><thead><tr><th class="lab">Match</th>'
+                '<th class="sub">Chance before</th><th class="sub">Result</th>'
+                '<th class="sub">Wins</th><th class="sub">Expected</th><th class="sub">'
+                '</th></tr></thead><tbody>']
+        for r in t.itertuples():
+            where = "vs" if r.venue == "home" else "at"
+            res = f"{'W' if r.won else 'L'} {int(r.sf)}-{int(r.sa)}"
+            tag = ("Upset win" if r.won and r.p < 0.5
+                   else "Upset loss" if not r.won and r.p > 0.5 else "")
+            tag_html = (f'<span style="color:{T.GOOD if r.won else T.MISS};'
+                        f'font-weight:700">{tag}</span>' if tag else "")
+            html.append(f'<tr><td class="lab">{r.date:%b} {r.date.day} {where} '
+                        f'{r.opponent}</td><td class="num">{_pct(r.p)}</td>'
+                        f'<td class="num">{res}</td><td class="num">{int(r.cum_w)}</td>'
+                        f'<td class="num">{r.cum_xw:.1f}</td>'
+                        f'<td class="num">{tag_html}</td></tr>')
+        html.append("</tbody></table>")
+        st.markdown("".join(html), unsafe_allow_html=True)
+
+    ps = m["persistence"]
+    ask_panel(
+        f"Expected Wins — {season}" + ("" if conf == "All D1" else f", {conf}"),
+        "Each team's expected wins is the sum of the pre-match win probabilities a "
+        "three-number logistic model (Elo + ridge rating + home edge) gave it, over the "
+        "matches it has played. diff = wins - xw. z = diff / sqrt(sum p(1-p)), the gap in "
+        "standard deviations of pure chance. The gap does not persist: odd vs even "
+        f"matches r = {ps['odd_vs_even']:+.2f}, first half vs second half "
+        f"{ps['first_vs_second_half']:+.2f}, season to season "
+        + ", ".join(f"{v:+.2f}" for v in ps["year_over_year"].values())
+        + f". Across {ps['team_seasons']:,} team-seasons the z-scores have sd "
+        f"{ps['z_sd']:.2f} against 1.00 for pure chance, and {ps['share_beyond_2sd']:.1%} "
+        "fall beyond two sigma against 4.6% for pure chance. Read the gap as luck.",
+        [("Expected wins by team", x, ["team", "conference", "matches", "wins", "losses",
+                                       "xw", "xl", "diff", "z", "upset_wins",
+                                       "upset_losses"]),
+         (f"{home} match by match", t, ["date", "opponent", "venue", "p", "won", "sf",
+                                        "sa", "cum_w", "cum_xw"])],
+        "xw",
+        glossary={"xw": "expected wins: sum of pre-match win probabilities",
+                  "diff": "actual wins minus expected wins",
+                  "z": "diff in standard deviations of chance; |z| > 2 is about 1 team in 20 "
+                       "by luck alone",
+                  "p": "the pre-match chance of winning that match"},
+        limits=["Probabilities are pre-match, so a team that improved during the season "
+                "beats its expectation until the ratings catch up.",
+                "With 340 teams, about 15 will sit beyond two sigma by chance alone."],
+        examples=["who is due to regress?", "who has been unlucky in close matches?"])
+
+
+def expected_note() -> None:
+    ps = D.matchup_model()["persistence"]
+    yy = ", ".join(f"{v:+.2f}" for v in ps["year_over_year"].values())
+    with st.expander("What expected wins measure, and why the gap is luck"):
+        st.markdown(
+            "**The number.** Before every match the predictor gives each team a chance of "
+            "winning. Add those chances up over a season and you get the record the "
+            "ratings expected: a team given 80% in ten matches is expected to go 8-2. "
+            "*Wins vs expected* is the real record minus that. *Luck (σ)* puts the "
+            "gap in units of pure chance, because ten coin flips at 80% land anywhere "
+            "from 6-4 to 10-0 without anything being wrong.\n\n"
+            "**It is luck, and it does not carry forward.** If beating expectations were "
+            "a skill, a team that did it in one stretch would do it in the next. Tested "
+            f"across {ps['team_seasons']:,} team-seasons:\n\n"
+            f"- odd-numbered matches against even-numbered ones: r = {ps['odd_vs_even']:+.2f}\n"
+            f"- first half of a season against the second: r = "
+            f"{ps['first_vs_second_half']:+.2f}\n"
+            f"- one season against the next: r = {yy}\n\n"
+            "All of them are at zero or slightly below it. And the spread across teams is "
+            "exactly what chance produces: the σ column has a standard deviation of "
+            f"{ps['z_sd']:.2f} against 1.00 for pure coin flips, and "
+            f"{ps['share_beyond_2sd']:.1%} of teams land beyond two sigma against 4.6% "
+            "for pure coin flips.\n\n"
+            "**So read it the other way round.** A team well above its expected wins has "
+            "been lucky and should expect to come back to its ratings. A team well below "
+            "is better than its record. With 340 teams about fifteen will sit beyond two "
+            "sigma by chance alone, so even a big number here is not a story by itself.\n\n"
+            "**Upsets** are wins the predictor gave under 50% before the match, and losses "
+            "it gave over 50%.")
+
+
 # ------------------------------------------------------------------- shell
 st.sidebar.markdown("### 🏐 QuesoHusker's Volleyball")
 season = st.sidebar.selectbox("Season", D.seasons())
@@ -1507,7 +1898,8 @@ st.sidebar.caption(f"NCAA women's D1 · {min(D.seasons())}-{max(D.seasons())} ·
                    f"{D.meta()['team_match_rows']:,} graded team-matches")
 
 tabs = st.tabs(["Stat Comparison", f"The Volleyball {GRADE_MAX}", "Power Rankings",
-                "Strength of Schedule", "Position Rankings", "How it works"])
+                "Matchup Predictor", "Expected Wins", "Strength of Schedule",
+                "Position Rankings", "How it works"])
 with tabs[0]:
     page_comparison(season, home, away)
 with tabs[1]:
@@ -1515,8 +1907,12 @@ with tabs[1]:
 with tabs[2]:
     page_rankings(season, home, away)
 with tabs[3]:
-    page_schedule(season, home, away)
+    page_matchup(season, home, away)
 with tabs[4]:
-    page_players(season, home, away)
+    page_expected(season, home, away)
 with tabs[5]:
+    page_schedule(season, home, away)
+with tabs[6]:
+    page_players(season, home, away)
+with tabs[7]:
     page_about()

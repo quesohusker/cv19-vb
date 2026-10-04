@@ -71,6 +71,21 @@ message and module docstring; read those before changing any of it.
 - **Wins and losses are not an input to any rating.** Tested: with the rating present,
   win% carries a negative coefficient. "Wins more than its rallies say" is schedule
   strength, not clutch, and the apparent skill vanishes once schedule is controlled.
+- **The matchup predictor is three numbers: Elo gap, ridge gap, home edge.**
+  `analytics/matchup_model.py`, a logistic fitted on pre-match information only (Elo
+  as of the match, ridge refitted weekly on prior matches). It is fitted on every
+  completed season except 2021, the Elo burn-in; the current season is never in the
+  fit, so it is a live out-of-sample test. Held out a season at a time the blend beat
+  either rating alone on log loss in every season, and again on 2026. A weight sliding
+  from Elo to ridge as the season fills in gained ~.002 in the four fitted seasons and
+  lost on 2026, so it is out, consistent with the composite's own finding.
+- **Scorelines are empirical, not independent sets.** Treating sets as coin flips
+  predicts 26% sweeps among near-even matches; 35% happen. The 3-0/3-1/3-2 odds come
+  from the observed results of favourites of the same size, scaled to the match
+  probability. On 2026 every outcome landed within 1.3 points.
+- **Expected wins minus actual wins is luck. Say so.** Odd vs even matches r = -0.04,
+  first vs second half -0.09, season to season -0.05 to -0.13; the z-scores have sd
+  0.97 against 1.00 for pure chance. Do not build a "clutch" feature on this gap.
 
 ## Open for the 2027 season: the seventh benchmark
 
@@ -123,7 +138,7 @@ as a seventh because it measures something nothing else on the board does.
 
 ## App conventions
 
-- Six tabs. Every page ends with an **Ask an LLM** panel (a Markdown export of what the
+- Eight tabs. Every page ends with an **Ask an LLM** panel (a Markdown export of what the
   page is showing) and a **Download table (PNG)** button. Both are expected on a new
   page; `ask_panel()` and `app/png.py` are the shared helpers.
 - Tables are hand-built HTML against `table.grid`, not `st.dataframe`. The PNG export
@@ -137,6 +152,11 @@ as a seventh because it measures something nothing else on the board does.
   national or conference, and "conference" means each side inside its own, so a
   cross-conference pairing ranks the two in different pools. It reads "Big Ten" only
   when both sides share a conference.
+- The Matchup Predictor and Expected Wins read `matchup_model.json` and
+  `match_predictions.parquet`, both written by `analytics/matchup_model.py` in stage
+  11 of the pipeline. The predictor uses the published `power_ratings` (ridge + Elo),
+  which match the training features exactly; keep it that way, or the coefficients
+  stop meaning what they were fitted to mean.
 - `matplotlib` is required for the PNG export. It fails soft — no button rather than a
   broken page — so a missing dependency is silent. Check for the button, not an error.
 

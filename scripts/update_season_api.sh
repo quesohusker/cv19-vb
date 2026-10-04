@@ -107,9 +107,12 @@ done
 "$PY" analytics/build_player_ratings.py --gis-dir "${PM_DIR}" \
   --years $PLAYER_YEARS --current-season "${YEAR}"
 
-step "11/11  elo ratings and the composite power ranking"
+step "11/11  elo ratings, the composite power ranking, and the matchup predictor"
 "$PY" analytics/elo_ratings.py
 "$PY" analytics/composite_ratings.py
+# Refits nothing on the current season: its coefficients come from completed seasons
+# only, so this re-scores the new matches out of sample and rebuilds expected wins.
+"$PY" analytics/matchup_model.py
 
 step "done"
 cat <<MSG

@@ -8,9 +8,11 @@ app and the analysis can never disagree about what a grade means.
 from __future__ import annotations
 
 import json
+import math
 from functools import lru_cache
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "app_data"
@@ -363,3 +365,135 @@ def metric_ranks(season: str, conference: str | None = None,
         out[metric] = avg[metric].rank(
             ascending=b["direction"] != "higher_is_better", method="min")
     return out
+
+
+# ------------------------------------------------------------------ predictor
+# Built by analytics/matchup_model.py. Win probability is a three-number logistic on the
+# two published ratings, Elo and the ridge, plus the home edge, fitted on pre-match
+# information only. See that module's docstring for what was tested and left out.
+
+@lru_cache(maxsize=1)
+def matchup_model() -> dict:
+    f = DATA_DIR / "matchup_model.json"
+    return json.loads(f.read_text()) if f.exists() else {}
+
+
+@lru_cache(maxsize=1)
+def match_predictions() -> pd.DataFrame:
+    """Every match from the first fitted season on, with its PRE-match home win chance."""
+    f = DATA_DIR / "match_predictions.parquet"
+    return pd.read_parquet(f) if f.exists() else pd.DataFrame()
+
+
+def _sigmoid(z: float) -> float:
+    return 1.0 / (1.0 + math.exp(-z))
+
+
+VENUES = ("a", "neutral", "b")      # A hosts / neutral floor / B hosts
+
+
+def predict(season: str, a: str, b: str, venue: str = "neutral") -> dict | None:
+    """Win probability, scoreline odds and projected side-out for A against B.
+
+    Uses the ratings the Power Rankings page publishes for `season`, which for the
+    current season means "as of the latest match". None when either team has no rating.
+    """
+    m = matchup_model()
+    pr = power_ratings()
+    pr = pr[pr.season == season].set_index("team")
+    if not m or a not in pr.index or b not in pr.index:
+        return None
+    ra, rb = pr.loc[a], pr.loc[b]
+    if pd.isna(ra.elo) or pd.isna(rb.elo):
+        return None
+    v = {"a": 1.0, "neutral": 0.0, "b": -1.0}[venue]
+    de = (ra.elo - rb.elo) / 100.0
+    dr = (ra.rating_overall - rb.rating_overall) / 10.0
+    c, ca = m["coef"], m["coef_alone"]
+    p = _sigmoid(c["home"] * v + c["elo_per_100"] * de + c["ridge_per_10"] * dr)
+    p_elo = _sigmoid(ca["elo"]["home"] * v + ca["elo"]["elo_per_100"] * de)
+    p_ridge = _sigmoid(ca["ridge"]["home"] * v + ca["ridge"]["ridge_per_10"] * dr)
+
+    # scorelines: what actually happened to favourites this size, scaled to sum to p
+    tab = pd.DataFrame(m["scorelines"])
+    fav_is_a = p >= 0.5
+    pf = p if fav_is_a else 1.0 - p
+    raw = {o: float(np.interp(pf, tab.p_fav, tab[o])) for o in
+           ("fav_3_0", "fav_3_1", "fav_3_2", "dog_3_2", "dog_3_1", "dog_3_0")}
+    fsum = raw["fav_3_0"] + raw["fav_3_1"] + raw["fav_3_2"]
+    dsum = raw["dog_3_2"] + raw["dog_3_1"] + raw["dog_3_0"]
+    fav = {k: raw[f"fav_{k}"] * pf / fsum for k in ("3_0", "3_1", "3_2")}
+    dog = {k: raw[f"dog_{k}"] * (1 - pf) / dsum for k in ("3_0", "3_1", "3_2")}
+    sets_a, sets_b = (fav, dog) if fav_is_a else (dog, fav)
+
+    # The ridge's own structure gives each side's expected side-out rate. Neutral floor:
+    # the ridge carries no home term, so this does not move with the venue.
+    lg = float(ra.league_sideout)
+    return {
+        "p_a": p, "p_b": 1.0 - p, "p_elo": p_elo, "p_ridge": p_ridge,
+        "sets_a": sets_a, "sets_b": sets_b,
+        "five_sets": sets_a["3_2"] + sets_b["3_2"],
+        "sideout_a": lg + ra.rating_off - rb.rating_def,
+        "sideout_b": lg + rb.rating_off - ra.rating_def,
+        "elo_a": float(ra.elo), "elo_b": float(rb.elo),
+        "ridge_a": float(ra.rating_overall), "ridge_b": float(rb.rating_overall),
+        "rank_a": int(ra.rank_composite), "rank_b": int(rb.rank_composite),
+    }
+
+
+def _team_view(season: str) -> pd.DataFrame:
+    """match_predictions turned to one row per team per match, from that team's side."""
+    mp = match_predictions()
+    if mp.empty:
+        return mp
+    s = mp[mp.season == season]
+    h = pd.DataFrame({"date": s.date, "team": s.home, "opponent": s.away, "venue": "home",
+                      "p": s.p_home, "won": s.home_won, "sf": s.home_sets,
+                      "sa": s.away_sets})
+    a = pd.DataFrame({"date": s.date, "team": s.away, "opponent": s.home, "venue": "away",
+                      "p": 1.0 - s.p_home, "won": 1 - s.home_won, "sf": s.away_sets,
+                      "sa": s.home_sets})
+    return pd.concat([h, a], ignore_index=True).sort_values(["team", "date"])
+
+
+def expected_wins(season: str, conference: str | None = None,
+                  min_matches: int = 5) -> pd.DataFrame:
+    """Actual wins against the sum of pre-match win probabilities, per team."""
+    t = _team_view(season)
+    if t.empty:
+        return t
+    t["upset_w"] = (t.won == 1) & (t.p < 0.5)
+    t["upset_l"] = (t.won == 0) & (t.p > 0.5)
+    g = t.groupby("team")
+    out = pd.DataFrame({
+        "matches": g.size(), "wins": g.won.sum(), "xw": g.p.sum(),
+        "var": g.p.apply(lambda p: float((p * (1 - p)).sum())),
+        "upset_wins": g.upset_w.sum(), "upset_losses": g.upset_l.sum(),
+    }).reset_index()
+    out["losses"] = out.matches - out.wins
+    out["xl"] = out.matches - out.xw
+    out["diff"] = out.wins - out.xw
+    out["z"] = out["diff"] / np.sqrt(out["var"].where(out["var"] > 0))
+    ts = team_seasons()
+    out = out.merge(ts[ts.season == season][["team", "conference"]], on="team", how="left")
+    out = out[out.matches >= min_matches]
+    if conference:
+        out = out[out.conference == conference]
+    return out.sort_values("diff", ascending=False).reset_index(drop=True)
+
+
+def team_predictions(season: str, team: str) -> pd.DataFrame:
+    """One team's matches with the pre-match chance it was given, and the running tally."""
+    t = _team_view(season)
+    if t.empty:
+        return t
+    t = t[t.team == team].copy()
+    t["cum_w"] = t.won.cumsum()
+    t["cum_xw"] = t.p.cumsum()
+    return t.reset_index(drop=True)
+
+
+def head_to_head(season: str, a: str, b: str) -> pd.DataFrame:
+    """This season's meetings between A and B, from A's side."""
+    t = team_predictions(season, a)
+    return t[t.opponent == b] if not t.empty else t
