@@ -1752,6 +1752,7 @@ def page_expected(season: str, home: str, away: str) -> None:
         st.info("No teams match that filter.")
         return
     expected_note()
+    proj = "proj_w" in x.columns
 
     html = ['<div class="scroller"><table class="grid"><thead><tr>'
             '<th class="srt" data-t="n">#</th><th class="srt" data-t="s">Team</th>'
@@ -1762,7 +1763,11 @@ def page_expected(season: str, home: str, away: str) -> None:
             '<th class="srt" data-t="n" style="text-align:right">Luck (&sigma;)</th>'
             '<th class="srt" data-t="n" style="text-align:right">Upset wins</th>'
             '<th class="srt" data-t="n" style="text-align:right">Upset losses</th>'
-            '</tr></thead><tbody>']
+            + ('<th class="srt" data-t="n" style="text-align:right">Left</th>'
+               '<th class="srt" data-t="n" style="text-align:right">Projected</th>'
+               '<th class="srt" data-t="n" style="text-align:right">Win out</th>'
+               if proj else "")
+            + '</tr></thead><tbody>']
     png_rows = []
     for i, row in enumerate(x.itertuples(), 1):
         hl = ' class="hl"' if row.team in (home, away) else ""
@@ -1779,13 +1784,24 @@ def page_expected(season: str, home: str, away: str) -> None:
             f'<td class="n" data-s="{sort_key(row.z)}">{z}</td>'
             f'<td class="n" data-s="{int(row.upset_wins)}">{int(row.upset_wins)}</td>'
             f'<td class="n" data-s="{int(row.upset_losses)}">{int(row.upset_losses)}</td>'
-            '</tr>')
-        png_rows.append({"#": i, "Team": row.team, "Conference": row.conference or "",
-                         "Record": f"{int(row.wins)}-{int(row.losses)}",
-                         "Expected": f"{row.xw:.1f}-{row.xl:.1f}",
-                         "Wins vs expected": f"{row.diff:+.1f}",
-                         "Luck (sd)": PNG.plain(z),
-                         "Upset W": int(row.upset_wins), "Upset L": int(row.upset_losses)})
+            + (f'<td class="n" data-s="{row.left}">{row.left}</td>'
+               f'<td class="n" data-s="{row.proj_w / (row.proj_w + row.proj_l):.4f}" '
+               f'title="80% range: {int(row.proj_lo)} to {int(row.proj_hi)} wins">'
+               f'{row.proj_w:.1f}-{row.proj_l:.1f}</td>'
+               f'<td class="n" data-s="{row.win_out:.6f}">{_pct(row.win_out)}</td>'
+               if proj else "")
+            + '</tr>')
+        png_row = {"#": i, "Team": row.team, "Conference": row.conference or "",
+                   "Record": f"{int(row.wins)}-{int(row.losses)}",
+                   "Expected": f"{row.xw:.1f}-{row.xl:.1f}",
+                   "Wins vs expected": f"{row.diff:+.1f}",
+                   "Luck (sd)": PNG.plain(z),
+                   "Upset W": int(row.upset_wins), "Upset L": int(row.upset_losses)}
+        if proj:
+            png_row.update({"Left": row.left,
+                            "Projected": f"{row.proj_w:.1f}-{row.proj_l:.1f}",
+                            "Win out": PNG.plain(_pct(row.win_out))})
+        png_rows.append(png_row)
     html.append("</tbody></table></div>")
     sortable("".join(html), len(x))
     PNG.button(
@@ -1828,6 +1844,38 @@ def page_expected(season: str, home: str, away: str) -> None:
         html.append("</tbody></table>")
         st.markdown("".join(html), unsafe_allow_html=True)
 
+    up = D.upcoming(season, home)
+    if not up.empty:
+        cur_w = int(t.won.sum()) if not t.empty else 0
+        cur_l = (len(t) - cur_w) if not t.empty else 0
+        dist = D._win_dist(up.p.to_numpy())
+        cdf = dist.cumsum()
+        lo, hi = int(cdf.searchsorted(0.10)), int(cdf.searchsorted(0.90))
+        n_left = len(up)
+        exp_w = cur_w + float(up.p.sum())
+        exp_l = cur_l + n_left - float(up.p.sum())
+        st.markdown(f"### {T.chip(home)} still to play", unsafe_allow_html=True)
+        st.markdown(f'<p class="sublabel">{n_left} matches left. Projected finish '
+                    f'<b>{exp_w:.1f}-{exp_l:.1f}</b>; 80% of the time between '
+                    f'{cur_w + lo}-{cur_l + n_left - lo} and {cur_w + hi}-'
+                    f'{cur_l + n_left - hi}. Wins out: {_pct(float(dist[-1]))}. '
+                    f'Chances use today&rsquo;s ratings and do not move as the season '
+                    f'does.</p>', unsafe_allow_html=True)
+        html = ['<table class="cmp"><thead><tr><th class="lab">Match</th>'
+                '<th class="sub">Win chance</th><th class="sub">Projected wins</th>'
+                '</tr></thead><tbody>']
+        run = float(cur_w)
+        for r in up.itertuples():
+            run += r.p
+            where = "vs" if r.venue == "home" else "at"
+            note = (' <span style="color:#9aa0a6">(unrated; given a low D1 rating)</span>'
+                    if r.fallback else "")
+            html.append(f'<tr><td class="lab">{r.date:%b} {r.date.day} {where} '
+                        f'{r.opponent}{note}</td><td class="num">{_pct(r.p)}</td>'
+                        f'<td class="num">{run:.1f}</td></tr>')
+        html.append("</tbody></table>")
+        st.markdown("".join(html), unsafe_allow_html=True)
+
     ps = m["persistence"]
     ask_panel(
         f"Expected Wins — {season}" + ("" if conf == "All D1" else f", {conf}"),
@@ -1840,12 +1888,18 @@ def page_expected(season: str, home: str, away: str) -> None:
         + ", ".join(f"{v:+.2f}" for v in ps["year_over_year"].values())
         + f". Across {ps['team_seasons']:,} team-seasons the z-scores have sd "
         f"{ps['z_sd']:.2f} against 1.00 for pure chance, and {ps['share_beyond_2sd']:.1%} "
-        "fall beyond two sigma against 4.6% for pure chance. Read the gap as luck.",
+        "fall beyond two sigma against 4.6% for pure chance. Read the gap as luck. "
+        "proj_w / proj_l: wins and losses so far plus the win chances of every match "
+        "left on the schedule, on today's ratings held fixed; proj_lo / proj_hi is the "
+        "80% range of final wins; win_out the chance of winning every remaining match.",
         [("Expected wins by team", x, ["team", "conference", "matches", "wins", "losses",
                                        "xw", "xl", "diff", "z", "upset_wins",
-                                       "upset_losses"]),
+                                       "upset_losses"]
+          + (["left", "proj_w", "proj_l", "proj_lo", "proj_hi", "win_out"] if proj else [])),
          (f"{home} match by match", t, ["date", "opponent", "venue", "p", "won", "sf",
-                                        "sa", "cum_w", "cum_xw"])],
+                                        "sa", "cum_w", "cum_xw"])]
+        + ([(f"{home} still to play", up, ["date", "opponent", "venue", "p", "fallback"])]
+           if not up.empty else []),
         "xw",
         glossary={"xw": "expected wins: sum of pre-match win probabilities",
                   "diff": "actual wins minus expected wins",
@@ -1886,7 +1940,14 @@ def expected_note() -> None:
             "is better than its record. With 340 teams about fifteen will sit beyond two "
             "sigma by chance alone, so even a big number here is not a story by itself.\n\n"
             "**Upsets** are wins the predictor gave under 50% before the match, and losses "
-            "it gave over 50%.")
+            "it gave over 50%.\n\n"
+            "**Projected** (current season) is wins so far plus the win chances of every "
+            "match still on the NCAA schedule, scored on today's ratings. *Win out* is the "
+            "chance of winning every one of them. Hover a projection for its 80% range. "
+            "The ratings are held fixed from today, so the ranges are a little narrower "
+            "than they would be if the ratings could still move, and an opponent that has "
+            "never played a rated match, usually a non-D1 side, is given the "
+            "5th-percentile D1 rating.")
 
 
 # ------------------------------------------------------------------- shell

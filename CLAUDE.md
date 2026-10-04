@@ -86,6 +86,12 @@ message and module docstring; read those before changing any of it.
 - **Expected wins minus actual wins is luck. Say so.** Odd vs even matches r = -0.04,
   first vs second half -0.09, season to season -0.05 to -0.13; the z-scores have sd
   0.97 against 1.00 for pure chance. Do not build a "clutch" feature on this gap.
+- **Projected records use today's ratings, held fixed.** `fetch_ncaa_schedule.py`
+  reads every date from today to Dec 21 (no early stop, three attempts per date) and
+  `matchup_model.py` scores the unplayed matches into `app_data/schedule.parquet`. An
+  opponent never seen in a rated match gets the 5th-percentile D1 rating and is named
+  in the build output. If no schedule file exists the parquet is deleted rather than
+  left stale.
 
 ## Open for the 2027 season: the seventh benchmark
 

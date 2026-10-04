@@ -476,6 +476,17 @@ def expected_wins(season: str, conference: str | None = None,
     out["z"] = out["diff"] / np.sqrt(out["var"].where(out["var"] > 0))
     ts = team_seasons()
     out = out.merge(ts[ts.season == season][["team", "conference"]], on="team", how="left")
+    pj = projections(season)
+    if not pj.empty:
+        out = out.merge(pj, on="team", how="left")
+        # a team with nothing left to play finishes on its current record
+        out["left"] = out.left.fillna(0).astype(int)
+        out["left_xw"] = out.left_xw.fillna(0.0)
+        out["win_out"] = out.win_out.fillna(1.0)
+        out["proj_w"] = out.wins + out.left_xw
+        out["proj_l"] = out.losses + out.left - out.left_xw
+        out["proj_lo"] = out.wins + out.lo.fillna(0)
+        out["proj_hi"] = out.wins + out.hi.fillna(0)
     out = out[out.matches >= min_matches]
     if conference:
         out = out[out.conference == conference]
@@ -497,3 +508,50 @@ def head_to_head(season: str, a: str, b: str) -> pd.DataFrame:
     """This season's meetings between A and B, from A's side."""
     t = team_predictions(season, a)
     return t[t.opponent == b] if not t.empty else t
+
+
+@lru_cache(maxsize=1)
+def schedule() -> pd.DataFrame:
+    """Unplayed matches with a win chance on today's ratings. Current season only."""
+    f = DATA_DIR / "schedule.parquet"
+    return pd.read_parquet(f) if f.exists() else pd.DataFrame()
+
+
+def _win_dist(ps) -> np.ndarray:
+    """Exact distribution of wins over independent matches (Poisson-binomial)."""
+    d = np.array([1.0])
+    for p in ps:
+        d = np.append(d * (1 - p), 0.0) + np.append(0.0, d * p)
+    return d
+
+
+def upcoming(season: str, team: str) -> pd.DataFrame:
+    """A team's remaining matches, from its own side."""
+    s = schedule()
+    if s.empty:
+        return s
+    s = s[s.season == season]
+    h = s[s.home == team].assign(opponent=lambda x: x.away, venue="home", p=lambda x: x.p_home)
+    a = s[s.away == team].assign(opponent=lambda x: x.home, venue="away",
+                                 p=lambda x: 1 - x.p_home)
+    return pd.concat([h, a])[["date", "opponent", "venue", "p", "fallback"]].sort_values(
+        "date").reset_index(drop=True)
+
+
+def projections(season: str) -> pd.DataFrame:
+    """Final record per team: wins so far plus the remaining schedule's win chances."""
+    s = schedule()
+    if s.empty or season not in set(s.season):
+        return pd.DataFrame()
+    s = s[s.season == season]
+    side = pd.concat([pd.DataFrame({"team": s.home, "p": s.p_home}),
+                      pd.DataFrame({"team": s.away, "p": 1 - s.p_home})])
+    rows = []
+    for team, g in side.groupby("team"):
+        dist = _win_dist(g.p.to_numpy())
+        cdf = np.cumsum(dist)
+        rows.append({"team": team, "left": len(g), "left_xw": float(g.p.sum()),
+                     "lo": int(np.searchsorted(cdf, 0.10)),
+                     "hi": int(np.searchsorted(cdf, 0.90)),
+                     "win_out": float(dist[-1])})
+    return pd.DataFrame(rows)

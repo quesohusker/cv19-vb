@@ -56,10 +56,20 @@ half against second at -0.09, one season against the next at -0.05 to -0.13. The
 spread across teams is the spread coin flips produce: z-scores with sd 0.97 against
 a theoretical 1.00, and 4.1% beyond two sigma against 4.6%. That is the finding the page
 is built around.
+
+PROJECTIONS
+-----------
+The rest of the schedule (data_collection/fetch_ncaa_schedule.py) is scored with the
+same three numbers on today's ratings: the ridge refitted on every match so far and Elo
+as it stands. Ratings are held fixed from here on, which is the usual simplification;
+it makes projected ranges a little narrower than they would be if the ratings could
+still move. An opponent that has never played a rated match, usually a non-D1 side, is
+given the 5th-percentile D1 rating, and every such team is listed in the output.
 """
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import json
 import sys
 from pathlib import Path
@@ -224,6 +234,51 @@ def persistence(preds: pd.DataFrame) -> dict:
             "median_season_sd_wins": round(float(np.sqrt(g.v).median()), 2)}
 
 
+# ---------------------------------------------------------------- projections
+FALLBACK_PCT = 0.05     # rating given to an opponent never seen in a rated match
+
+
+def project(tm: pd.DataFrame, rows: list[dict], season: str, b: np.ndarray,
+            cfg: E.EloConfig = E.EloConfig()) -> tuple[pd.DataFrame, list[str]]:
+    """Score every unplayed match on today's ratings. Returns the games and the list
+    of teams that had no rating and were given the fallback."""
+    tm = tm.copy()
+    tm["match_date"] = pd.to_datetime(tm.match_date)
+    cur = tm[tm.season == season].dropna(subset=["sideout_pct", "opponent"])
+    ridge = P.fit_season(cur.rename(columns={"opponent": "opponent_matched"}), 1.0)
+    rated = ridge[ridge.n_matches >= 5]
+    ridge = ridge.set_index("team").rating_overall
+    elo, _ = E.run(E.match_frame(tm), cfg)
+    elo_cur = pd.Series({t: elo[t] for t in rated.team if t in elo})
+    fb_ridge = float(rated.rating_overall.quantile(FALLBACK_PCT))
+    fb_elo = float(elo_cur.quantile(FALLBACK_PCT))
+
+    g = pd.DataFrame(rows)
+    if g.empty:
+        return g, []
+    g["date"] = pd.to_datetime(g.date, format="%m/%d/%Y")
+    # A game dated before the last results is one that never happened (cancelled or
+    # postponed); one already in the results was played after the schedule was read.
+    last = cur.match_date.max()
+    g = g[g.date >= last]
+    played = set(zip(cur.match_date, cur.team, cur.opponent))
+    g = g[[(d, h, a) not in played for d, h, a in zip(g.date, g.home_team, g.away_team)]]
+    g = g.drop_duplicates(["date", "home_team", "away_team"])
+
+    unrated = sorted((set(g.home_team) | set(g.away_team)) - set(ridge.index) - set(elo))
+    def r_of(t): return float(ridge.get(t, fb_ridge))
+    def e_of(t): return float(elo.get(t, fb_elo))
+    out = pd.DataFrame({"season": season, "date": g.date.to_numpy(),
+                        "home": g.home_team.to_numpy(), "away": g.away_team.to_numpy()})
+    out["elo_home"] = [e_of(t) for t in out.home]
+    out["elo_away"] = [e_of(t) for t in out.away]
+    out["ridge_home"] = [r_of(t) for t in out.home]
+    out["ridge_away"] = [r_of(t) for t in out.away]
+    out["p_home"] = prob(design(out, SPECS["blend"]), b)
+    out["fallback"] = out.home.isin(unrated) | out.away.isin(unrated)
+    return out.sort_values(["date", "home"]).reset_index(drop=True), unrated
+
+
 # ---------------------------------------------------------------- build
 def build(matches_parquet: Path) -> tuple[dict, pd.DataFrame]:
     tm = pd.read_parquet(matches_parquet)
@@ -263,6 +318,7 @@ def build(matches_parquet: Path) -> tuple[dict, pd.DataFrame]:
                  "home_sets", "away_sets", "elo_home", "elo_away",
                  "ridge_home", "ridge_away"]].copy()
     out["home_won"] = out.home_won.astype(int)
+    model["_b"], model["_tm"] = b, tm      # for project(); stripped before writing
     return model, out
 
 
@@ -270,10 +326,34 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--matches", type=Path, default=Path("app_data/matches.parquet"))
     ap.add_argument("--out-dir", type=Path, default=Path("app_data"))
+    ap.add_argument("--schedule", type=Path,
+                    help="defaults to data/ncaa_api/schedule_volleyball-women_d1_<season>.json")
     args = ap.parse_args()
 
     model, preds = build(args.matches)
+    b, tm = model.pop("_b"), model.pop("_tm")
     args.out_dir.mkdir(parents=True, exist_ok=True)
+
+    cur = model["current_season"]
+    sched = args.schedule or Path(f"data/ncaa_api/schedule_volleyball-women_d1_{cur}.json")
+    sched_out = args.out_dir / "schedule.parquet"
+    if sched.exists():
+        games, unrated = project(tm, json.loads(sched.read_text()), cur, b)
+        games.to_parquet(sched_out, compression="zstd", index=False)
+        model["schedule"] = {
+            "season": cur, "games": int(len(games)),
+            "first": f"{games.date.min():%Y-%m-%d}" if len(games) else None,
+            "last": f"{games.date.max():%Y-%m-%d}" if len(games) else None,
+            "read": dt.datetime.fromtimestamp(sched.stat().st_mtime).strftime("%Y-%m-%d"),
+            "fallback_teams": unrated, "fallback_pct": FALLBACK_PCT}
+        print(f"projected {len(games):,} unplayed matches "
+              f"{model['schedule']['first']} .. {model['schedule']['last']}")
+        if unrated:
+            print(f"  no rating, given the {FALLBACK_PCT * 100:.0f}th-percentile D1 rating: "
+                  + ", ".join(unrated))
+    else:
+        print(f"no schedule at {sched}; projections skipped")
+        sched_out.unlink(missing_ok=True)   # never publish last month's projections
     (args.out_dir / "matchup_model.json").write_text(json.dumps(model, indent=2))
     preds.to_parquet(args.out_dir / "match_predictions.parquet",
                      compression="zstd", index=False)

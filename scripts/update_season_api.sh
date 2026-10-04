@@ -61,8 +61,11 @@ else
   git clone https://github.com/jpitel24/volleyball-gis "${GIS_DIR}"
 fi
 
-step "2/11  match results (ncaa-api scoreboard, ~25 requests)"
+step "2/11  match results and the rest of the schedule (ncaa-api scoreboard)"
 "$PY" data_collection/fetch_ncaa_results.py "${YEAR}"
+# Every date from today to Dec 21, read fresh each run. Never fails the pipeline: a run
+# that gets nothing keeps the previous schedule, and stage 11 projects from it.
+"$PY" data_collection/fetch_ncaa_schedule.py "${YEAR}"
 
 step "3/11  player box scores (one request per match -- resumable)"
 echo "Safe to interrupt: every match is cached and re-running fetches only what is missing."
