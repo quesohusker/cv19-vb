@@ -211,8 +211,15 @@ def main() -> None:
     # a plain dict rather than groupby().apply(): pandas 3 returns a DataFrame where
     # pandas 2 returned a Series for a scalar-valued apply, and float() on the cell
     # then raises. This shape does not depend on the pandas version.
+    # MIN_TEAMS, not just a per-team match floor: in-season, the first team to reach 20
+    # graded matches creates a season group of one, whose correlation is NaN. That NaN
+    # reached a "{:+.3f}" below and took the whole build down with it, after every
+    # parquet had already been written. A season now appears here once enough teams
+    # qualify for the number to mean anything, which in practice is from November on.
+    MIN_TEAMS = 25
+    qualified = team_seasons[team_seasons.graded_matches >= 20]
     corr = {s: g.grade.corr(g.win_pct)
-            for s, g in team_seasons[team_seasons.graded_matches >= 20].groupby("season")}
+            for s, g in qualified.groupby("season") if len(g) >= MIN_TEAMS}
     meta = {
         "built_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         # 2026 onward comes from a different route: stats.ncaa.org now denies
@@ -254,8 +261,11 @@ def main() -> None:
           f"{(args.out_dir/'league_baselines.parquet').stat().st_size/1e6:>6.2f} MB")
     print(f"power_ratings.parquet    {len(ratings):>7,} rows  "
           f"{(args.out_dir/'power_ratings.parquet').stat().st_size/1e6:>6.2f} MB")
+    # a degenerate season still formats: a report line is never worth a failed build
     print(f"\ngrade vs win% by season: "
-          + ", ".join(f"{k} {v:+.3f}" for k, v in meta['grade_vs_win_pct_by_season'].items()))
+          + (", ".join(f"{k} {v:+.3f}" if v is not None else f"{k} n/a"
+                       for k, v in meta['grade_vs_win_pct_by_season'].items())
+             or "none yet -- too few teams with 20+ graded matches"))
 
 
 if __name__ == "__main__":
