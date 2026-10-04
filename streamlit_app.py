@@ -1807,8 +1807,8 @@ def page_expected(season: str, home: str, away: str) -> None:
         st, pd.DataFrame(png_rows),
         title=f"Expected Wins — {season}" + ("" if conf == "All D1" else f", {conf}"),
         subtitle="Actual record against the sum of pre-match win chances. "
-                 + ("Sorted by projected total wins." if proj
-                    else "Sorted by expected wins."),
+                 + ("Sorted by projected win %." if proj
+                    else "Sorted by expected win %."),
         filename=f"expected_wins_{season}"
                  + ("" if conf == "All D1" else f"_{PNG.slug(conf)}") + ".png",
         key="png_xw", max_rows=25,

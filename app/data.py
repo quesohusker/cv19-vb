@@ -490,9 +490,15 @@ def expected_wins(season: str, conference: str | None = None,
     out = out[out.matches >= min_matches]
     if conference:
         out = out[out.conference == conference]
-    # Expected total wins: projected season total when the schedule is in, else to date.
-    key = "proj_w" if "proj_w" in out.columns else "xw"
-    return out.sort_values(key, ascending=False).reset_index(drop=True)
+    # Expected wins as a share of the schedule, not a raw total: a raw total ranks a
+    # 32-match schedule over a 28-match one at equal strength, which put Pittsburgh and
+    # Louisville above Nebraska for no reason but the length of their calendars.
+    if "proj_w" in out.columns:
+        rate = out.proj_w / (out.matches + out.left)
+    else:
+        rate = out.xw / out.matches
+    return out.assign(_r=rate).sort_values("_r", ascending=False).drop(
+        columns="_r").reset_index(drop=True)
 
 
 def team_predictions(season: str, team: str) -> pd.DataFrame:
