@@ -1,17 +1,17 @@
 {
   "coef": {
-    "home": 0.3506023067152151,
-    "elo_per_100": 0.40777171594780515,
-    "ridge_per_10": 0.6177510244925205
+    "home": 0.350602306715215,
+    "elo_per_100": 0.407771715947805,
+    "ridge_per_10": 0.6177510244925211
   },
   "coef_alone": {
     "elo": {
-      "home": 0.33212843126772645,
+      "home": 0.3321284312677263,
       "elo_per_100": 0.5386576661306122
     },
     "ridge": {
-      "home": 0.3746514996978464,
-      "ridge_per_10": 1.7093143144899636
+      "home": 0.37465149969784634,
+      "ridge_per_10": 1.7093143144899634
     }
   },
   "elo_config": {
@@ -357,5 +357,20 @@
     "share_beyond_2sd": 0.041,
     "share_beyond_2sd_if_pure_luck": 0.046,
     "median_season_sd_wins": 2.06
+  },
+  "schedule": {
+    "season": "2026",
+    "games": 2240,
+    "first": "2026-10-04",
+    "last": "2026-11-28",
+    "read": "2026-10-04",
+    "fallback_teams": [
+      "Ark.-Monticello",
+      "Edward Waters",
+      "Miles",
+      "Rutgers-Newark",
+      "Tougaloo"
+    ],
+    "fallback_pct": 0.05
   }
 }
