@@ -1681,363 +1681,363 @@
       "2026": {
         "Back row": {
           "aces_per_set": {
-            "league_mean": 0.1722,
-            "ridge": 58.6,
-            "opponent_effect_sd": 0.0398,
-            "player_effect_sd": 0.1337,
-            "player_matches": 12960,
+            "league_mean": 0.1721,
+            "ridge": 59.8,
+            "opponent_effect_sd": 0.0395,
+            "player_effect_sd": 0.1343,
+            "player_matches": 13202,
             "opponents": 364
           },
           "assists_per_set": {
-            "league_mean": 0.5195,
-            "ridge": 58.6,
-            "opponent_effect_sd": 0.062,
-            "player_effect_sd": 0.4804,
-            "player_matches": 12960,
+            "league_mean": 0.5175,
+            "ridge": 59.8,
+            "opponent_effect_sd": 0.0616,
+            "player_effect_sd": 0.479,
+            "player_matches": 13202,
             "opponents": 364
           },
           "attacks_per_set": {
-            "league_mean": 0.1594,
-            "ridge": 58.6,
-            "opponent_effect_sd": 0.0454,
-            "player_effect_sd": 0.465,
-            "player_matches": 12960,
+            "league_mean": 0.159,
+            "ridge": 59.8,
+            "opponent_effect_sd": 0.0462,
+            "player_effect_sd": 0.4616,
+            "player_matches": 13202,
             "opponents": 364
           },
           "blocks_per_set": {
             "league_mean": 0.0011,
-            "ridge": 58.6,
-            "opponent_effect_sd": 0.0015,
+            "ridge": 59.8,
+            "opponent_effect_sd": 0.0016,
             "player_effect_sd": 0.0125,
-            "player_matches": 12960,
+            "player_matches": 13202,
             "opponents": 364
           },
           "digs_per_set": {
-            "league_mean": 2.2595,
-            "ridge": 58.6,
-            "opponent_effect_sd": 0.2018,
-            "player_effect_sd": 1.4177,
-            "player_matches": 12960,
+            "league_mean": 2.2562,
+            "ridge": 59.8,
+            "opponent_effect_sd": 0.2009,
+            "player_effect_sd": 1.4143,
+            "player_matches": 13202,
             "opponents": 364
           },
           "hit_pct": {
-            "league_mean": 0.0649,
-            "ridge": 8.4,
-            "opponent_effect_sd": 0.0706,
+            "league_mean": 0.0645,
+            "ridge": 8.6,
+            "opponent_effect_sd": 0.0703,
             "player_effect_sd": 0.199,
-            "player_matches": 529,
-            "opponents": 218
+            "player_matches": 534,
+            "opponents": 219
           },
           "kills_per_set": {
-            "league_mean": 0.03,
-            "ridge": 58.6,
-            "opponent_effect_sd": 0.015,
-            "player_effect_sd": 0.1482,
-            "player_matches": 12960,
+            "league_mean": 0.0299,
+            "ridge": 59.8,
+            "opponent_effect_sd": 0.0152,
+            "player_effect_sd": 0.1467,
+            "player_matches": 13202,
             "opponents": 364
           },
           "reception_err_rate": {
             "league_mean": 0.059,
-            "ridge": 199.2,
+            "ridge": 202.9,
             "opponent_effect_sd": 0.0099,
-            "player_effect_sd": 0.059,
-            "player_matches": 9622,
+            "player_effect_sd": 0.0595,
+            "player_matches": 9797,
             "opponents": 364
           },
           "receptions_per_set": {
-            "league_mean": 3.4218,
-            "ridge": 58.6,
-            "opponent_effect_sd": 0.2959,
-            "player_effect_sd": 1.995,
-            "player_matches": 12960,
+            "league_mean": 3.4188,
+            "ridge": 59.8,
+            "opponent_effect_sd": 0.295,
+            "player_effect_sd": 1.9917,
+            "player_matches": 13202,
             "opponents": 364
           }
         },
         "Front-row hitter": {
           "aces_per_set": {
-            "league_mean": 0.0609,
-            "ridge": 40.4,
-            "opponent_effect_sd": 0.0251,
-            "player_effect_sd": 0.1073,
-            "player_matches": 9248,
+            "league_mean": 0.0616,
+            "ridge": 41.0,
+            "opponent_effect_sd": 0.0248,
+            "player_effect_sd": 0.1075,
+            "player_matches": 9374,
             "opponents": 364
           },
           "assists_per_set": {
-            "league_mean": 0.059,
-            "ridge": 40.4,
-            "opponent_effect_sd": 0.0194,
-            "player_effect_sd": 0.0816,
-            "player_matches": 9248,
+            "league_mean": 0.0591,
+            "ridge": 41.0,
+            "opponent_effect_sd": 0.0195,
+            "player_effect_sd": 0.0821,
+            "player_matches": 9374,
             "opponents": 364
           },
           "attacks_per_set": {
-            "league_mean": 5.3539,
-            "ridge": 40.4,
-            "opponent_effect_sd": 0.2937,
-            "player_effect_sd": 1.8681,
-            "player_matches": 9248,
+            "league_mean": 5.3664,
+            "ridge": 41.0,
+            "opponent_effect_sd": 0.2924,
+            "player_effect_sd": 1.8607,
+            "player_matches": 9374,
             "opponents": 364
           },
           "blocks_per_set": {
-            "league_mean": 0.2741,
-            "ridge": 40.4,
+            "league_mean": 0.2746,
+            "ridge": 41.0,
             "opponent_effect_sd": 0.0406,
-            "player_effect_sd": 0.1531,
-            "player_matches": 9248,
+            "player_effect_sd": 0.152,
+            "player_matches": 9374,
             "opponents": 364
           },
           "digs_per_set": {
-            "league_mean": 0.6211,
-            "ridge": 40.4,
-            "opponent_effect_sd": 0.0947,
-            "player_effect_sd": 0.4359,
-            "player_matches": 9248,
+            "league_mean": 0.6247,
+            "ridge": 41.0,
+            "opponent_effect_sd": 0.0941,
+            "player_effect_sd": 0.4357,
+            "player_matches": 9374,
             "opponents": 364
           },
           "hit_pct": {
-            "league_mean": 0.2088,
-            "ridge": 215.1,
-            "opponent_effect_sd": 0.0374,
-            "player_effect_sd": 0.1267,
-            "player_matches": 8421,
+            "league_mean": 0.2086,
+            "ridge": 219.0,
+            "opponent_effect_sd": 0.0376,
+            "player_effect_sd": 0.1264,
+            "player_matches": 8553,
             "opponents": 364
           },
           "kills_per_set": {
-            "league_mean": 1.9811,
-            "ridge": 40.4,
+            "league_mean": 1.9843,
+            "ridge": 41.0,
             "opponent_effect_sd": 0.1727,
-            "player_effect_sd": 0.8456,
-            "player_matches": 9248,
+            "player_effect_sd": 0.8418,
+            "player_matches": 9374,
             "opponents": 364
           },
           "reception_err_rate": {
-            "league_mean": 0.0907,
-            "ridge": 8.6,
-            "opponent_effect_sd": 0.0498,
-            "player_effect_sd": 0.1131,
-            "player_matches": 936,
+            "league_mean": 0.0905,
+            "ridge": 8.8,
+            "opponent_effect_sd": 0.0493,
+            "player_effect_sd": 0.1117,
+            "player_matches": 953,
             "opponents": 312
           },
           "receptions_per_set": {
-            "league_mean": 0.2488,
-            "ridge": 40.4,
-            "opponent_effect_sd": 0.0773,
-            "player_effect_sd": 0.369,
-            "player_matches": 9248,
+            "league_mean": 0.2495,
+            "ridge": 41.0,
+            "opponent_effect_sd": 0.0766,
+            "player_effect_sd": 0.3702,
+            "player_matches": 9374,
             "opponents": 364
           }
         },
         "Middle blocker": {
           "aces_per_set": {
-            "league_mean": 0.0786,
-            "ridge": 59.6,
-            "opponent_effect_sd": 0.0228,
-            "player_effect_sd": 0.1016,
-            "player_matches": 13392,
+            "league_mean": 0.0787,
+            "ridge": 60.7,
+            "opponent_effect_sd": 0.0227,
+            "player_effect_sd": 0.1013,
+            "player_matches": 13634,
             "opponents": 364
           },
           "assists_per_set": {
-            "league_mean": 0.0687,
-            "ridge": 59.6,
-            "opponent_effect_sd": 0.019,
-            "player_effect_sd": 0.1024,
-            "player_matches": 13392,
+            "league_mean": 0.069,
+            "ridge": 60.7,
+            "opponent_effect_sd": 0.0194,
+            "player_effect_sd": 0.102,
+            "player_matches": 13634,
             "opponents": 364
           },
           "attacks_per_set": {
-            "league_mean": 3.4509,
-            "ridge": 59.6,
-            "opponent_effect_sd": 0.1909,
-            "player_effect_sd": 1.6908,
-            "player_matches": 13392,
+            "league_mean": 3.4503,
+            "ridge": 60.7,
+            "opponent_effect_sd": 0.1905,
+            "player_effect_sd": 1.6869,
+            "player_matches": 13634,
             "opponents": 364
           },
           "blocks_per_set": {
-            "league_mean": 0.4612,
-            "ridge": 59.6,
-            "opponent_effect_sd": 0.0562,
-            "player_effect_sd": 0.2448,
-            "player_matches": 13392,
+            "league_mean": 0.4614,
+            "ridge": 60.7,
+            "opponent_effect_sd": 0.0561,
+            "player_effect_sd": 0.2432,
+            "player_matches": 13634,
             "opponents": 364
           },
           "digs_per_set": {
-            "league_mean": 0.3403,
-            "ridge": 59.6,
-            "opponent_effect_sd": 0.0502,
-            "player_effect_sd": 0.2493,
-            "player_matches": 13392,
+            "league_mean": 0.3409,
+            "ridge": 60.7,
+            "opponent_effect_sd": 0.0501,
+            "player_effect_sd": 0.2477,
+            "player_matches": 13634,
             "opponents": 364
           },
           "hit_pct": {
-            "league_mean": 0.2793,
-            "ridge": 203.9,
-            "opponent_effect_sd": 0.0383,
-            "player_effect_sd": 0.1669,
-            "player_matches": 11494,
+            "league_mean": 0.2792,
+            "ridge": 207.5,
+            "opponent_effect_sd": 0.0379,
+            "player_effect_sd": 0.1635,
+            "player_matches": 11701,
             "opponents": 364
           },
           "kills_per_set": {
-            "league_mean": 1.448,
-            "ridge": 59.6,
-            "opponent_effect_sd": 0.1385,
-            "player_effect_sd": 0.7744,
-            "player_matches": 13392,
+            "league_mean": 1.4479,
+            "ridge": 60.7,
+            "opponent_effect_sd": 0.1371,
+            "player_effect_sd": 0.7712,
+            "player_matches": 13634,
             "opponents": 364
           },
           "reception_err_rate": {
-            "league_mean": 0.0724,
-            "ridge": 6.7,
-            "opponent_effect_sd": 0.0391,
-            "player_effect_sd": 0.1277,
-            "player_matches": 500,
+            "league_mean": 0.0722,
+            "ridge": 6.9,
+            "opponent_effect_sd": 0.0389,
+            "player_effect_sd": 0.1273,
+            "player_matches": 510,
             "opponents": 224
           },
           "receptions_per_set": {
             "league_mean": 0.1487,
-            "ridge": 59.6,
-            "opponent_effect_sd": 0.0556,
+            "ridge": 60.7,
+            "opponent_effect_sd": 0.0553,
             "player_effect_sd": 0.3424,
-            "player_matches": 13392,
+            "player_matches": 13634,
             "opponents": 364
           }
         },
         "Setter": {
           "aces_per_set": {
-            "league_mean": 0.2069,
-            "ridge": 46.0,
-            "opponent_effect_sd": 0.0468,
-            "player_effect_sd": 0.1471,
-            "player_matches": 10153,
+            "league_mean": 0.2068,
+            "ridge": 46.8,
+            "opponent_effect_sd": 0.0466,
+            "player_effect_sd": 0.1466,
+            "player_matches": 10336,
             "opponents": 364
           },
           "assists_per_set": {
-            "league_mean": 5.4204,
-            "ridge": 46.0,
-            "opponent_effect_sd": 0.3959,
-            "player_effect_sd": 3.1115,
-            "player_matches": 10153,
+            "league_mean": 5.4239,
+            "ridge": 46.8,
+            "opponent_effect_sd": 0.3926,
+            "player_effect_sd": 3.1086,
+            "player_matches": 10336,
             "opponents": 364
           },
           "attacks_per_set": {
-            "league_mean": 0.9644,
-            "ridge": 46.0,
-            "opponent_effect_sd": 0.1123,
-            "player_effect_sd": 1.0139,
-            "player_matches": 10153,
+            "league_mean": 0.9663,
+            "ridge": 46.8,
+            "opponent_effect_sd": 0.1114,
+            "player_effect_sd": 1.0126,
+            "player_matches": 10336,
             "opponents": 364
           },
           "blocks_per_set": {
-            "league_mean": 0.0878,
-            "ridge": 46.0,
+            "league_mean": 0.0884,
+            "ridge": 46.8,
             "opponent_effect_sd": 0.0191,
-            "player_effect_sd": 0.1058,
-            "player_matches": 10153,
+            "player_effect_sd": 0.1052,
+            "player_matches": 10336,
             "opponents": 364
           },
           "digs_per_set": {
-            "league_mean": 1.6674,
-            "ridge": 46.0,
-            "opponent_effect_sd": 0.1757,
-            "player_effect_sd": 0.8159,
-            "player_matches": 10153,
+            "league_mean": 1.6659,
+            "ridge": 46.8,
+            "opponent_effect_sd": 0.1753,
+            "player_effect_sd": 0.8134,
+            "player_matches": 10336,
             "opponents": 364
           },
           "hit_pct": {
-            "league_mean": 0.2249,
-            "ridge": 39.1,
-            "opponent_effect_sd": 0.0518,
-            "player_effect_sd": 0.2055,
-            "player_matches": 3825,
+            "league_mean": 0.2236,
+            "ridge": 39.9,
+            "opponent_effect_sd": 0.0511,
+            "player_effect_sd": 0.2046,
+            "player_matches": 3899,
             "opponents": 362
           },
           "kills_per_set": {
-            "league_mean": 0.3164,
-            "ridge": 46.0,
-            "opponent_effect_sd": 0.0523,
-            "player_effect_sd": 0.3735,
-            "player_matches": 10153,
+            "league_mean": 0.3163,
+            "ridge": 46.8,
+            "opponent_effect_sd": 0.0515,
+            "player_effect_sd": 0.3717,
+            "player_matches": 10336,
             "opponents": 364
           },
           "receptions_per_set": {
-            "league_mean": 0.0986,
-            "ridge": 46.0,
-            "opponent_effect_sd": 0.0415,
-            "player_effect_sd": 0.4132,
-            "player_matches": 10153,
+            "league_mean": 0.0994,
+            "ridge": 46.8,
+            "opponent_effect_sd": 0.0409,
+            "player_effect_sd": 0.4145,
+            "player_matches": 10336,
             "opponents": 364
           }
         },
         "Six-rotation hitter": {
           "aces_per_set": {
-            "league_mean": 0.2001,
-            "ridge": 61.8,
-            "opponent_effect_sd": 0.0431,
-            "player_effect_sd": 0.1466,
-            "player_matches": 13559,
+            "league_mean": 0.1998,
+            "ridge": 62.9,
+            "opponent_effect_sd": 0.0428,
+            "player_effect_sd": 0.1464,
+            "player_matches": 13805,
             "opponents": 364
           },
           "assists_per_set": {
-            "league_mean": 0.1585,
-            "ridge": 61.8,
+            "league_mean": 0.1584,
+            "ridge": 62.9,
             "opponent_effect_sd": 0.0262,
-            "player_effect_sd": 0.1241,
-            "player_matches": 13559,
+            "player_effect_sd": 0.1239,
+            "player_matches": 13805,
             "opponents": 364
           },
           "attacks_per_set": {
-            "league_mean": 6.6196,
-            "ridge": 61.8,
-            "opponent_effect_sd": 0.3142,
-            "player_effect_sd": 2.8989,
-            "player_matches": 13559,
+            "league_mean": 6.6184,
+            "ridge": 62.9,
+            "opponent_effect_sd": 0.3134,
+            "player_effect_sd": 2.8988,
+            "player_matches": 13805,
             "opponents": 364
           },
           "blocks_per_set": {
-            "league_mean": 0.1632,
-            "ridge": 61.8,
+            "league_mean": 0.1636,
+            "ridge": 62.9,
             "opponent_effect_sd": 0.026,
-            "player_effect_sd": 0.1037,
-            "player_matches": 13559,
+            "player_effect_sd": 0.1038,
+            "player_matches": 13805,
             "opponents": 364
           },
           "digs_per_set": {
-            "league_mean": 1.6795,
-            "ridge": 61.8,
-            "opponent_effect_sd": 0.1538,
-            "player_effect_sd": 0.7671,
-            "player_matches": 13559,
+            "league_mean": 1.6784,
+            "ridge": 62.9,
+            "opponent_effect_sd": 0.1531,
+            "player_effect_sd": 0.7678,
+            "player_matches": 13805,
             "opponents": 364
           },
           "hit_pct": {
-            "league_mean": 0.179,
-            "ridge": 407.8,
+            "league_mean": 0.1793,
+            "ridge": 415.0,
             "opponent_effect_sd": 0.0313,
-            "player_effect_sd": 0.1035,
-            "player_matches": 11739,
+            "player_effect_sd": 0.1032,
+            "player_matches": 11947,
             "opponents": 364
           },
           "kills_per_set": {
-            "league_mean": 2.2444,
-            "ridge": 61.8,
-            "opponent_effect_sd": 0.1565,
-            "player_effect_sd": 1.1389,
-            "player_matches": 13559,
+            "league_mean": 2.2451,
+            "ridge": 62.9,
+            "opponent_effect_sd": 0.1564,
+            "player_effect_sd": 1.1382,
+            "player_matches": 13805,
             "opponents": 364
           },
           "reception_err_rate": {
-            "league_mean": 0.0629,
-            "ridge": 275.3,
+            "league_mean": 0.0628,
+            "ridge": 280.2,
             "opponent_effect_sd": 0.0097,
-            "player_effect_sd": 0.0396,
-            "player_matches": 11958,
+            "player_effect_sd": 0.0393,
+            "player_matches": 12168,
             "opponents": 364
           },
           "receptions_per_set": {
-            "league_mean": 4.4808,
-            "ridge": 61.8,
-            "opponent_effect_sd": 0.3263,
-            "player_effect_sd": 1.7467,
-            "player_matches": 13559,
+            "league_mean": 4.4795,
+            "ridge": 62.9,
+            "opponent_effect_sd": 0.3279,
+            "player_effect_sd": 1.7473,
+            "player_matches": 13805,
             "opponents": 364
           }
         }
@@ -2057,116 +2057,116 @@
   "reliability": {
     "Back row": {
       "kills_per_set": {
-        "split_half": 0.313,
-        "n": 5539,
-        "full_season_est": 0.477
+        "split_half": 0.314,
+        "n": 5546,
+        "full_season_est": 0.478
       },
       "attacks_per_set": {
-        "split_half": 0.675,
-        "n": 5539,
-        "full_season_est": 0.806
+        "split_half": 0.677,
+        "n": 5546,
+        "full_season_est": 0.807
       },
       "digs_per_set": {
         "split_half": 0.967,
-        "n": 5539,
+        "n": 5546,
         "full_season_est": 0.983
       },
       "receptions_per_set": {
-        "split_half": 0.949,
-        "n": 5539,
+        "split_half": 0.95,
+        "n": 5546,
         "full_season_est": 0.974
       },
       "assists_per_set": {
         "split_half": 0.913,
-        "n": 5539,
+        "n": 5546,
         "full_season_est": 0.955
       },
       "aces_per_set": {
-        "split_half": 0.729,
-        "n": 5539,
+        "split_half": 0.728,
+        "n": 5546,
         "full_season_est": 0.843
       },
       "serve_err_per_set": {
-        "split_half": 0.801,
-        "n": 5539,
+        "split_half": 0.802,
+        "n": 5546,
         "full_season_est": 0.89
       },
       "ace_share": {
-        "split_half": 0.341,
-        "n": 2787,
-        "full_season_est": 0.509
+        "split_half": 0.339,
+        "n": 2793,
+        "full_season_est": 0.506
       },
       "blocks_per_set": {
-        "split_half": 0.317,
-        "n": 5539,
-        "full_season_est": 0.481
+        "split_half": 0.316,
+        "n": 5546,
+        "full_season_est": 0.48
       },
       "hit_pct": {
-        "split_half": 0.615,
+        "split_half": 0.619,
         "n": 117,
-        "full_season_est": 0.762
+        "full_season_est": 0.765
       },
       "assist_rate": {
-        "split_half": 0.618,
-        "n": 1267,
-        "full_season_est": 0.764
+        "split_half": 0.61,
+        "n": 1280,
+        "full_season_est": 0.758
       },
       "reception_err_rate": {
-        "split_half": 0.305,
-        "n": 3935,
-        "full_season_est": 0.467
+        "split_half": 0.306,
+        "n": 3936,
+        "full_season_est": 0.469
       }
     },
     "Front-row hitter": {
       "kills_per_set": {
-        "split_half": 0.881,
-        "n": 3248,
+        "split_half": 0.882,
+        "n": 3249,
         "full_season_est": 0.937
       },
       "attacks_per_set": {
         "split_half": 0.904,
-        "n": 3248,
+        "n": 3249,
         "full_season_est": 0.95
       },
       "digs_per_set": {
-        "split_half": 0.708,
-        "n": 3248,
-        "full_season_est": 0.829
+        "split_half": 0.71,
+        "n": 3249,
+        "full_season_est": 0.83
       },
       "receptions_per_set": {
         "split_half": 0.813,
-        "n": 3248,
+        "n": 3249,
         "full_season_est": 0.897
       },
       "assists_per_set": {
-        "split_half": 0.357,
-        "n": 3248,
-        "full_season_est": 0.526
+        "split_half": 0.358,
+        "n": 3249,
+        "full_season_est": 0.527
       },
       "aces_per_set": {
         "split_half": 0.761,
-        "n": 3248,
+        "n": 3249,
         "full_season_est": 0.864
       },
       "serve_err_per_set": {
-        "split_half": 0.799,
-        "n": 3248,
-        "full_season_est": 0.888
+        "split_half": 0.8,
+        "n": 3249,
+        "full_season_est": 0.889
       },
       "ace_share": {
-        "split_half": 0.315,
-        "n": 596,
-        "full_season_est": 0.479
+        "split_half": 0.31,
+        "n": 598,
+        "full_season_est": 0.473
       },
       "blocks_per_set": {
-        "split_half": 0.739,
-        "n": 3248,
-        "full_season_est": 0.85
+        "split_half": 0.738,
+        "n": 3249,
+        "full_season_est": 0.849
       },
       "hit_pct": {
-        "split_half": 0.493,
-        "n": 3234,
-        "full_season_est": 0.66
+        "split_half": 0.494,
+        "n": 3238,
+        "full_season_est": 0.661
       },
       "reception_err_rate": {
         "split_half": 0.18,
@@ -2177,53 +2177,53 @@
     "Middle blocker": {
       "kills_per_set": {
         "split_half": 0.945,
-        "n": 6127,
+        "n": 6132,
         "full_season_est": 0.972
       },
       "attacks_per_set": {
         "split_half": 0.961,
-        "n": 6127,
+        "n": 6132,
         "full_season_est": 0.98
       },
       "digs_per_set": {
         "split_half": 0.84,
-        "n": 6127,
+        "n": 6132,
         "full_season_est": 0.913
       },
       "receptions_per_set": {
-        "split_half": 0.622,
-        "n": 6127,
-        "full_season_est": 0.767
+        "split_half": 0.621,
+        "n": 6132,
+        "full_season_est": 0.766
       },
       "assists_per_set": {
         "split_half": 0.528,
-        "n": 6127,
+        "n": 6132,
         "full_season_est": 0.691
       },
       "aces_per_set": {
-        "split_half": 0.821,
-        "n": 6127,
-        "full_season_est": 0.902
+        "split_half": 0.819,
+        "n": 6132,
+        "full_season_est": 0.9
       },
       "serve_err_per_set": {
-        "split_half": 0.848,
-        "n": 6127,
+        "split_half": 0.849,
+        "n": 6132,
         "full_season_est": 0.918
       },
       "ace_share": {
-        "split_half": 0.362,
-        "n": 1265,
-        "full_season_est": 0.532
+        "split_half": 0.365,
+        "n": 1272,
+        "full_season_est": 0.535
       },
       "blocks_per_set": {
         "split_half": 0.876,
-        "n": 6127,
+        "n": 6132,
         "full_season_est": 0.934
       },
       "hit_pct": {
-        "split_half": 0.496,
-        "n": 4548,
-        "full_season_est": 0.663
+        "split_half": 0.497,
+        "n": 4551,
+        "full_season_est": 0.664
       },
       "reception_err_rate": {
         "split_half": 0.296,
@@ -2233,58 +2233,58 @@
     },
     "Setter": {
       "kills_per_set": {
-        "split_half": 0.888,
-        "n": 4305,
+        "split_half": 0.889,
+        "n": 4306,
         "full_season_est": 0.941
       },
       "attacks_per_set": {
         "split_half": 0.937,
-        "n": 4305,
+        "n": 4306,
         "full_season_est": 0.967
       },
       "digs_per_set": {
-        "split_half": 0.922,
-        "n": 4305,
-        "full_season_est": 0.959
+        "split_half": 0.923,
+        "n": 4306,
+        "full_season_est": 0.96
       },
       "receptions_per_set": {
         "split_half": 0.476,
-        "n": 4305,
+        "n": 4306,
         "full_season_est": 0.645
       },
       "assists_per_set": {
         "split_half": 0.978,
-        "n": 4305,
+        "n": 4306,
         "full_season_est": 0.989
       },
       "aces_per_set": {
-        "split_half": 0.731,
-        "n": 4305,
-        "full_season_est": 0.845
+        "split_half": 0.733,
+        "n": 4306,
+        "full_season_est": 0.846
       },
       "serve_err_per_set": {
-        "split_half": 0.816,
-        "n": 4305,
+        "split_half": 0.817,
+        "n": 4306,
         "full_season_est": 0.899
       },
       "ace_share": {
         "split_half": 0.374,
-        "n": 2421,
+        "n": 2428,
         "full_season_est": 0.544
       },
       "blocks_per_set": {
         "split_half": 0.868,
-        "n": 4305,
+        "n": 4306,
         "full_season_est": 0.929
       },
       "hit_pct": {
-        "split_half": 0.411,
+        "split_half": 0.413,
         "n": 1604,
-        "full_season_est": 0.583
+        "full_season_est": 0.585
       },
       "assist_rate": {
         "split_half": 0.746,
-        "n": 3100,
+        "n": 3102,
         "full_season_est": 0.855
       },
       "reception_err_rate": {
@@ -2296,53 +2296,53 @@
     "Six-rotation hitter": {
       "kills_per_set": {
         "split_half": 0.928,
-        "n": 4548,
+        "n": 4557,
         "full_season_est": 0.963
       },
       "attacks_per_set": {
-        "split_half": 0.941,
-        "n": 4548,
+        "split_half": 0.942,
+        "n": 4557,
         "full_season_est": 0.97
       },
       "digs_per_set": {
-        "split_half": 0.875,
-        "n": 4548,
-        "full_season_est": 0.933
+        "split_half": 0.876,
+        "n": 4557,
+        "full_season_est": 0.934
       },
       "receptions_per_set": {
-        "split_half": 0.88,
-        "n": 4548,
-        "full_season_est": 0.936
+        "split_half": 0.881,
+        "n": 4557,
+        "full_season_est": 0.937
       },
       "assists_per_set": {
-        "split_half": 0.598,
-        "n": 4548,
-        "full_season_est": 0.748
+        "split_half": 0.599,
+        "n": 4557,
+        "full_season_est": 0.749
       },
       "aces_per_set": {
         "split_half": 0.663,
-        "n": 4548,
+        "n": 4557,
         "full_season_est": 0.797
       },
       "serve_err_per_set": {
         "split_half": 0.784,
-        "n": 4548,
+        "n": 4557,
         "full_season_est": 0.879
       },
       "ace_share": {
         "split_half": 0.393,
-        "n": 3054,
+        "n": 3063,
         "full_season_est": 0.564
       },
       "blocks_per_set": {
-        "split_half": 0.719,
-        "n": 4548,
-        "full_season_est": 0.837
+        "split_half": 0.721,
+        "n": 4557,
+        "full_season_est": 0.838
       },
       "hit_pct": {
-        "split_half": 0.531,
-        "n": 4303,
-        "full_season_est": 0.694
+        "split_half": 0.53,
+        "n": 4306,
+        "full_season_est": 0.693
       },
       "assist_rate": {
         "split_half": 0.613,
@@ -2350,9 +2350,9 @@
         "full_season_est": 0.76
       },
       "reception_err_rate": {
-        "split_half": 0.363,
-        "n": 4426,
-        "full_season_est": 0.533
+        "split_half": 0.364,
+        "n": 4431,
+        "full_season_est": 0.534
       }
     }
   }
