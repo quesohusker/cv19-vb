@@ -141,66 +141,66 @@
       "season": "2026",
       "spec": "elo",
       "held_out": true,
-      "n": 2681,
-      "accuracy": 0.7531,
-      "log_loss": 0.5043,
-      "brier": 0.1672
+      "n": 2908,
+      "accuracy": 0.7541,
+      "log_loss": 0.5027,
+      "brier": 0.1665
     },
     {
       "season": "2026",
       "spec": "ridge",
       "held_out": true,
-      "n": 2681,
-      "accuracy": 0.6874,
-      "log_loss": 0.5884,
-      "brier": 0.2007
+      "n": 2908,
+      "accuracy": 0.6939,
+      "log_loss": 0.5797,
+      "brier": 0.1975
     },
     {
       "season": "2026",
       "spec": "blend",
       "held_out": true,
-      "n": 2681,
-      "accuracy": 0.7497,
-      "log_loss": 0.4976,
-      "brier": 0.165
+      "n": 2908,
+      "accuracy": 0.7521,
+      "log_loss": 0.4959,
+      "brier": 0.1642
     }
   ],
   "calibration_current": [
     {
       "bin": "50%-60%",
-      "n": 451,
-      "predicted": 0.548,
-      "actual": 0.5277
+      "n": 488,
+      "predicted": 0.5483,
+      "actual": 0.5287
     },
     {
       "bin": "60%-70%",
-      "n": 469,
-      "predicted": 0.6513,
-      "actual": 0.6205
+      "n": 510,
+      "predicted": 0.651,
+      "actual": 0.6275
     },
     {
       "bin": "70%-80%",
-      "n": 539,
-      "predicted": 0.7484,
-      "actual": 0.7273
+      "n": 573,
+      "predicted": 0.7486,
+      "actual": 0.7312
     },
     {
       "bin": "80%-90%",
-      "n": 562,
-      "predicted": 0.8525,
+      "n": 603,
+      "predicted": 0.8524,
       "actual": 0.8292
     },
     {
       "bin": "90%-95%",
-      "n": 335,
-      "predicted": 0.9254,
-      "actual": 0.9284
+      "n": 374,
+      "predicted": 0.9258,
+      "actual": 0.9198
     },
     {
       "bin": "95%-100%",
-      "n": 325,
-      "predicted": 0.9729,
-      "actual": 0.96
+      "n": 360,
+      "predicted": 0.9731,
+      "actual": 0.9611
     }
   ],
   "calibration_fit": [
@@ -344,26 +344,26 @@
     }
   ],
   "persistence": {
-    "team_seasons": 1498,
-    "odd_vs_even": -0.042,
-    "first_vs_second_half": -0.091,
+    "team_seasons": 1592,
+    "odd_vs_even": -0.032,
+    "first_vs_second_half": -0.079,
     "year_over_year": {
       "2022-2023": -0.047,
       "2023-2024": -0.096,
       "2024-2025": -0.127,
-      "2025-2026": -0.35
+      "2025-2026": -0.256
     },
-    "z_sd": 0.97,
+    "z_sd": 0.973,
     "share_beyond_2sd": 0.041,
     "share_beyond_2sd_if_pure_luck": 0.046,
-    "median_season_sd_wins": 2.06
+    "median_season_sd_wins": 2.04
   },
   "schedule": {
     "season": "2026",
-    "games": 2125,
-    "first": "2026-10-09",
+    "games": 1892,
+    "first": "2026-10-11",
     "last": "2026-11-28",
-    "read": "2026-10-09",
+    "read": "2026-10-11",
     "fallback_teams": [
       "Ark.-Monticello",
       "Edward Waters",
