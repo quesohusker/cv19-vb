@@ -1,5 +1,5 @@
 team,length,start,end,seasons,active,broken_by,broken_on,broken_score,unreadable_sets,label
-Nebraska,147,2025-08-22,2026-10-10,2025,True,,,,1,"active · official count through Oct 10, 2026"
+Nebraska,150,2025-08-22,2026-10-15,2025,True,,,,1,"active · through Oct 15, 2026"
 UCF,141,2021-10-08,2023-09-09,2021-2023,False,Purdue,2023-09-14,22-25,10,
 BYU,124,2021-09-02,2022-11-22,2021-2022,False,San Diego,2022-11-22,22-25,7,
 Penn St.,117,2023-10-20,2024-12-13,2023-2024,False,Marquette,2024-12-13,24-26,4,
