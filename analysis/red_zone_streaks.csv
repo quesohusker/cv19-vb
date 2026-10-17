@@ -1,0 +1,16 @@
+team,length,start,end,seasons,active,broken_by,broken_on,broken_score,unreadable_sets,label
+Nebraska,147,2025-08-22,2026-10-10,2025,True,,,,1,"active · official count through Oct 10, 2026"
+UCF,141,2021-10-08,2023-09-09,2021-2023,False,Purdue,2023-09-14,22-25,10,
+BYU,124,2021-09-02,2022-11-22,2021-2022,False,San Diego,2022-11-22,22-25,7,
+Penn St.,117,2023-10-20,2024-12-13,2023-2024,False,Marquette,2024-12-13,24-26,4,
+Kansas,116,2022-10-12,2024-09-25,2022-2024,False,Houston,2024-09-27,22-25,5,
+Princeton,103,2023-11-10,2025-11-22,2023-2025,True,,,,3,through 2025 · 2026 not yet resolved
+Louisville,92,2023-11-03,2024-11-27,2023-2024,False,Stanford,2024-11-30,23-25,1,
+St. John's (NY),90,2022-09-16,2023-11-04,2022-2023,False,Marquette,2023-11-17,22-25,6,
+Washington,87,2021-09-22,2022-10-09,2021-2022,False,Oregon,2022-10-09,22-25,6,
+Kentucky,86,2022-10-23,2023-12-07,2022-2023,False,Arkansas,2023-12-07,22-25,1,
+Dayton,86,2023-11-18,2024-11-23,2023-2024,False,Loyola Chicago,2024-11-24,23-25,2,
+Marquette,79,2022-09-06,2023-08-26,2022-2023,False,Dayton,2023-08-26,22-25,3,
+Tennessee,78,2022-11-25,2024-08-30,2022-2024,False,Louisville,2024-09-01,22-25,5,
+LMU (CA),72,2022-11-22,2024-09-13,2022-2024,False,Southern California,2024-09-19,24-26,7,
+Wisconsin,71,2025-09-04,2025-12-18,2025,False,Kentucky,2025-12-18,22-25,2,
