@@ -17,6 +17,12 @@ done
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# Back the project up to the internal drive however this run ends -- published,
+# nothing new, or failed partway -- because whatever was downloaded is worth keeping.
+# The update script is told not to do it too, so a publish run backs up once.
+trap '"$ROOT/scripts/backup_local.sh"' EXIT
+export CV19_BACKUP_BY_PARENT=1
+
 step() { printf '\n\033[1m=== %s ===\033[0m\n' "$1"; }
 
 PUBLISHED=(app_data data/in_system_kills.parquet)

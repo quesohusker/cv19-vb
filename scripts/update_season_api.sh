@@ -6,6 +6,12 @@ YEAR="${1:-2026}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+# Run on its own, this backs up on exit like publish.sh does; under publish.sh the
+# parent does it once at the end instead.
+if [ -z "${CV19_BACKUP_BY_PARENT:-}" ]; then
+  trap '"$ROOT/scripts/backup_local.sh"' EXIT
+fi
+
 if [ -x "$ROOT/.venv/bin/python" ]; then
   PY="$ROOT/.venv/bin/python"
 else

@@ -166,6 +166,14 @@ as a seventh because it measures something nothing else on the board does.
 - `matplotlib` is required for the PNG export. It fails soft — no button rather than a
   broken page — so a missing dependency is silent. Check for the button, not an error.
 
+## Local backup
+
+`publish.sh` (and `update_season_api.sh` run on its own) mirrors the whole project,
+`.git` and `data/` included, to `~/cv19-vb-backup` on every exit, including failed
+runs. The current season's source data is not in git, so without this it lives on one
+drive. `scripts/backup_local.sh` never deletes from the backup and never fails its
+caller; `CV19_BACKUP_DIR` overrides the destination.
+
 ## Testing
 
 Claims about the app are verified by driving it in a real browser, not by reading the
