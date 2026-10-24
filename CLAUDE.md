@@ -174,6 +174,14 @@ as a seventh because it measures something nothing else on the board does.
   not picked and simulates to a champion. "Download PDF" is built in the browser with
   jsPDF 2.5.2, vendored at `app/vendor/` (MIT) and inlined into the page rather than
   loaded from a CDN, so it works wherever the app does.
+- `analytics/tournament_sim.py` plays out the rest of the season, the field and the
+  tournament 5,000 times; `analytics/tournament_backtest.py` runs the same code on
+  2023-2025 from 36 days before Selection Sunday (2026's Oct 24 point), with
+  coefficients fitted only on earlier seasons and the real brackets read from the
+  ncaavolleyballr team-match files. Keep the backtest on `TS.inputs` / `TS.run` rather
+  than a copy, or it stops testing what is published. 2025's data is missing the Sun
+  Belt and most of the WCC and WAC; the backtest scores those field teams as
+  invisible rather than as misses.
 - `matplotlib` is required for the PNG export. It fails soft — no button rather than a
   broken page — so a missing dependency is silent. Check for the button, not an error.
 

@@ -1,0 +1,1665 @@
+{
+ "2023": {
+  "committee": {
+   "field_hits": 50,
+   "field_invisible": [],
+   "field_mean_p": 0.751,
+   "field_missed": [
+    [
+     "Jackson St.",
+     0.0
+    ],
+    [
+     "Wofford",
+     0.0
+    ],
+    [
+     "Fresno St.",
+     0.01
+    ],
+    [
+     "Delaware",
+     0.02
+    ],
+    [
+     "LIU",
+     0.03
+    ],
+    [
+     "South Alabama",
+     0.19
+    ],
+    [
+     "Hawaii",
+     0.28
+    ],
+    [
+     "Minnesota",
+     0.29
+    ],
+    [
+     "Georgia",
+     0.32
+    ],
+    [
+     "Grand Canyon",
+     0.35
+    ],
+    [
+     "Omaha",
+     0.35
+    ],
+    [
+     "TCU",
+     0.38
+    ],
+    [
+     "Weber St.",
+     0.38
+    ],
+    [
+     "Coastal Carolina",
+     0.39
+    ]
+   ],
+   "field_wrong": [
+    [
+     "St. John's (NY)",
+     0.46
+    ],
+    [
+     "Washington",
+     0.51
+    ],
+    [
+     "Sacramento St.",
+     0.54
+    ],
+    [
+     "Wichita St.",
+     0.55
+    ],
+    [
+     "Rice",
+     0.55
+    ],
+    [
+     "Drake",
+     0.75
+    ],
+    [
+     "Wake Forest",
+     0.75
+    ],
+    [
+     "Sacred Heart",
+     0.76
+    ],
+    [
+     "UCF",
+     0.8
+    ],
+    [
+     "LMU (CA)",
+     0.85
+    ],
+    [
+     "NC State",
+     0.87
+    ],
+    [
+     "The Citadel",
+     0.88
+    ],
+    [
+     "Towson",
+     0.94
+    ],
+    [
+     "Alabama St.",
+     0.98
+    ]
+   ],
+   "one_bid_leagues": 22,
+   "one_bid_right": 17,
+   "multi_bid_teams": 42,
+   "multi_bid_hits": 34,
+   "host_hits": 13,
+   "one_seed_hits": 3,
+   "regional final": {
+    "hits": 7,
+    "of": 8,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Wisconsin",
+     "Stanford",
+     "Texas",
+     "Louisville",
+     "Pittsburgh",
+     "Arkansas",
+     "Washington St."
+    ],
+    "actual": [
+     "Wisconsin",
+     "Pittsburgh",
+     "Nebraska",
+     "Louisville",
+     "Stanford",
+     "Arkansas",
+     "Texas",
+     "Oregon"
+    ],
+    "p_actual": [
+     0.719,
+     0.593,
+     0.721,
+     0.606,
+     0.692,
+     0.437,
+     0.628,
+     0.364
+    ],
+    "mean_p_actual": 0.595,
+    "brier_skill_vs_uniform": 0.721
+   },
+   "national semifinal": {
+    "hits": 2,
+    "of": 4,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Wisconsin",
+     "Stanford",
+     "Louisville"
+    ],
+    "actual": [
+     "Wisconsin",
+     "Pittsburgh",
+     "Nebraska",
+     "Texas"
+    ],
+    "p_actual": [
+     0.478,
+     0.316,
+     0.491,
+     0.35
+    ],
+    "mean_p_actual": 0.409,
+    "brier_skill_vs_uniform": 0.489
+   },
+   "final": {
+    "hits": 1,
+    "of": 2,
+    "invisible": [],
+    "picked": [
+     "Wisconsin",
+     "Nebraska"
+    ],
+    "actual": [
+     "Nebraska",
+     "Texas"
+    ],
+    "p_actual": [
+     0.293,
+     0.189
+    ],
+    "mean_p_actual": 0.241,
+    "brier_skill_vs_uniform": 0.273
+   },
+   "champion": {
+    "hits": 0,
+    "of": 1,
+    "invisible": [],
+    "picked": [
+     "Wisconsin"
+    ],
+    "actual": [
+     "Texas"
+    ],
+    "p_actual": [
+     0.096
+    ],
+    "mean_p_actual": 0.096,
+    "brier_skill_vs_uniform": 0.065,
+    "rank": 4
+   },
+   "title_given_ff": {
+    "Wisconsin": 0.385,
+    "Pittsburgh": 0.241,
+    "Nebraska": 0.341,
+    "Texas": 0.275
+   },
+   "title_given_ff_sum": 1.242
+  },
+  "power": {
+   "field_hits": 51,
+   "field_invisible": [],
+   "field_mean_p": 0.74,
+   "field_missed": [
+    [
+     "Jackson St.",
+     0.0
+    ],
+    [
+     "Wofford",
+     0.0
+    ],
+    [
+     "Fresno St.",
+     0.01
+    ],
+    [
+     "Delaware",
+     0.02
+    ],
+    [
+     "LIU",
+     0.03
+    ],
+    [
+     "Missouri",
+     0.04
+    ],
+    [
+     "South Alabama",
+     0.06
+    ],
+    [
+     "Texas St.",
+     0.09
+    ],
+    [
+     "Auburn",
+     0.1
+    ],
+    [
+     "Grand Canyon",
+     0.35
+    ],
+    [
+     "Omaha",
+     0.35
+    ],
+    [
+     "Weber St.",
+     0.38
+    ],
+    [
+     "Coastal Carolina",
+     0.39
+    ]
+   ],
+   "field_wrong": [
+    [
+     "Northwestern",
+     0.41
+    ],
+    [
+     "Washington",
+     0.53
+    ],
+    [
+     "Sacramento St.",
+     0.54
+    ],
+    [
+     "Wichita St.",
+     0.59
+    ],
+    [
+     "Kansas St.",
+     0.75
+    ],
+    [
+     "Sacred Heart",
+     0.76
+    ],
+    [
+     "LMU (CA)",
+     0.79
+    ],
+    [
+     "NC State",
+     0.82
+    ],
+    [
+     "The Citadel",
+     0.88
+    ],
+    [
+     "Towson",
+     0.94
+    ],
+    [
+     "Indiana",
+     0.95
+    ],
+    [
+     "Alabama St.",
+     0.98
+    ],
+    [
+     "UCF",
+     0.99
+    ]
+   ],
+   "one_bid_leagues": 22,
+   "one_bid_right": 17,
+   "multi_bid_teams": 42,
+   "multi_bid_hits": 35,
+   "host_hits": 13,
+   "one_seed_hits": 3,
+   "regional final": {
+    "hits": 8,
+    "of": 8,
+    "invisible": [],
+    "picked": [
+     "Wisconsin",
+     "Nebraska",
+     "Stanford",
+     "Texas",
+     "Pittsburgh",
+     "Louisville",
+     "Oregon",
+     "Arkansas"
+    ],
+    "actual": [
+     "Wisconsin",
+     "Pittsburgh",
+     "Nebraska",
+     "Louisville",
+     "Stanford",
+     "Arkansas",
+     "Texas",
+     "Oregon"
+    ],
+    "p_actual": [
+     0.736,
+     0.577,
+     0.721,
+     0.57,
+     0.697,
+     0.434,
+     0.623,
+     0.435
+    ],
+    "mean_p_actual": 0.599,
+    "brier_skill_vs_uniform": 0.724
+   },
+   "national semifinal": {
+    "hits": 3,
+    "of": 4,
+    "invisible": [],
+    "picked": [
+     "Wisconsin",
+     "Nebraska",
+     "Stanford",
+     "Texas"
+    ],
+    "actual": [
+     "Wisconsin",
+     "Pittsburgh",
+     "Nebraska",
+     "Texas"
+    ],
+    "p_actual": [
+     0.54,
+     0.302,
+     0.495,
+     0.358
+    ],
+    "mean_p_actual": 0.424,
+    "brier_skill_vs_uniform": 0.511
+   },
+   "final": {
+    "hits": 0,
+    "of": 2,
+    "invisible": [],
+    "picked": [
+     "Wisconsin",
+     "Stanford"
+    ],
+    "actual": [
+     "Nebraska",
+     "Texas"
+    ],
+    "p_actual": [
+     0.292,
+     0.18
+    ],
+    "mean_p_actual": 0.236,
+    "brier_skill_vs_uniform": 0.252
+   },
+   "champion": {
+    "hits": 0,
+    "of": 1,
+    "invisible": [],
+    "picked": [
+     "Wisconsin"
+    ],
+    "actual": [
+     "Texas"
+    ],
+    "p_actual": [
+     0.094
+    ],
+    "mean_p_actual": 0.094,
+    "brier_skill_vs_uniform": 0.053,
+    "rank": 4
+   },
+   "title_given_ff": {
+    "Wisconsin": 0.373,
+    "Pittsburgh": 0.247,
+    "Nebraska": 0.325,
+    "Texas": 0.262
+   },
+   "title_given_ff_sum": 1.206
+  },
+  "chalk": {
+   "regional final": [
+    7,
+    8
+   ],
+   "national semifinal": [
+    3,
+    4
+   ]
+  },
+  "focus": {
+   "p_field": 1.0,
+   "p_host": 1.0,
+   "p_1seed": 0.917,
+   "p_regional_final": 0.721,
+   "p_national_semifinal": 0.491,
+   "p_final": 0.293,
+   "p_champion": 0.168,
+   "title_rank": 2,
+   "seed": 1,
+   "finish": "final",
+   "lost_to": {
+    "team": "Texas",
+    "result": "L 0-3",
+    "seed": 2,
+    "p_champion": 0.096,
+    "p_regional_final": 0.628
+   }
+  },
+  "meta": {
+   "season": "2023",
+   "sims": 5000,
+   "seed": 2026,
+   "through": "2023-10-21",
+   "schedule_to": "2023-11-25",
+   "remaining_matches": 1277,
+   "cutoff": "2023-10-21",
+   "selection": "2023-11-26",
+   "coef": [
+    0.2957,
+    0.4201,
+    0.5201
+   ],
+   "share_played": 0.739,
+   "early_round_seed_labels_used": true
+  }
+ },
+ "2024": {
+  "committee": {
+   "field_hits": 48,
+   "field_invisible": [],
+   "field_mean_p": 0.718,
+   "field_missed": [
+    [
+     "Loyola Chicago",
+     0.0
+    ],
+    [
+     "Morehead St.",
+     0.0
+    ],
+    [
+     "Cleveland St.",
+     0.0
+    ],
+    [
+     "A&M-Corpus Christi",
+     0.0
+    ],
+    [
+     "Texas St.",
+     0.0
+    ],
+    [
+     "South Dakota",
+     0.01
+    ],
+    [
+     "Western Mich.",
+     0.01
+    ],
+    [
+     "Delaware St.",
+     0.02
+    ],
+    [
+     "Sacramento St.",
+     0.04
+    ],
+    [
+     "Wichita St.",
+     0.05
+    ],
+    [
+     "Colgate",
+     0.18
+    ],
+    [
+     "Ole Miss",
+     0.22
+    ],
+    [
+     "Col. of Charleston",
+     0.26
+    ],
+    [
+     "Miami (FL)",
+     0.3
+    ],
+    [
+     "New Hampshire",
+     0.33
+    ],
+    [
+     "Hawaii",
+     0.4
+    ]
+   ],
+   "field_wrong": [
+    [
+     "Arkansas",
+     0.41
+    ],
+    [
+     "Pepperdine",
+     0.45
+    ],
+    [
+     "Towson",
+     0.45
+    ],
+    [
+     "Bucknell",
+     0.49
+    ],
+    [
+     "Mercer",
+     0.5
+    ],
+    [
+     "South Fla.",
+     0.57
+    ],
+    [
+     "Northern Colo.",
+     0.65
+    ],
+    [
+     "Lindenwood",
+     0.68
+    ],
+    [
+     "Bowling Green",
+     0.69
+    ],
+    [
+     "UC Davis",
+     0.72
+    ],
+    [
+     "Rice",
+     0.78
+    ],
+    [
+     "Auburn",
+     0.8
+    ],
+    [
+     "Southeastern La.",
+     0.82
+    ],
+    [
+     "Howard",
+     0.96
+    ],
+    [
+     "Ga. Southern",
+     0.97
+    ],
+    [
+     "Wright St.",
+     0.99
+    ]
+   ],
+   "one_bid_leagues": 23,
+   "one_bid_right": 11,
+   "multi_bid_teams": 41,
+   "multi_bid_hits": 37,
+   "host_hits": 15,
+   "one_seed_hits": 3,
+   "regional final": {
+    "hits": 7,
+    "of": 8,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh",
+     "Nebraska",
+     "Creighton",
+     "Louisville",
+     "Penn St.",
+     "Wisconsin",
+     "Stanford",
+     "Texas"
+    ],
+    "actual": [
+     "Pittsburgh",
+     "Creighton",
+     "Nebraska",
+     "Penn St.",
+     "Louisville",
+     "Stanford",
+     "Wisconsin",
+     "Kentucky"
+    ],
+    "p_actual": [
+     0.872,
+     0.652,
+     0.84,
+     0.61,
+     0.651,
+     0.543,
+     0.584,
+     0.154
+    ],
+    "mean_p_actual": 0.613,
+    "brier_skill_vs_uniform": 0.675
+   },
+   "national semifinal": {
+    "hits": 3,
+    "of": 4,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh",
+     "Nebraska",
+     "Louisville",
+     "Creighton"
+    ],
+    "actual": [
+     "Pittsburgh",
+     "Nebraska",
+     "Penn St.",
+     "Louisville"
+    ],
+    "p_actual": [
+     0.692,
+     0.634,
+     0.321,
+     0.372
+    ],
+    "mean_p_actual": 0.505,
+    "brier_skill_vs_uniform": 0.611
+   },
+   "final": {
+    "hits": 0,
+    "of": 2,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh",
+     "Nebraska"
+    ],
+    "actual": [
+     "Penn St.",
+     "Louisville"
+    ],
+    "p_actual": [
+     0.138,
+     0.161
+    ],
+    "mean_p_actual": 0.15,
+    "brier_skill_vs_uniform": -0.021
+   },
+   "champion": {
+    "hits": 0,
+    "of": 1,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh"
+    ],
+    "actual": [
+     "Penn St."
+    ],
+    "p_actual": [
+     0.058
+    ],
+    "mean_p_actual": 0.058,
+    "brier_skill_vs_uniform": -0.097,
+    "rank": 6
+   },
+   "title_given_ff": {
+    "Pittsburgh": 0.473,
+    "Nebraska": 0.412,
+    "Penn St.": 0.182,
+    "Louisville": 0.172
+   },
+   "title_given_ff_sum": 1.238
+  },
+  "power": {
+   "field_hits": 49,
+   "field_invisible": [],
+   "field_mean_p": 0.722,
+   "field_missed": [
+    [
+     "Loyola Chicago",
+     0.0
+    ],
+    [
+     "Morehead St.",
+     0.0
+    ],
+    [
+     "Cleveland St.",
+     0.0
+    ],
+    [
+     "A&M-Corpus Christi",
+     0.0
+    ],
+    [
+     "Texas St.",
+     0.0
+    ],
+    [
+     "South Dakota",
+     0.01
+    ],
+    [
+     "Western Mich.",
+     0.01
+    ],
+    [
+     "Delaware St.",
+     0.02
+    ],
+    [
+     "Wichita St.",
+     0.02
+    ],
+    [
+     "Sacramento St.",
+     0.04
+    ],
+    [
+     "Ole Miss",
+     0.09
+    ],
+    [
+     "Hawaii",
+     0.16
+    ],
+    [
+     "Colgate",
+     0.18
+    ],
+    [
+     "Col. of Charleston",
+     0.26
+    ],
+    [
+     "New Hampshire",
+     0.33
+    ]
+   ],
+   "field_wrong": [
+    [
+     "Mercer",
+     0.49
+    ],
+    [
+     "Bucknell",
+     0.49
+    ],
+    [
+     "Auburn",
+     0.54
+    ],
+    [
+     "South Fla.",
+     0.55
+    ],
+    [
+     "Northern Colo.",
+     0.65
+    ],
+    [
+     "Lindenwood",
+     0.68
+    ],
+    [
+     "Bowling Green",
+     0.69
+    ],
+    [
+     "UC Davis",
+     0.72
+    ],
+    [
+     "Ga. Southern",
+     0.73
+    ],
+    [
+     "San Diego",
+     0.76
+    ],
+    [
+     "Southeastern La.",
+     0.82
+    ],
+    [
+     "Michigan",
+     0.92
+    ],
+    [
+     "Howard",
+     0.96
+    ],
+    [
+     "Wright St.",
+     0.99
+    ],
+    [
+     "UCLA",
+     0.99
+    ]
+   ],
+   "one_bid_leagues": 23,
+   "one_bid_right": 11,
+   "multi_bid_teams": 41,
+   "multi_bid_hits": 38,
+   "host_hits": 14,
+   "one_seed_hits": 2,
+   "regional final": {
+    "hits": 7,
+    "of": 8,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh",
+     "Nebraska",
+     "Wisconsin",
+     "Creighton",
+     "Louisville",
+     "Penn St.",
+     "Stanford",
+     "Texas"
+    ],
+    "actual": [
+     "Pittsburgh",
+     "Creighton",
+     "Nebraska",
+     "Penn St.",
+     "Louisville",
+     "Stanford",
+     "Wisconsin",
+     "Kentucky"
+    ],
+    "p_actual": [
+     0.865,
+     0.677,
+     0.849,
+     0.601,
+     0.615,
+     0.485,
+     0.689,
+     0.115
+    ],
+    "mean_p_actual": 0.612,
+    "brier_skill_vs_uniform": 0.66
+   },
+   "national semifinal": {
+    "hits": 2,
+    "of": 4,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh",
+     "Nebraska",
+     "Wisconsin",
+     "Creighton"
+    ],
+    "actual": [
+     "Pittsburgh",
+     "Nebraska",
+     "Penn St.",
+     "Louisville"
+    ],
+    "p_actual": [
+     0.702,
+     0.664,
+     0.293,
+     0.326
+    ],
+    "mean_p_actual": 0.496,
+    "brier_skill_vs_uniform": 0.573
+   },
+   "final": {
+    "hits": 0,
+    "of": 2,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh",
+     "Nebraska"
+    ],
+    "actual": [
+     "Penn St.",
+     "Louisville"
+    ],
+    "p_actual": [
+     0.12,
+     0.13
+    ],
+    "mean_p_actual": 0.125,
+    "brier_skill_vs_uniform": -0.083
+   },
+   "champion": {
+    "hits": 0,
+    "of": 1,
+    "invisible": [],
+    "picked": [
+     "Pittsburgh"
+    ],
+    "actual": [
+     "Penn St."
+    ],
+    "p_actual": [
+     0.051
+    ],
+    "mean_p_actual": 0.051,
+    "brier_skill_vs_uniform": -0.115,
+    "rank": 6
+   },
+   "title_given_ff": {
+    "Pittsburgh": 0.469,
+    "Nebraska": 0.403,
+    "Penn St.": 0.175,
+    "Louisville": 0.172
+   },
+   "title_given_ff_sum": 1.22
+  },
+  "chalk": {
+   "regional final": [
+    7,
+    8
+   ],
+   "national semifinal": [
+    4,
+    4
+   ]
+  },
+  "focus": {
+   "p_field": 1.0,
+   "p_host": 1.0,
+   "p_1seed": 0.947,
+   "p_regional_final": 0.84,
+   "p_national_semifinal": 0.634,
+   "p_final": 0.45,
+   "p_champion": 0.261,
+   "title_rank": 2,
+   "seed": 1,
+   "finish": "national semifinal",
+   "lost_to": {
+    "team": "Penn St.",
+    "result": "L 2-3",
+    "seed": 1,
+    "p_champion": 0.058,
+    "p_regional_final": 0.61
+   }
+  },
+  "meta": {
+   "season": "2024",
+   "sims": 5000,
+   "seed": 2026,
+   "through": "2024-10-26",
+   "schedule_to": "2024-11-30",
+   "remaining_matches": 1297,
+   "cutoff": "2024-10-26",
+   "selection": "2024-12-01",
+   "coef": [
+    0.3346,
+    0.4265,
+    0.553
+   ],
+   "share_played": 0.735,
+   "early_round_seed_labels_used": true
+  }
+ },
+ "2025": {
+  "committee": {
+   "field_hits": 46,
+   "field_invisible": [
+    "Arkansas St.",
+    "San Diego",
+    "Utah Valley"
+   ],
+   "field_mean_p": 0.686,
+   "field_missed": [
+    [
+     "Florida A&M",
+     0.0
+    ],
+    [
+     "Arkansas St.",
+     0.0
+    ],
+    [
+     "Utah Valley",
+     0.0
+    ],
+    [
+     "San Diego",
+     0.0
+    ],
+    [
+     "Loyola Chicago",
+     0.01
+    ],
+    [
+     "Wofford",
+     0.01
+    ],
+    [
+     "St. Thomas (MN)",
+     0.04
+    ],
+    [
+     "Central Ark.",
+     0.05
+    ],
+    [
+     "UMBC",
+     0.11
+    ],
+    [
+     "Eastern Ill.",
+     0.12
+    ],
+    [
+     "Campbell",
+     0.16
+    ],
+    [
+     "Northern Colo.",
+     0.16
+    ],
+    [
+     "SFA",
+     0.18
+    ],
+    [
+     "Toledo",
+     0.2
+    ],
+    [
+     "Utah",
+     0.21
+    ],
+    [
+     "Cal Poly",
+     0.23
+    ],
+    [
+     "Princeton",
+     0.33
+    ],
+    [
+     "Michigan",
+     0.38
+    ]
+   ],
+   "field_wrong": [
+    [
+     "Winthrop",
+     0.45
+    ],
+    [
+     "Auburn",
+     0.46
+    ],
+    [
+     "UConn",
+     0.49
+    ],
+    [
+     "Hofstra",
+     0.5
+    ],
+    [
+     "Missouri",
+     0.5
+    ],
+    [
+     "Oregon",
+     0.56
+    ],
+    [
+     "Wichita St.",
+     0.6
+    ],
+    [
+     "Washington",
+     0.61
+    ],
+    [
+     "UTRGV",
+     0.66
+    ],
+    [
+     "Illinois",
+     0.71
+    ],
+    [
+     "Oregon St.",
+     0.72
+    ],
+    [
+     "Prairie View",
+     0.73
+    ],
+    [
+     "UC Davis",
+     0.77
+    ],
+    [
+     "Ball St.",
+     0.79
+    ],
+    [
+     "Morehead St.",
+     0.87
+    ],
+    [
+     "Villanova",
+     0.97
+    ],
+    [
+     "ETSU",
+     0.97
+    ],
+    [
+     "Dayton",
+     0.99
+    ]
+   ],
+   "one_bid_leagues": 20,
+   "one_bid_right": 9,
+   "multi_bid_teams": 41,
+   "multi_bid_hits": 38,
+   "host_hits": 13,
+   "one_seed_hits": 3,
+   "regional final": {
+    "hits": 4,
+    "of": 8,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Texas",
+     "Pittsburgh",
+     "Kentucky",
+     "Arizona St.",
+     "SMU",
+     "Stanford",
+     "Louisville"
+    ],
+    "actual": [
+     "Nebraska",
+     "Pittsburgh",
+     "Creighton",
+     "Kentucky",
+     "Texas A&M",
+     "Wisconsin",
+     "Texas",
+     "Purdue"
+    ],
+    "p_actual": [
+     0.911,
+     0.791,
+     0.438,
+     0.703,
+     0.251,
+     0.395,
+     0.804,
+     0.421
+    ],
+    "mean_p_actual": 0.589,
+    "brier_skill_vs_uniform": 0.596
+   },
+   "national semifinal": {
+    "hits": 2,
+    "of": 4,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Texas",
+     "Pittsburgh",
+     "Kentucky"
+    ],
+    "actual": [
+     "Pittsburgh",
+     "Kentucky",
+     "Texas A&M",
+     "Wisconsin"
+    ],
+    "p_actual": [
+     0.52,
+     0.391,
+     0.083,
+     0.18
+    ],
+    "mean_p_actual": 0.293,
+    "brier_skill_vs_uniform": 0.129
+   },
+   "final": {
+    "hits": 0,
+    "of": 2,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Texas"
+    ],
+    "actual": [
+     "Kentucky",
+     "Texas A&M"
+    ],
+    "p_actual": [
+     0.187,
+     0.03
+    ],
+    "mean_p_actual": 0.109,
+    "brier_skill_vs_uniform": -0.132
+   },
+   "champion": {
+    "hits": 0,
+    "of": 1,
+    "invisible": [],
+    "picked": [
+     "Nebraska"
+    ],
+    "actual": [
+     "Texas A&M"
+    ],
+    "p_actual": [
+     0.008
+    ],
+    "mean_p_actual": 0.008,
+    "brier_skill_vs_uniform": -0.256,
+    "rank": 12
+   },
+   "title_given_ff": {
+    "Pittsburgh": 0.237,
+    "Kentucky": 0.206,
+    "Texas A&M": 0.099,
+    "Wisconsin": 0.164
+   },
+   "title_given_ff_sum": 0.705
+  },
+  "power": {
+   "field_hits": 43,
+   "field_invisible": [
+    "Arkansas St.",
+    "San Diego",
+    "Utah Valley"
+   ],
+   "field_mean_p": 0.665,
+   "field_missed": [
+    [
+     "Florida A&M",
+     0.0
+    ],
+    [
+     "Arkansas St.",
+     0.0
+    ],
+    [
+     "Utah Valley",
+     0.0
+    ],
+    [
+     "San Diego",
+     0.0
+    ],
+    [
+     "Xavier",
+     0.0
+    ],
+    [
+     "Loyola Chicago",
+     0.01
+    ],
+    [
+     "St. Thomas (MN)",
+     0.01
+    ],
+    [
+     "Wofford",
+     0.01
+    ],
+    [
+     "Central Ark.",
+     0.05
+    ],
+    [
+     "Utah",
+     0.07
+    ],
+    [
+     "Marquette",
+     0.09
+    ],
+    [
+     "UMBC",
+     0.11
+    ],
+    [
+     "Eastern Ill.",
+     0.12
+    ],
+    [
+     "Tulsa",
+     0.15
+    ],
+    [
+     "Campbell",
+     0.16
+    ],
+    [
+     "Northern Colo.",
+     0.16
+    ],
+    [
+     "SFA",
+     0.18
+    ],
+    [
+     "Toledo",
+     0.19
+    ],
+    [
+     "Princeton",
+     0.33
+    ],
+    [
+     "South Fla.",
+     0.4
+    ],
+    [
+     "Arizona",
+     0.44
+    ]
+   ],
+   "field_wrong": [
+    [
+     "Florida St.",
+     0.44
+    ],
+    [
+     "Cincinnati",
+     0.45
+    ],
+    [
+     "Winthrop",
+     0.45
+    ],
+    [
+     "Michigan St.",
+     0.45
+    ],
+    [
+     "Mississippi St.",
+     0.46
+    ],
+    [
+     "Hofstra",
+     0.49
+    ],
+    [
+     "Georgia",
+     0.56
+    ],
+    [
+     "UC Santa Barbara",
+     0.61
+    ],
+    [
+     "Illinois",
+     0.62
+    ],
+    [
+     "UTRGV",
+     0.65
+    ],
+    [
+     "Oregon St.",
+     0.72
+    ],
+    [
+     "Prairie View",
+     0.73
+    ],
+    [
+     "Oregon",
+     0.76
+    ],
+    [
+     "Ball St.",
+     0.79
+    ],
+    [
+     "UC Davis",
+     0.86
+    ],
+    [
+     "Morehead St.",
+     0.87
+    ],
+    [
+     "Washington",
+     0.9
+    ],
+    [
+     "ETSU",
+     0.97
+    ],
+    [
+     "Auburn",
+     0.98
+    ],
+    [
+     "Dayton",
+     0.99
+    ],
+    [
+     "Missouri",
+     1.0
+    ]
+   ],
+   "one_bid_leagues": 20,
+   "one_bid_right": 9,
+   "multi_bid_teams": 41,
+   "multi_bid_hits": 34,
+   "host_hits": 14,
+   "one_seed_hits": 4,
+   "regional final": {
+    "hits": 5,
+    "of": 8,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Pittsburgh",
+     "Texas",
+     "Kentucky",
+     "Wisconsin",
+     "SMU",
+     "Stanford",
+     "Louisville"
+    ],
+    "actual": [
+     "Nebraska",
+     "Pittsburgh",
+     "Creighton",
+     "Kentucky",
+     "Texas A&M",
+     "Wisconsin",
+     "Texas",
+     "Purdue"
+    ],
+    "p_actual": [
+     0.918,
+     0.801,
+     0.389,
+     0.73,
+     0.253,
+     0.576,
+     0.789,
+     0.387
+    ],
+    "mean_p_actual": 0.606,
+    "brier_skill_vs_uniform": 0.616
+   },
+   "national semifinal": {
+    "hits": 2,
+    "of": 4,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Texas",
+     "Pittsburgh",
+     "Kentucky"
+    ],
+    "actual": [
+     "Pittsburgh",
+     "Kentucky",
+     "Texas A&M",
+     "Wisconsin"
+    ],
+    "p_actual": [
+     0.551,
+     0.454,
+     0.08,
+     0.265
+    ],
+    "mean_p_actual": 0.337,
+    "brier_skill_vs_uniform": 0.2
+   },
+   "final": {
+    "hits": 0,
+    "of": 2,
+    "invisible": [],
+    "picked": [
+     "Nebraska",
+     "Texas"
+    ],
+    "actual": [
+     "Kentucky",
+     "Texas A&M"
+    ],
+    "p_actual": [
+     0.189,
+     0.025
+    ],
+    "mean_p_actual": 0.107,
+    "brier_skill_vs_uniform": -0.148
+   },
+   "champion": {
+    "hits": 0,
+    "of": 1,
+    "invisible": [],
+    "picked": [
+     "Nebraska"
+    ],
+    "actual": [
+     "Texas A&M"
+    ],
+    "p_actual": [
+     0.009
+    ],
+    "mean_p_actual": 0.009,
+    "brier_skill_vs_uniform": -0.255,
+    "rank": 12
+   },
+   "title_given_ff": {
+    "Pittsburgh": 0.231,
+    "Kentucky": 0.18,
+    "Texas A&M": 0.115,
+    "Wisconsin": 0.147
+   },
+   "title_given_ff_sum": 0.673
+  },
+  "chalk": {
+   "regional final": [
+    4,
+    8
+   ],
+   "national semifinal": [
+    2,
+    4
+   ]
+  },
+  "focus": {
+   "p_field": 1.0,
+   "p_host": 1.0,
+   "p_1seed": 0.999,
+   "p_regional_final": 0.911,
+   "p_national_semifinal": 0.77,
+   "p_final": 0.615,
+   "p_champion": 0.455,
+   "title_rank": 1,
+   "seed": 1,
+   "finish": "regional final",
+   "lost_to": {
+    "team": "Texas A&M",
+    "result": "L 2-3",
+    "seed": 3,
+    "p_champion": 0.008,
+    "p_regional_final": 0.251
+   }
+  },
+  "meta": {
+   "season": "2025",
+   "sims": 5000,
+   "seed": 2026,
+   "through": "2025-10-25",
+   "schedule_to": "2025-11-29",
+   "remaining_matches": 1148,
+   "cutoff": "2025-10-25",
+   "selection": "2025-11-30",
+   "coef": [
+    0.3348,
+    0.4151,
+    0.5947
+   ],
+   "share_played": 0.743,
+   "early_round_seed_labels_used": false
+  }
+ },
+ "title_check": {
+  "2023": {
+   "champion_odds": 0.096,
+   "calibrated_expectation": 0.113
+  },
+  "2024": {
+   "champion_odds": 0.058,
+   "calibrated_expectation": 0.196
+  },
+  "2025": {
+   "champion_odds": 0.008,
+   "calibrated_expectation": 0.252
+  },
+  "share_of_calibrated_worlds_as_bad": 0.068
+ }
+}

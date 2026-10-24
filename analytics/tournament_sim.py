@@ -53,6 +53,7 @@ import power_ratings as P          # noqa: E402
 
 MARGIN_TERM = 1.47       # mean ln(rally margin + 1) over 2024-2026 real matches
 FALLBACK_PCT = 0.05      # rating for a team never seen, as in matchup_model.project
+INDEPENDENT = "DI Independent"
 ROUNDS = ["first round", "second round", "regional semifinal", "regional final",
           "national semifinal", "final", "champion"]
 HOSTPOS = [next(4 * p + o for o in range(4) if (BR.REGION_SEEDS[4 * p + o] or 99) <= 4)
@@ -60,11 +61,14 @@ HOSTPOS = [next(4 * p + o for o in range(4) if (BR.REGION_SEEDS[4 * p + o] or 99
 
 
 # ---------------------------------------------------------------- inputs
-def inputs(season: str) -> dict:
-    m = D.matches()
+def inputs(season: str, matches: pd.DataFrame | None = None,
+           sched: pd.DataFrame | None = None, coef: tuple | None = None) -> dict:
+    """Today's inputs by default. A backtest passes the matches played by its cutoff,
+    the schedule left after it, and coefficients fitted without the season it tests."""
+    m = D.matches() if matches is None else matches
     cur = m[m.season == season].dropna(subset=["opponent"])
     home = cur[cur.location == "home"]
-    sched = D.schedule()
+    sched = D.schedule() if sched is None else sched
     sched = sched[sched.season == season].sort_values("date")
     ts = D.team_seasons()
     ts = ts[ts.season == season]
@@ -90,11 +94,13 @@ def inputs(season: str) -> dict:
                            "a": sched.away.map(ix).to_numpy()})
     is_d1 = np.array([t in conf.index for t in teams])
     conf_of = np.array([conf.get(t, "") for t in teams], dtype=object)
-    c = D.matchup_model()["coef"]
+    if coef is None:
+        c = D.matchup_model()["coef"]
+        coef = (c["home"], c["elo_per_100"], c["ridge_per_10"])
     return {"teams": teams, "ix": ix, "elo0": elo0, "ridge": ridge, "played": played,
             "remain": remain, "is_d1": is_d1, "conf_of": conf_of,
             "rated": np.array([t in set(d1_rated) for t in teams]),
-            "coef": (c["home"], c["elo_per_100"], c["ridge_per_10"]),
+            "coef": tuple(coef),
             "cfg": E.EloConfig(), "through": cur.match_date.max(),
             "sched_last": sched.date.max()}
 
@@ -187,7 +193,9 @@ def conference_champions(I: dict, sim_out: np.ndarray, elo_end: np.ndarray) -> n
     np.add.at(W.T, gx, O.T); np.add.at(W.T, gy, (1 - O).T)
     np.add.at(G, gx, 1); np.add.at(G, gy, 1)
     pct = W / np.maximum(G, 1)
-    confs = sorted({c for c in conf if c})
+    # independents (2023: Chicago St.) share a label, not a league, and get no bid
+    confs = sorted({c for c in conf if c and c != INDEPENDENT
+                    and ((conf == c) & (G > 0)).any()})
     champs = np.zeros((n, len(confs)), dtype=np.int32)
     for k, c in enumerate(confs):
         members = np.where((conf == c) & (G > 0))[0]
@@ -229,9 +237,11 @@ def play_bracket(I, slots: list[int], elo: np.ndarray, rng) -> dict[int, int]:
     return reached
 
 
-def run(season: str, sims: int, seed: int, chunk: int = 1000) -> tuple[pd.DataFrame, dict]:
+def run(season: str, sims: int, seed: int, chunk: int = 1000,
+        I: dict | None = None) -> tuple[pd.DataFrame, dict]:
+    """I: prepared inputs (see inputs()), for a backtest; default is today's."""
     rng = np.random.default_rng(seed)
-    I = inputs(season)
+    I = I or inputs(season)
     teams, is_d1 = I["teams"], I["is_d1"]
     d1_idx = np.where(is_d1)[0]
     rows = []

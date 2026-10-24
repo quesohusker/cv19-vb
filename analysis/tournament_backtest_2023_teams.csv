@@ -1,0 +1,689 @@
+team,conference,visible,p_field,p_auto,mean_overall,p_host,p_1seed,p_second_round,p_regional_semifinal,p_regional_final,p_national_semifinal,p_final,p_champion,reached,host,seed,basis,in_field
+Dayton,Atlantic 10,True,1.0,0.9984,17.4684,0.3584,0.0,0.7342,0.3596,0.0728,0.0244,0.0078,0.0012,2,False,5.0,committee,True
+Wisconsin,Big Ten,True,1.0,0.3874,4.0662,0.9992,0.6222,0.986,0.8932,0.7194,0.4782,0.3016,0.184,5,True,1.0,committee,True
+Southeastern La.,Southland,True,0.7422,0.7422,57.64025869037995,0.0,0.0,0.0344,0.007,0.0016,0.0002,0.0,0.0,1,False,,committee,True
+Pittsburgh,ACC,True,1.0,0.511,5.3614,0.9996,0.342,0.9756,0.8262,0.5932,0.3156,0.1604,0.076,5,True,1.0,committee,True
+Western Ky.,CUSA,True,1.0,0.9962,17.3528,0.4564,0.0,0.7614,0.4066,0.1016,0.0394,0.0104,0.004,2,False,6.0,committee,True
+Eastern Ill.,OVC,True,0.69,0.69,51.63275362318841,0.0,0.0,0.0742,0.0188,0.0016,0.0002,0.0,0.0,1,False,,committee,True
+Towson,CAA,True,0.944,0.944,51.579449152542374,0.0,0.0,0.194,0.0782,0.0106,0.0024,0.0006,0.0002,0,False,,committee,False
+Creighton,Big East,True,1.0,0.4176,13.8436,0.761,0.0,0.781,0.4108,0.111,0.032,0.0098,0.0026,3,True,3.0,committee,True
+Nebraska,Big Ten,True,1.0,0.5794,2.3118,1.0,0.9166,0.9936,0.8918,0.7206,0.491,0.2928,0.1676,6,True,1.0,committee,True
+UC Santa Barbara,Big West,True,0.9888,0.8424,29.345064724919094,0.0,0.0,0.6134,0.1402,0.0612,0.0162,0.0056,0.0014,1,False,,committee,True
+SFA,WAC,True,0.8982,0.6458,37.31084391004231,0.0,0.0,0.3386,0.0424,0.012,0.0022,0.0006,0.0,1,False,,committee,True
+Western Mich.,MAC,True,0.8946,0.8908,41.681868991728145,0.0,0.0,0.321,0.063,0.0162,0.0026,0.0006,0.0002,2,False,,committee,True
+Tennessee,SEC,True,0.9996,0.108,14.570628251300521,0.6898,0.0,0.8484,0.5616,0.2254,0.0908,0.0374,0.0148,3,True,3.0,committee,True
+Louisville,ACC,True,1.0,0.3814,2.6552,1.0,0.8398,0.9882,0.836,0.6062,0.3516,0.1722,0.0798,4,True,2.0,committee,True
+Arizona St.,Pac-12,True,0.9976,0.0312,19.998195669607057,0.3326,0.0,0.797,0.4464,0.1726,0.0776,0.031,0.0132,3,False,5.0,committee,True
+Yale,Ivy League,True,0.9556,0.9556,50.500209292591045,0.0,0.0,0.1578,0.0432,0.0036,0.0004,0.0,0.0,1,False,,committee,True
+Ga. Southern,Sun Belt,True,0.0168,0.0016,44.69047619047619,0.0,0.0,0.0056,0.001,0.0004,0.0,0.0,0.0,0,False,,committee,False
+Stanford,Pac-12,True,1.0,0.8278,3.2242,0.9998,0.7836,0.9894,0.875,0.6924,0.4668,0.2716,0.154,4,True,1.0,committee,True
+UNI,MVC,True,0.962,0.9076,34.95945945945946,0.0,0.0,0.4344,0.0612,0.0238,0.0066,0.0014,0.0004,1,False,8.0,committee,True
+South Alabama,Sun Belt,True,0.1856,0.0558,42.20797413793103,0.0,0.0,0.06,0.0102,0.0008,0.0004,0.0,0.0,1,False,,committee,True
+Grand Canyon,WAC,True,0.3524,0.3524,53.30930760499432,0.0,0.0,0.0572,0.0212,0.0038,0.001,0.0004,0.0,1,False,,committee,True
+SMU,The American,True,0.9968,0.7088,24.693619582664528,0.013,0.0,0.5978,0.1772,0.0542,0.0172,0.0064,0.0012,2,False,7.0,committee,True
+Brown,Ivy League,True,0.0064,0.0064,60.125,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Arkansas,SEC,True,1.0,0.7164,8.715,0.9548,0.0294,0.943,0.742,0.4374,0.1958,0.0888,0.0422,4,True,3.0,committee,True
+Fairfield,MAAC,True,0.909,0.909,61.11287128712871,0.0,0.0,0.0098,0.0008,0.0002,0.0,0.0,0.0,1,False,,committee,True
+Texas,Big 12,True,1.0,0.9282,5.1262,0.9986,0.4028,0.9822,0.8498,0.6282,0.35,0.1886,0.0964,7,True,2.0,committee,True
+Eastern Ky.,ASUN,True,0.0008,0.0008,54.75,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Oregon,Pac-12,True,1.0,0.0742,11.9456,0.825,0.0142,0.9116,0.6922,0.3644,0.176,0.0852,0.0424,4,True,2.0,committee,True
+Wofford,SoCon,True,0.0036,0.0036,57.388888888888886,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1,False,,committee,True
+The Citadel,SoCon,True,0.8808,0.8808,53.8208446866485,0.0,0.0,0.051,0.0106,0.0008,0.0004,0.0,0.0,0,False,,committee,False
+BYU,Big 12,True,1.0,0.0418,11.5476,0.8582,0.001,0.8996,0.6496,0.3078,0.1208,0.0472,0.0176,2,True,4.0,committee,True
+LMU (CA),WCC,True,0.8466,0.0122,35.41672572643515,0.0,0.0,0.363,0.052,0.0182,0.0046,0.0018,0.0004,0,False,,committee,False
+Wright St.,Horizon,True,0.4612,0.4612,55.653946227233305,0.0,0.0,0.0298,0.0096,0.0012,0.0,0.0,0.0,1,False,,committee,True
+Florida St.,ACC,True,0.907,0.0704,34.4877618522602,0.0,0.0,0.5664,0.131,0.0688,0.0254,0.0112,0.0032,1,False,6.0,committee,True
+Delaware,CAA,True,0.0214,0.0202,52.13084112149533,0.0,0.0,0.0012,0.0004,0.0,0.0,0.0,0.0,1,False,,committee,True
+East Carolina,The American,True,0.0222,0.0218,51.270270270270274,0.0,0.0,0.0064,0.0014,0.0,0.0,0.0,0.0,0,False,,committee,False
+Georgia Tech,ACC,True,1.0,0.036,16.4418,0.534,0.0,0.809,0.4836,0.1662,0.067,0.0246,0.0078,3,False,5.0,committee,True
+Washington St.,Pac-12,True,1.0,0.066,8.9034,0.944,0.047,0.9236,0.697,0.3858,0.1584,0.0752,0.0314,3,True,4.0,committee,True
+Kansas City,Summit League,True,0.2478,0.2478,59.20823244552058,0.0,0.0,0.005,0.0012,0.0,0.0,0.0,0.0,0,False,,committee,False
+Kansas,Big 12,True,0.9756,0.003,24.09061090610906,0.1622,0.0,0.6874,0.289,0.1056,0.042,0.0166,0.0064,2,True,4.0,committee,True
+Houston,Big 12,True,0.5778,0.0,35.99100034614053,0.0,0.0,0.314,0.0704,0.0298,0.0074,0.0024,0.0006,2,False,8.0,committee,True
+Coppin St.,MEAC,True,0.9658,0.9658,60.087595775522885,0.0,0.0,0.015,0.002,0.0002,0.0,0.0,0.0,1,False,,committee,True
+Drake,MVC,True,0.7496,0.0746,39.117395944503734,0.0,0.0,0.2254,0.026,0.0068,0.0016,0.0002,0.0,0,False,,committee,False
+Marquette,Big East,True,0.9998,0.553,19.91978395679136,0.2324,0.0,0.663,0.2898,0.0622,0.023,0.008,0.0022,2,False,6.0,committee,True
+High Point,Big South,True,0.9942,0.9942,50.849929591631465,0.0,0.0,0.1386,0.0396,0.0046,0.0006,0.0002,0.0,1,False,,committee,True
+UMBC,America East,True,0.7856,0.775,45.66165987780041,0.0,0.0,0.1084,0.0134,0.0012,0.0,0.0,0.0,1,False,,committee,True
+NC State,ACC,True,0.8726,0.0,34.19986247994499,0.0,0.0,0.435,0.0704,0.0256,0.0088,0.0016,0.0002,0,False,,committee,False
+Wichita St.,The American,True,0.546,0.244,41.16849816849817,0.0,0.0,0.2284,0.0504,0.0134,0.0028,0.0004,0.0,0,False,,committee,False
+Penn St.,Big Ten,True,0.9988,0.033,16.553664397276734,0.5682,0.0002,0.8376,0.5298,0.21,0.0942,0.0404,0.0188,3,False,5.0,committee,True
+Harvard,Ivy League,True,0.0024,0.0024,57.75,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+A&M-Corpus Christi,Southland,True,0.252,0.252,61.21825396825397,0.0,0.0,0.0052,0.0014,0.0,0.0,0.0,0.0,0,False,,committee,False
+FGCU,ASUN,True,0.7124,0.687,45.933745087029756,0.0,0.0,0.1564,0.0332,0.0034,0.001,0.0,0.0,1,False,,committee,True
+Colgate,Patriot,True,0.6804,0.6804,52.499412110523224,0.0,0.0,0.065,0.0146,0.0014,0.0002,0.0,0.0,1,False,,committee,True
+Pepperdine,WCC,True,0.9624,0.933,32.10743973399834,0.0,0.0,0.4878,0.094,0.0332,0.0096,0.0026,0.0004,1,False,,committee,True
+Hawaii,Big West,True,0.2766,0.1302,44.982646420824295,0.0,0.0,0.1194,0.0412,0.0084,0.003,0.001,0.0002,2,False,,committee,True
+Long Beach St.,Big West,True,0.2598,0.027,42.758275596612776,0.0,0.0,0.0956,0.0238,0.0056,0.0018,0.0004,0.0004,0,False,,committee,False
+Weber St.,Big Sky,True,0.3786,0.3786,57.46645536185948,0.0,0.0,0.024,0.0064,0.001,0.0,0.0,0.0,1,False,,committee,True
+Wyoming,Mountain West,True,0.0002,0.0,47.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Quinnipiac,MAAC,True,0.062,0.062,61.980645161290326,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Indiana,Big Ten,True,0.252,0.0,42.3484126984127,0.0,0.0,0.1382,0.048,0.0176,0.0058,0.0016,0.0008,0,False,,committee,False
+Georgia,SEC,True,0.3196,0.0004,39.42928660826033,0.0,0.0,0.1542,0.0406,0.0114,0.0022,0.0014,0.0006,1,False,,committee,True
+Buffalo,MAC,True,0.0724,0.0722,50.53867403314917,0.0,0.0,0.0142,0.0044,0.0002,0.0,0.0,0.0,0,False,,committee,False
+UTEP,CUSA,True,0.4026,0.0014,42.214605067064085,0.0,0.0,0.1128,0.0184,0.0042,0.0008,0.0002,0.0,0,False,,committee,False
+New Mexico St.,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Bowling Green,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UT Arlington,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+American,Patriot,True,0.106,0.106,59.66603773584906,0.0,0.0,0.001,0.0004,0.0,0.0,0.0,0.0,0,False,,committee,False
+Southeast Mo. St.,OVC,True,0.3098,0.3098,55.46739832149774,0.0,0.0,0.02,0.004,0.0002,0.0,0.0,0.0,0,False,,committee,False
+Middle Tenn.,CUSA,True,0.0024,0.0024,54.583333333333336,0.0,0.0,0.0006,0.0002,0.0,0.0,0.0,0.0,0,False,,committee,False
+Sacramento St.,Big Sky,True,0.5428,0.5428,59.512159174649966,0.0,0.0,0.0198,0.0058,0.001,0.0,0.0,0.0,0,False,,committee,False
+Florida,SEC,True,0.9982,0.0056,16.60789420957724,0.5454,0.0012,0.7642,0.401,0.137,0.046,0.0134,0.0036,2,True,4.0,committee,True
+Miami (FL),ACC,True,0.8714,0.0012,33.1567592380078,0.0092,0.0,0.4594,0.1062,0.0416,0.0146,0.0032,0.0016,2,False,,committee,True
+UNLV,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Kennesaw St.,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+North Dakota St.,Summit League,True,0.029,0.029,60.855172413793106,0.0,0.0,0.0006,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Texas St.,Sun Belt,True,0.7644,0.0746,35.82234432234432,0.0,0.0,0.2782,0.0348,0.0108,0.002,0.0002,0.0,1,False,,committee,True
+New Mexico,Mountain West,True,0.0202,0.0202,52.53465346534654,0.0,0.0,0.0046,0.0022,0.0002,0.0,0.0,0.0,0,False,,committee,False
+Hofstra,CAA,True,0.001,0.001,55.4,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Utah St.,Mountain West,True,0.9998,0.863,17.14242848569714,0.523,0.0,0.6428,0.2588,0.0556,0.0146,0.0036,0.0008,1,False,6.0,committee,True
+James Madison,Sun Belt,True,1.0,0.2572,17.5442,0.4722,0.0,0.6014,0.2184,0.0378,0.0078,0.002,0.0002,1,False,7.0,committee,True
+Montana St.,Big Sky,True,0.0174,0.0174,59.827586206896555,0.0,0.0,0.0002,0.0002,0.0,0.0,0.0,0.0,0,False,,committee,False
+Davidson,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Louisiana,Sun Belt,True,0.1132,0.1132,56.85689045936396,0.0,0.0,0.0062,0.002,0.0004,0.0,0.0,0.0,0,False,,committee,False
+UIC,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Delaware St.,MEAC,True,0.0008,0.0008,62.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+North Ala.,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Navy,Patriot,True,0.0112,0.0112,54.5,0.0,0.0,0.0014,0.0002,0.0,0.0,0.0,0.0,0,False,,committee,False
+San Diego,WCC,True,0.0848,0.0528,46.153301886792455,0.0,0.0,0.031,0.0126,0.0018,0.0008,0.0002,0.0,0,False,,committee,False
+Kansas St.,Big 12,True,0.0314,0.0,43.67515923566879,0.0,0.0,0.0182,0.008,0.0026,0.0002,0.0002,0.0,0,False,,committee,False
+Ohio,MAC,True,0.001,0.001,54.8,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Kentucky,SEC,True,0.9898,0.1556,19.91311376035563,0.391,0.0,0.7336,0.3736,0.1308,0.0418,0.0144,0.0042,3,True,2.0,committee,True
+Duke,ACC,True,0.0308,0.0,45.0,0.0,0.0,0.0096,0.0034,0.0004,0.0,0.0,0.0,0,False,,committee,False
+Loyola Chicago,Atlantic 10,True,0.0018,0.0014,51.333333333333336,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Coastal Carolina,Sun Belt,True,0.392,0.3918,50.32959183673469,0.0,0.0,0.0638,0.017,0.0018,0.0,0.0,0.0,1,False,,committee,True
+Saint Francis,NEC,True,0.0064,0.0064,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Milwaukee,Horizon,True,0.3596,0.3596,56.23192436040045,0.0,0.0,0.0182,0.0044,0.0002,0.0,0.0,0.0,0,False,,committee,False
+Florida A&M,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Bryant,America East,True,0.0386,0.0386,61.90155440414508,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+St. John's (NY),Big East,True,0.461,0.0292,41.06420824295011,0.0,0.0,0.1172,0.0164,0.0022,0.0002,0.0002,0.0,0,False,,committee,False
+Tarleton St.,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+VCU,Atlantic 10,True,0.0002,0.0002,58.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Purdue,Big Ten,True,0.9708,0.0002,26.41944787803873,0.0912,0.0,0.6296,0.2248,0.084,0.0314,0.012,0.004,3,True,3.0,committee,True
+Rice,The American,True,0.5512,0.0232,39.15094339622642,0.0,0.0,0.2204,0.0326,0.011,0.002,0.001,0.0004,0,False,,committee,False
+Army West Point,Patriot,True,0.178,0.178,55.83370786516854,0.0,0.0,0.011,0.0012,0.0002,0.0,0.0,0.0,0,False,,committee,False
+Lipscomb,ASUN,True,0.3144,0.3122,51.49872773536896,0.0,0.0,0.0368,0.0084,0.0006,0.0002,0.0,0.0,0,False,,committee,False
+Northern Colo.,Big Sky,True,0.0572,0.0572,56.84965034965035,0.0,0.0,0.0032,0.0006,0.0,0.0,0.0,0.0,0,False,,committee,False
+Boston College,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Iowa St.,Big 12,True,0.48,0.0,37.02125,0.0006,0.0,0.215,0.042,0.012,0.0038,0.0006,0.0,1,False,7.0,committee,True
+App State,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+North Florida,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+South Fla.,The American,True,0.004,0.0018,45.8,0.0,0.0,0.001,0.0002,0.0,0.0,0.0,0.0,0,False,,committee,False
+UC San Diego,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+New Hampshire,America East,True,0.0202,0.0202,57.772277227722775,0.0,0.0,0.0004,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Colorado St.,Mountain West,True,0.2396,0.0522,43.02337228714524,0.0,0.0,0.0842,0.0218,0.0052,0.0008,0.0,0.0,0,False,,committee,False
+Col. of Charleston,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Furman,SoCon,True,0.0014,0.0014,60.142857142857146,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Northern Ky.,Horizon,True,0.1632,0.1632,57.83455882352941,0.0,0.0,0.005,0.001,0.0,0.0,0.0,0.0,0,False,,committee,False
+Pacific,WCC,True,0.0002,0.0002,56.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UCF,Big 12,True,0.797,0.0216,31.452446675031368,0.0268,0.0,0.508,0.158,0.0646,0.027,0.0116,0.0044,0,False,,committee,False
+Morehead St.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Binghamton,America East,True,0.1662,0.1662,61.338146811071,0.0,0.0,0.0016,0.0006,0.0,0.0,0.0,0.0,0,False,,committee,False
+Campbell,CAA,True,0.0348,0.0348,58.333333333333336,0.0,0.0,0.002,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Stony Brook,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Ball St.,MAC,True,0.0336,0.0336,56.92857142857143,0.0,0.0,0.0018,0.0006,0.0002,0.0,0.0,0.0,0,False,,committee,False
+Auburn,SEC,True,0.6372,0.0,35.92812303829253,0.0038,0.0,0.2212,0.0342,0.0072,0.0014,0.0004,0.0002,1,False,7.0,committee,True
+Fordham,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Southern California,Pac-12,True,0.6152,0.0008,36.06241872561768,0.0022,0.0,0.3074,0.0714,0.024,0.0064,0.0016,0.0,2,False,8.0,committee,True
+Mercer,SoCon,True,0.1142,0.1142,58.66725043782837,0.0,0.0,0.0024,0.0006,0.0,0.0,0.0,0.0,0,False,,committee,False
+Murray St.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Air Force,Mountain West,True,0.0002,0.0002,55.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+South Dakota,Summit League,True,0.2604,0.2604,58.04531490015361,0.0,0.0,0.008,0.0014,0.0,0.0,0.0,0.0,0,False,,committee,False
+Texas A&M,SEC,True,0.9884,0.014,23.53885066774585,0.1718,0.0,0.6168,0.2296,0.0672,0.023,0.0076,0.0022,1,False,,committee,True
+Southern Ill.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Alabama St.,SWAC,True,0.9834,0.9834,62.98962782184259,0.0,0.0,0.0028,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Prairie View,SWAC,True,0.0134,0.0134,63.08955223880597,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UCLA,Pac-12,True,0.1762,0.0,40.11804767309875,0.0,0.0,0.0806,0.02,0.007,0.0024,0.001,0.0002,0,False,,committee,False
+UTRGV,WAC,True,0.0018,0.0018,55.333333333333336,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Denver,Summit League,True,0.1086,0.1086,61.548802946593,0.0,0.0,0.0014,0.0006,0.0,0.0,0.0,0.0,0,False,,committee,False
+Cleveland St.,Horizon,True,0.0144,0.0144,60.59722222222222,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Baylor,Big 12,True,0.962,0.0054,27.31995841995842,0.066,0.0,0.6164,0.2104,0.0796,0.029,0.01,0.0034,2,False,,committee,True
+FDU,NEC,True,0.2056,0.2056,64.0,0.0,0.0,0.0004,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Princeton,Ivy League,True,0.0356,0.0356,56.62921348314607,0.0,0.0,0.001,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+McNeese,Southland,True,0.0058,0.0058,61.86206896551724,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Liberty,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Boise St.,Mountain West,True,0.0588,0.058,52.18707482993197,0.0,0.0,0.011,0.0048,0.0004,0.0002,0.0002,0.0,0,False,,committee,False
+Valparaiso,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UMES,MEAC,True,0.0018,0.0018,62.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UTSA,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Southern Ind.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Wake Forest,ACC,True,0.7522,0.0,34.716032969954796,0.0008,0.0,0.2562,0.0296,0.0076,0.0012,0.0002,0.0,0,False,,committee,False
+Chicago St.,DI Independent,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Clemson,ACC,True,0.0468,0.0,42.69230769230769,0.0,0.0,0.0098,0.0018,0.0,0.0,0.0,0.0,0,False,,committee,False
+DePaul,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Houston Christian,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+TCU,Big 12,True,0.3778,0.0,38.2641609317099,0.0002,0.0,0.1968,0.0498,0.0192,0.0074,0.0016,0.0004,2,False,,committee,True
+Villanova,Big East,True,0.0026,0.0,46.92307692307692,0.0,0.0,0.0008,0.0002,0.0,0.0,0.0,0.0,0,False,,committee,False
+Portland St.,Big Sky,True,0.004,0.004,61.15,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Gardner-Webb,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Northwestern,Big Ten,True,0.0534,0.0,44.02247191011236,0.0,0.0,0.0234,0.0096,0.0028,0.0006,0.0,0.0,0,False,,committee,False
+Xavier,Big East,True,0.0008,0.0002,47.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Saint Mary's (CA),WCC,True,0.0018,0.0018,55.888888888888886,0.0,0.0,0.0004,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+California Baptist,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Winthrop,Big South,True,0.0058,0.0058,61.724137931034484,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Fla. Atlantic,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Cincinnati,Big 12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Fresno St.,Mountain West,True,0.0064,0.0064,56.34375,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,1,False,,committee,True
+California,Pac-12,True,0.1752,0.0,41.36643835616438,0.0,0.0,0.0794,0.0184,0.0046,0.0012,0.0004,0.0002,0,False,,committee,False
+North Carolina,ACC,True,0.0096,0.0,44.291666666666664,0.0,0.0,0.0054,0.0022,0.0002,0.0,0.0,0.0,0,False,,committee,False
+Cal Poly,Big West,True,0.0004,0.0004,54.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Niagara,MAAC,True,0.0252,0.0252,62.37301587301587,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UIW,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Chattanooga,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Green Bay,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Jackson St.,SWAC,True,0.0016,0.0016,63.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1,False,,committee,True
+Saint Louis,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Michigan St.,Big Ten,True,0.007,0.0,44.22857142857143,0.0,0.0,0.0036,0.0016,0.0008,0.0,0.0,0.0,0,False,,committee,False
+North Texas,The American,True,0.0004,0.0004,52.0,0.0,0.0,0.0004,0.0002,0.0,0.0,0.0,0.0,0,False,,committee,False
+Arkansas St.,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Minnesota,Big Ten,True,0.289,0.0,39.59100346020761,0.0,0.0,0.157,0.0434,0.0178,0.0048,0.0018,0.0008,2,False,,committee,True
+SIUE,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Samford,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Missouri St.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Seton Hall,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Washington,Pac-12,True,0.5144,0.0,37.28149300155521,0.0002,0.0,0.2314,0.046,0.0168,0.0062,0.0016,0.0002,0,False,,committee,False
+Stetson,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Colorado,Pac-12,True,0.0882,0.0,41.43764172335601,0.0,0.0,0.0436,0.011,0.0032,0.0006,0.0002,0.0002,0,False,,committee,False
+N.C. A&T,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+USC Upstate,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Illinois,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Dartmouth,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Bucknell,Patriot,True,0.0244,0.0244,57.07377049180328,0.0,0.0,0.001,0.0002,0.0002,0.0,0.0,0.0,0,False,,committee,False
+Georgetown,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Lindenwood,OVC,True,0.0002,0.0002,62.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Marshall,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Missouri,SEC,True,0.7152,0.0,34.402404921700224,0.0084,0.0,0.2414,0.0316,0.0052,0.0008,0.0002,0.0,2,False,8.0,committee,True
+Virginia Tech,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Canisius,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Ole Miss,SEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Omaha,Summit League,True,0.3542,0.3542,59.175042348955394,0.0,0.0,0.0078,0.0012,0.0002,0.0,0.0,0.0,1,False,,committee,True
+Temple,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Akron,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UC Irvine,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Lehigh,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+San Diego St.,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Maryland,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Tulsa,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Old Dominion,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Marist,MAAC,True,0.0038,0.0038,61.89473684210526,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Toledo,MAC,True,0.0024,0.0024,60.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Southern Miss.,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Central Mich.,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Oakland,Horizon,True,0.0016,0.0016,61.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Eastern Wash.,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Oregon St.,Pac-12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+William & Mary,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Tennessee Tech,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Utah Valley,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Jacksonville,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UC Davis,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Iona,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Grambling,SWAC,True,0.0002,0.0002,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Sacred Heart,NEC,True,0.7562,0.7562,63.99444591377942,0.0,0.0,0.0008,0.0002,0.0,0.0,0.0,0.0,0,False,,committee,False
+Illinois St.,MVC,True,0.0178,0.0178,57.96629213483146,0.0,0.0,0.001,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Western Caro.,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Montana,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Presbyterian,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Rider,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Utah Tech,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Mississippi St.,SEC,True,0.0372,0.0,42.973118279569896,0.0,0.0,0.0118,0.0018,0.0004,0.0,0.0,0.0,0,False,,committee,False
+FIU,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+George Mason,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Howard,MEAC,True,0.025,0.025,61.536,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Butler,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Ohio St.,Big Ten,True,0.0524,0.0,43.5763358778626,0.0,0.0,0.0254,0.0094,0.0024,0.001,0.0002,0.0002,0,False,,committee,False
+Utah,Pac-12,True,0.003,0.0,44.46666666666667,0.0,0.0,0.002,0.001,0.0002,0.0002,0.0,0.0,0,False,,committee,False
+Southern U.,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Duquesne,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Notre Dame,ACC,True,0.0186,0.0,42.70967741935484,0.0,0.0,0.007,0.0016,0.0,0.0,0.0,0.0,0,False,,committee,False
+Santa Clara,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Rutgers,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Oklahoma,Big 12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UNCW,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+LIU,NEC,True,0.0316,0.0316,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1,False,,committee,True
+Loyola Maryland,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Abilene Christian,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+South Dakota St.,Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Evansville,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Belmont,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+NJIT,America East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Northwestern St.,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+San Jose St.,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Little Rock,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Alabama,SEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Central Ark.,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Troy,Sun Belt,True,0.1524,0.1058,41.818897637795274,0.0,0.0,0.0332,0.0042,0.0006,0.0002,0.0002,0.0002,0,False,,committee,False
+Norfolk St.,MEAC,True,0.0066,0.0066,62.303030303030305,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Idaho St.,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Northeastern,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Bradley,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+LSU,SEC,True,0.0228,0.0,43.64912280701754,0.0,0.0,0.0072,0.0018,0.0004,0.0002,0.0,0.0,0,False,,committee,False
+UAlbany,America East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Youngstown St.,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+San Francisco,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+NIU,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Western Ill.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Nevada,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Central Conn. St.,NEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Purdue Fort Wayne,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Cornell,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+CSU Bakersfield,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+North Dakota,Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+South Carolina,SEC,True,0.0002,0.0,43.0,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Charleston So.,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Lafayette,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Tulane,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Providence,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+ULM,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UConn,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+IU Indy,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Louisiana Tech,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Charlotte,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Texas Southern,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Elon,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Portland,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Alabama A&M,SWAC,True,0.0014,0.0014,63.857142857142854,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Memphis,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UNC Asheville,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Austin Peay,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+CSUN,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Sam Houston,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Bethune-Cookman,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Bellarmine,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Virginia,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Radford,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Georgia St.,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Northern Ariz.,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Arizona,Pac-12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UAB,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+George Washington,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Michigan,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Texas Tech,Big 12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Indiana St.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UT Martin,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Iowa,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+ETSU,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+St. Thomas (MN),Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Penn,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+East Texas A&M,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Manhattan,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Robert Morris,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Eastern Mich.,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+West Virginia,Big 12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Gonzaga,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+New Orleans,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Kent St.,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Southern Utah,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UC Riverside,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Seattle U,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Merrimack,NEC,True,0.0002,0.0002,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+N.C. Central,MEAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Rhode Island,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Nicholls,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Queens (NC),ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Miami (OH),MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Morgan St.,MEAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Jacksonville St.,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Stonehill,NEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Holy Cross,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Lamar University,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Columbia,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Cal St. Fullerton,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Tennessee St.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Ark.-Pine Bluff,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Idaho,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Oral Roberts,Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Siena,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Saint Peter's,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+UNC Greensboro,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Alcorn,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Syracuse,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+South Carolina St.,MEAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Le Moyne,NEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Mississippi Val.,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Hampton,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,committee,False
+Dayton,Atlantic 10,True,0.9996,0.9984,19.935174069627852,0.0478,0.0,0.6876,0.2744,0.0608,0.0236,0.0074,0.0024,2,False,5.0,power,True
+Wisconsin,Big Ten,True,1.0,0.3874,1.781,1.0,0.9694,0.9954,0.9078,0.736,0.54,0.3348,0.2012,5,True,1.0,power,True
+Southeastern La.,Southland,True,0.7422,0.7422,54.861223389921854,0.0,0.0,0.04,0.009,0.0012,0.0,0.0,0.0,1,False,,power,True
+Pittsburgh,ACC,True,1.0,0.511,5.4448,1.0,0.3674,0.9766,0.8346,0.5772,0.3018,0.1432,0.0744,5,True,1.0,power,True
+Western Ky.,CUSA,True,1.0,0.9962,18.9892,0.3274,0.0,0.7398,0.3458,0.0758,0.0276,0.008,0.0026,2,False,6.0,power,True
+Eastern Ill.,OVC,True,0.69,0.69,52.333623188405795,0.0,0.0,0.0562,0.0152,0.001,0.0004,0.0,0.0,1,False,,power,True
+Towson,CAA,True,0.944,0.944,47.793432203389834,0.0,0.0,0.2188,0.0564,0.0076,0.002,0.0,0.0,0,False,,power,False
+Creighton,Big East,True,0.9792,0.4176,26.630106209150327,0.0014,0.0,0.5884,0.15,0.0496,0.0146,0.004,0.0016,3,True,3.0,power,True
+Nebraska,Big Ten,True,1.0,0.5794,2.3738,1.0,0.934,0.9962,0.9008,0.7206,0.4952,0.2916,0.161,6,True,1.0,power,True
+UC Santa Barbara,Big West,True,0.9866,0.8424,26.079870261504155,0.0008,0.0,0.6124,0.1766,0.0608,0.0176,0.0064,0.0012,1,False,,power,True
+SFA,WAC,True,0.6512,0.6458,44.38943488943489,0.0,0.0,0.2144,0.0554,0.0102,0.003,0.0008,0.0,1,False,,power,True
+Western Mich.,MAC,True,0.8908,0.8908,41.96699595868882,0.0,0.0,0.319,0.061,0.017,0.0052,0.001,0.0004,2,False,,power,True
+Tennessee,SEC,True,1.0,0.108,11.3692,0.94,0.0,0.9002,0.6286,0.2648,0.0938,0.0342,0.012,3,True,3.0,power,True
+Louisville,ACC,True,1.0,0.3814,5.4838,0.9998,0.34,0.976,0.8358,0.5702,0.2966,0.1438,0.0686,4,True,2.0,power,True
+Arizona St.,Pac-12,True,1.0,0.0312,12.4916,0.8782,0.0008,0.8834,0.6124,0.2494,0.0938,0.0362,0.0126,3,False,5.0,power,True
+Yale,Ivy League,True,0.9556,0.9556,51.824194223524486,0.0,0.0,0.1166,0.034,0.0034,0.0006,0.0004,0.0,1,False,,power,True
+Ga. Southern,Sun Belt,True,0.0016,0.0016,48.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Stanford,Pac-12,True,1.0,0.8278,2.8736,1.0,0.858,0.9898,0.8868,0.697,0.4758,0.3016,0.1694,4,True,1.0,power,True
+UNI,MVC,True,0.923,0.9076,35.71310942578548,0.0,0.0,0.4138,0.0542,0.021,0.0066,0.001,0.0002,1,False,8.0,power,True
+South Alabama,Sun Belt,True,0.0558,0.0558,46.924731182795696,0.0,0.0,0.0154,0.0046,0.0004,0.0002,0.0,0.0,1,False,,power,True
+Grand Canyon,WAC,True,0.3524,0.3524,47.98297389330306,0.0,0.0,0.0782,0.0228,0.0018,0.0002,0.0002,0.0,1,False,,power,True
+SMU,The American,True,0.971,0.7088,27.652523171987642,0.0006,0.0,0.5482,0.1242,0.0402,0.0126,0.005,0.0008,2,False,7.0,power,True
+Brown,Ivy League,True,0.0064,0.0064,54.34375,0.0,0.0,0.0004,0.0002,0.0,0.0,0.0,0.0,0,False,,power,False
+Arkansas,SEC,True,1.0,0.7164,7.8112,0.9942,0.035,0.952,0.7524,0.4336,0.1882,0.0882,0.042,4,True,3.0,power,True
+Fairfield,MAAC,True,0.909,0.909,61.835863586358634,0.0,0.0,0.0084,0.0008,0.0,0.0,0.0,0.0,1,False,,power,True
+Texas,Big 12,True,1.0,0.9282,5.1702,1.0,0.4064,0.9796,0.8608,0.6232,0.3582,0.1804,0.0938,7,True,2.0,power,True
+Eastern Ky.,ASUN,True,0.0008,0.0008,53.25,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Oregon,Pac-12,True,1.0,0.0742,7.7724,0.9944,0.0836,0.9556,0.7598,0.4346,0.1988,0.1008,0.045,4,True,2.0,power,True
+Wofford,SoCon,True,0.0036,0.0036,58.388888888888886,0.0,0.0,0.0002,0.0002,0.0,0.0,0.0,0.0,1,False,,power,True
+The Citadel,SoCon,True,0.8808,0.8808,59.06607629427793,0.0,0.0,0.0268,0.0074,0.0014,0.0002,0.0,0.0,0,False,,power,False
+BYU,Big 12,True,1.0,0.0418,11.2262,0.9392,0.0002,0.9138,0.6712,0.3068,0.1122,0.0494,0.02,2,True,4.0,power,True
+LMU (CA),WCC,True,0.787,0.0122,36.06988564167725,0.0,0.0,0.331,0.0424,0.0132,0.0048,0.0012,0.0004,0,False,,power,False
+Wright St.,Horizon,True,0.4612,0.4612,53.95359930615785,0.0,0.0,0.0274,0.0066,0.0008,0.0,0.0,0.0,1,False,,power,True
+Florida St.,ACC,True,0.9966,0.0704,20.370860927152318,0.3062,0.0,0.72,0.3348,0.0968,0.0368,0.0132,0.0054,1,False,6.0,power,True
+Delaware,CAA,True,0.0202,0.0202,54.97029702970297,0.0,0.0,0.0014,0.0002,0.0,0.0,0.0,0.0,1,False,,power,True
+East Carolina,The American,True,0.0238,0.0218,46.529411764705884,0.0,0.0,0.0064,0.0016,0.0004,0.0,0.0,0.0,0,False,,power,False
+Georgia Tech,ACC,True,1.0,0.036,14.6254,0.7548,0.0,0.8492,0.533,0.1848,0.0712,0.0274,0.0098,3,False,5.0,power,True
+Washington St.,Pac-12,True,1.0,0.066,10.206,0.9612,0.005,0.927,0.6954,0.3448,0.1408,0.0678,0.0248,3,True,4.0,power,True
+Kansas City,Summit League,True,0.2478,0.2478,58.66424535916061,0.0,0.0,0.0042,0.0008,0.0,0.0,0.0,0.0,0,False,,power,False
+Kansas,Big 12,True,0.9982,0.003,19.61711079943899,0.4094,0.0,0.7306,0.375,0.1134,0.042,0.0146,0.0044,2,True,4.0,power,True
+Houston,Big 12,True,0.9076,0.0,29.88607315998237,0.0318,0.0,0.4856,0.124,0.042,0.0138,0.0036,0.0008,2,False,8.0,power,True
+Coppin St.,MEAC,True,0.9658,0.9658,60.62352453924208,0.0,0.0,0.0122,0.0018,0.0004,0.0,0.0,0.0,1,False,,power,True
+Drake,MVC,True,0.1538,0.0746,42.79583875162549,0.0,0.0,0.0568,0.0132,0.0022,0.0002,0.0,0.0,0,False,,power,False
+Marquette,Big East,True,0.9822,0.553,26.898391366320507,0.0004,0.0,0.5692,0.1412,0.0458,0.014,0.0044,0.001,2,False,6.0,power,True
+High Point,Big South,True,0.9942,0.9942,51.59505129752565,0.0,0.0,0.1052,0.026,0.002,0.0004,0.0002,0.0,1,False,,power,True
+UMBC,America East,True,0.775,0.775,56.02116129032258,0.0,0.0,0.0408,0.0096,0.0014,0.0002,0.0002,0.0,1,False,,power,True
+NC State,ACC,True,0.8192,0.0,34.343017578125,0.0,0.0,0.3998,0.064,0.0258,0.0062,0.002,0.0002,0,False,,power,False
+Wichita St.,The American,True,0.594,0.244,38.438383838383835,0.0,0.0,0.246,0.0358,0.012,0.0044,0.001,0.0,0,False,,power,False
+Penn St.,Big Ten,True,1.0,0.033,12.8464,0.859,0.0002,0.8864,0.6262,0.2588,0.102,0.0412,0.0156,3,False,5.0,power,True
+Harvard,Ivy League,True,0.0024,0.0024,58.916666666666664,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+A&M-Corpus Christi,Southland,True,0.252,0.252,57.18650793650794,0.0,0.0,0.0094,0.001,0.0,0.0,0.0,0.0,0,False,,power,False
+FGCU,ASUN,True,0.687,0.687,50.029694323144106,0.0,0.0,0.1012,0.0266,0.002,0.0002,0.0,0.0,1,False,,power,True
+Colgate,Patriot,True,0.6804,0.6804,54.21164021164021,0.0,0.0,0.0418,0.0094,0.0008,0.0,0.0,0.0,1,False,,power,True
+Pepperdine,WCC,True,0.947,0.933,36.072650475184794,0.0,0.0,0.4396,0.0758,0.0256,0.0084,0.0012,0.0,1,False,,power,True
+Hawaii,Big West,True,0.8896,0.1302,33.919739208633096,0.0,0.0,0.4198,0.0628,0.0242,0.0066,0.0016,0.0002,2,False,,power,True
+Long Beach St.,Big West,True,0.2298,0.027,41.161879895561356,0.0,0.0,0.0844,0.0176,0.0038,0.0004,0.0002,0.0,0,False,,power,False
+Weber St.,Big Sky,True,0.3786,0.3786,51.210248283148445,0.0,0.0,0.0372,0.0092,0.001,0.0,0.0,0.0,1,False,,power,True
+Wyoming,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Quinnipiac,MAAC,True,0.062,0.062,62.61290322580645,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Indiana,Big Ten,True,0.9498,0.0,28.296694040850706,0.036,0.0,0.52,0.1382,0.0486,0.0166,0.0038,0.001,0,False,,power,False
+Georgia,SEC,True,0.6482,0.0004,35.289416846652266,0.0014,0.0,0.3052,0.0516,0.0174,0.0048,0.0014,0.0004,1,False,,power,True
+Buffalo,MAC,True,0.0722,0.0722,49.2409972299169,0.0,0.0,0.013,0.0042,0.0002,0.0,0.0,0.0,0,False,,power,False
+UTEP,CUSA,True,0.0132,0.0014,45.75757575757576,0.0,0.0,0.0026,0.0004,0.0,0.0,0.0,0.0,0,False,,power,False
+New Mexico St.,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Bowling Green,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UT Arlington,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+American,Patriot,True,0.106,0.106,58.95283018867924,0.0,0.0,0.0026,0.0006,0.0,0.0,0.0,0.0,0,False,,power,False
+Southeast Mo. St.,OVC,True,0.3098,0.3098,58.00129115558425,0.0,0.0,0.0084,0.0026,0.0006,0.0002,0.0,0.0,0,False,,power,False
+Middle Tenn.,CUSA,True,0.0024,0.0024,47.75,0.0,0.0,0.0004,0.0002,0.0002,0.0,0.0,0.0,0,False,,power,False
+Sacramento St.,Big Sky,True,0.5428,0.5428,53.628592483419304,0.0,0.0,0.0406,0.0098,0.0014,0.0,0.0,0.0,0,False,,power,False
+Florida,SEC,True,0.9948,0.0056,21.07458785685565,0.3084,0.0,0.6824,0.3196,0.0976,0.037,0.0134,0.0054,2,True,4.0,power,True
+Miami (FL),ACC,True,0.8496,0.0012,33.737052730696796,0.0054,0.0,0.4344,0.088,0.034,0.0114,0.0016,0.0006,2,False,,power,True
+UNLV,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Kennesaw St.,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+North Dakota St.,Summit League,True,0.029,0.029,57.93103448275862,0.0,0.0,0.0004,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Texas St.,Sun Belt,True,0.092,0.0746,46.63478260869565,0.0,0.0,0.0298,0.008,0.0024,0.0006,0.0,0.0,1,False,,power,True
+New Mexico,Mountain West,True,0.0202,0.0202,47.53465346534654,0.0,0.0,0.0048,0.001,0.0,0.0,0.0,0.0,0,False,,power,False
+Hofstra,CAA,True,0.001,0.001,52.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Utah St.,Mountain West,True,0.867,0.863,39.66505190311419,0.0,0.0,0.3476,0.0562,0.0164,0.0048,0.0012,0.0,1,False,6.0,power,True
+James Madison,Sun Belt,True,0.409,0.2572,41.14376528117359,0.0,0.0,0.1702,0.0368,0.0106,0.0018,0.0006,0.0004,1,False,7.0,power,True
+Montana St.,Big Sky,True,0.0174,0.0174,59.04597701149425,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Davidson,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Louisiana,Sun Belt,True,0.1132,0.1132,54.44169611307421,0.0,0.0,0.0084,0.0028,0.0002,0.0,0.0,0.0,0,False,,power,False
+UIC,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Delaware St.,MEAC,True,0.0008,0.0008,61.75,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+North Ala.,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Navy,Patriot,True,0.0112,0.0112,55.80357142857143,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+San Diego,WCC,True,0.307,0.0528,40.431921824104236,0.0,0.0,0.1178,0.0196,0.003,0.0006,0.0002,0.0,0,False,,power,False
+Kansas St.,Big 12,True,0.7502,0.0,35.459077579312186,0.0022,0.0,0.3386,0.0608,0.0224,0.0058,0.002,0.0008,0,False,,power,False
+Ohio,MAC,True,0.001,0.001,52.8,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Kentucky,SEC,True,0.996,0.1556,20.32008032128514,0.3612,0.0,0.7224,0.3508,0.103,0.0378,0.0112,0.004,3,True,2.0,power,True
+Duke,ACC,True,0.1954,0.0,41.03787103377687,0.0,0.0,0.0698,0.0136,0.0048,0.001,0.0008,0.0,0,False,,power,False
+Loyola Chicago,Atlantic 10,True,0.0014,0.0014,48.57142857142857,0.0,0.0,0.0006,0.0002,0.0,0.0,0.0,0.0,0,False,,power,False
+Coastal Carolina,Sun Belt,True,0.3918,0.3918,50.971413986727924,0.0,0.0,0.051,0.014,0.0006,0.0,0.0,0.0,1,False,,power,True
+Saint Francis,NEC,True,0.0064,0.0064,63.9375,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Milwaukee,Horizon,True,0.3596,0.3596,56.023359288097886,0.0,0.0,0.0166,0.0042,0.0,0.0,0.0,0.0,0,False,,power,False
+Florida A&M,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Bryant,America East,True,0.0386,0.0386,61.373056994818654,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+St. John's (NY),Big East,True,0.0292,0.0292,48.08904109589041,0.0,0.0,0.0058,0.002,0.0,0.0,0.0,0.0,0,False,,power,False
+Tarleton St.,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+VCU,Atlantic 10,True,0.0002,0.0002,57.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Purdue,Big Ten,True,0.995,0.0002,20.809045226130653,0.3226,0.0,0.6924,0.3186,0.0942,0.0358,0.0126,0.005,3,True,3.0,power,True
+Rice,The American,True,0.3422,0.0232,40.40561075394506,0.0,0.0,0.1396,0.0284,0.0068,0.0012,0.0002,0.0,0,False,,power,False
+Army West Point,Patriot,True,0.178,0.178,57.20224719101124,0.0,0.0,0.0064,0.0012,0.0002,0.0,0.0,0.0,0,False,,power,False
+Lipscomb,ASUN,True,0.3122,0.3122,51.707879564381805,0.0,0.0,0.0292,0.0096,0.001,0.0002,0.0,0.0,0,False,,power,False
+Northern Colo.,Big Sky,True,0.0572,0.0572,56.19580419580419,0.0,0.0,0.003,0.001,0.0,0.0,0.0,0.0,0,False,,power,False
+Boston College,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Iowa St.,Big 12,True,0.4628,0.0,36.86171132238548,0.001,0.0,0.1996,0.0332,0.0128,0.0036,0.0006,0.0002,1,False,7.0,power,True
+App State,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+North Florida,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+South Fla.,The American,True,0.0018,0.0018,48.55555555555556,0.0,0.0,0.0006,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UC San Diego,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+New Hampshire,America East,True,0.0202,0.0202,60.76237623762376,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Colorado St.,Mountain West,True,0.1218,0.0522,43.669950738916256,0.0,0.0,0.0414,0.0122,0.003,0.0006,0.0006,0.0004,0,False,,power,False
+Col. of Charleston,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Furman,SoCon,True,0.0014,0.0014,61.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Northern Ky.,Horizon,True,0.1632,0.1632,58.73039215686274,0.0,0.0,0.0052,0.0008,0.0,0.0,0.0,0.0,0,False,,power,False
+Pacific,WCC,True,0.0002,0.0002,48.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UCF,Big 12,True,0.9926,0.0216,23.25428168446504,0.2252,0.0,0.6648,0.2752,0.0856,0.0298,0.009,0.0036,0,False,,power,False
+Morehead St.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Binghamton,America East,True,0.1662,0.1662,60.54993983152828,0.0,0.0,0.0026,0.0004,0.0,0.0,0.0,0.0,0,False,,power,False
+Campbell,CAA,True,0.0348,0.0348,54.9367816091954,0.0,0.0,0.003,0.0004,0.0,0.0,0.0,0.0,0,False,,power,False
+Stony Brook,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Ball St.,MAC,True,0.0336,0.0336,50.351190476190474,0.0,0.0,0.0048,0.0026,0.0004,0.0,0.0,0.0,0,False,,power,False
+Auburn,SEC,True,0.101,0.0,40.74059405940594,0.0,0.0,0.0402,0.0088,0.003,0.0006,0.0,0.0,1,False,7.0,power,True
+Fordham,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Southern California,Pac-12,True,0.7286,0.0008,33.91765028822399,0.005,0.0,0.3638,0.0724,0.0254,0.0058,0.002,0.0006,2,False,8.0,power,True
+Mercer,SoCon,True,0.1142,0.1142,59.809106830122595,0.0,0.0,0.0018,0.0006,0.0,0.0,0.0,0.0,0,False,,power,False
+Murray St.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Air Force,Mountain West,True,0.0002,0.0002,50.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+South Dakota,Summit League,True,0.2604,0.2604,57.99308755760369,0.0,0.0,0.008,0.0028,0.0,0.0,0.0,0.0,0,False,,power,False
+Texas A&M,SEC,True,0.977,0.014,25.848720573183215,0.0998,0.0,0.5728,0.1726,0.0504,0.0166,0.005,0.0016,1,False,,power,True
+Southern Ill.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Alabama St.,SWAC,True,0.9834,0.9834,62.930038641448036,0.0,0.0,0.0036,0.0004,0.0,0.0,0.0,0.0,0,False,,power,False
+Prairie View,SWAC,True,0.0134,0.0134,63.08955223880597,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UCLA,Pac-12,True,0.329,0.0,38.05896656534954,0.0002,0.0,0.1516,0.0268,0.0078,0.0018,0.0004,0.0002,0,False,,power,False
+UTRGV,WAC,True,0.0018,0.0018,56.77777777777778,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Denver,Summit League,True,0.1086,0.1086,59.63720073664825,0.0,0.0,0.001,0.0002,0.0,0.0,0.0,0.0,0,False,,power,False
+Cleveland St.,Horizon,True,0.0144,0.0144,59.97222222222222,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Baylor,Big 12,True,0.9828,0.0054,24.382987382987384,0.1568,0.0,0.6428,0.2304,0.0666,0.0242,0.0056,0.0006,2,False,,power,True
+FDU,NEC,True,0.2056,0.2056,63.994163424124515,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Princeton,Ivy League,True,0.0356,0.0356,57.859550561797754,0.0,0.0,0.0008,0.0004,0.0,0.0,0.0,0.0,0,False,,power,False
+McNeese,Southland,True,0.0058,0.0058,61.13793103448276,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Liberty,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Boise St.,Mountain West,True,0.0582,0.058,47.39862542955326,0.0,0.0,0.0152,0.0056,0.0002,0.0,0.0,0.0,0,False,,power,False
+Valparaiso,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UMES,MEAC,True,0.0018,0.0018,63.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UTSA,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Southern Ind.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Wake Forest,ACC,True,0.075,0.0,42.736,0.0,0.0,0.027,0.006,0.0022,0.0004,0.0002,0.0,0,False,,power,False
+Chicago St.,DI Independent,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Clemson,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+DePaul,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Houston Christian,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+TCU,Big 12,True,0.8218,0.0,32.97152591871502,0.0114,0.0,0.388,0.0768,0.0244,0.0072,0.0022,0.0008,2,False,,power,True
+Villanova,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Portland St.,Big Sky,True,0.004,0.004,57.8,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Gardner-Webb,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Northwestern,Big Ten,True,0.4134,0.0,38.59458151910982,0.0,0.0,0.1704,0.031,0.009,0.0036,0.0008,0.0004,0,False,,power,False
+Xavier,Big East,True,0.0002,0.0002,52.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Saint Mary's (CA),WCC,True,0.0018,0.0018,49.111111111111114,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+California Baptist,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Winthrop,Big South,True,0.0058,0.0058,61.48275862068966,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Fla. Atlantic,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Cincinnati,Big 12,True,0.0008,0.0,45.0,0.0,0.0,0.0004,0.0002,0.0002,0.0002,0.0,0.0,0,False,,power,False
+Fresno St.,Mountain West,True,0.0064,0.0064,53.28125,0.0,0.0,0.0006,0.0002,0.0,0.0,0.0,0.0,1,False,,power,True
+California,Pac-12,True,0.3308,0.0,38.304111245465535,0.0,0.0,0.1364,0.0226,0.0086,0.0026,0.0004,0.0002,0,False,,power,False
+North Carolina,ACC,True,0.013,0.0,43.215384615384615,0.0,0.0,0.0052,0.0016,0.0004,0.0004,0.0,0.0,0,False,,power,False
+Cal Poly,Big West,True,0.0004,0.0004,49.0,0.0,0.0,0.0002,0.0002,0.0002,0.0,0.0,0.0,0,False,,power,False
+Niagara,MAAC,True,0.0252,0.0252,62.698412698412696,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UIW,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Chattanooga,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Green Bay,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Jackson St.,SWAC,True,0.0016,0.0016,63.625,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1,False,,power,True
+Saint Louis,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Michigan St.,Big Ten,True,0.0708,0.0,40.77401129943503,0.0,0.0,0.0318,0.0076,0.0024,0.0004,0.0,0.0,0,False,,power,False
+North Texas,The American,True,0.0004,0.0004,46.5,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Arkansas St.,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Minnesota,Big Ten,True,0.8434,0.0,32.1434669196111,0.0156,0.0,0.4212,0.0846,0.0302,0.0096,0.002,0.0004,2,False,,power,True
+SIUE,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Samford,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Missouri St.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Seton Hall,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Washington,Pac-12,True,0.5282,0.0,36.372964786065886,0.0012,0.0,0.234,0.0404,0.0148,0.006,0.0026,0.001,0,False,,power,False
+Stetson,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Colorado,Pac-12,True,0.318,0.0,38.30251572327044,0.0,0.0,0.142,0.0252,0.009,0.0032,0.0012,0.0004,0,False,,power,False
+N.C. A&T,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+USC Upstate,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Illinois,Big Ten,True,0.0004,0.0,43.0,0.0,0.0,0.0004,0.0002,0.0,0.0,0.0,0.0,0,False,,power,False
+Dartmouth,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Bucknell,Patriot,True,0.0244,0.0244,60.26229508196721,0.0,0.0,0.0006,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Georgetown,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Lindenwood,OVC,True,0.0002,0.0002,62.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Marshall,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Missouri,SEC,True,0.035,0.0,41.84,0.0,0.0,0.0154,0.0036,0.0012,0.0,0.0,0.0,2,False,8.0,power,True
+Virginia Tech,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Canisius,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Ole Miss,SEC,True,0.0016,0.0,42.625,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Omaha,Summit League,True,0.3542,0.3542,58.92546583850932,0.0,0.0,0.0102,0.0022,0.0002,0.0,0.0,0.0,1,False,,power,True
+Temple,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Akron,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UC Irvine,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Lehigh,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+San Diego St.,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Maryland,Big Ten,True,0.0004,0.0,40.5,0.0,0.0,0.0004,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Tulsa,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Old Dominion,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Marist,MAAC,True,0.0038,0.0038,63.26315789473684,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Toledo,MAC,True,0.0024,0.0024,57.333333333333336,0.0,0.0,0.0002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Southern Miss.,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Central Mich.,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Oakland,Horizon,True,0.0016,0.0016,61.625,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Eastern Wash.,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Oregon St.,Pac-12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+William & Mary,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Tennessee Tech,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Utah Valley,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Jacksonville,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UC Davis,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Iona,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Grambling,SWAC,True,0.0002,0.0002,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Sacred Heart,NEC,True,0.7562,0.7562,63.99471039407564,0.0,0.0,0.0012,0.0004,0.0002,0.0,0.0,0.0,0,False,,power,False
+Illinois St.,MVC,True,0.0178,0.0178,54.03370786516854,0.0,0.0,0.0014,0.0002,0.0,0.0,0.0,0.0,0,False,,power,False
+Western Caro.,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Montana,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Presbyterian,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Rider,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Utah Tech,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Mississippi St.,SEC,True,0.0018,0.0,42.0,0.0,0.0,0.0008,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+FIU,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+George Mason,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Howard,MEAC,True,0.025,0.025,61.976,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Butler,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Ohio St.,Big Ten,True,0.3292,0.0,38.65795868772783,0.0,0.0,0.1366,0.0214,0.0076,0.0022,0.0002,0.0002,0,False,,power,False
+Utah,Pac-12,True,0.051,0.0,41.258823529411764,0.0,0.0,0.021,0.004,0.0004,0.0002,0.0,0.0,0,False,,power,False
+Southern U.,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Duquesne,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Notre Dame,ACC,True,0.0062,0.0,43.483870967741936,0.0,0.0,0.002,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Santa Clara,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Rutgers,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Oklahoma,Big 12,True,0.0014,0.0,45.0,0.0,0.0,0.0006,0.0002,0.0,0.0,0.0,0.0,0,False,,power,False
+UNCW,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+LIU,NEC,True,0.0316,0.0316,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1,False,,power,True
+Loyola Maryland,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Abilene Christian,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+South Dakota St.,Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Evansville,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Belmont,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+NJIT,America East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Northwestern St.,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+San Jose St.,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Little Rock,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Alabama,SEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Central Ark.,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Troy,Sun Belt,True,0.1058,0.1058,54.01512287334594,0.0,0.0,0.0078,0.0018,0.0002,0.0,0.0,0.0,0,False,,power,False
+Norfolk St.,MEAC,True,0.0066,0.0066,62.75757575757576,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Idaho St.,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Northeastern,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Bradley,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+LSU,SEC,True,0.0502,0.0,42.191235059760956,0.0,0.0,0.0194,0.0026,0.0004,0.0002,0.0,0.0,0,False,,power,False
+UAlbany,America East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Youngstown St.,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+San Francisco,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+NIU,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Western Ill.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Nevada,Mountain West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Central Conn. St.,NEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Purdue Fort Wayne,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Cornell,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+CSU Bakersfield,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+North Dakota,Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+South Carolina,SEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Charleston So.,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Lafayette,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Tulane,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Providence,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+ULM,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UConn,Big East,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+IU Indy,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Louisiana Tech,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Charlotte,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Texas Southern,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Elon,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Portland,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Alabama A&M,SWAC,True,0.0014,0.0014,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Memphis,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UNC Asheville,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Austin Peay,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+CSUN,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Sam Houston,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Bethune-Cookman,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Bellarmine,ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Virginia,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Radford,Big South,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Georgia St.,Sun Belt,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Northern Ariz.,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Arizona,Pac-12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UAB,The American,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+George Washington,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Michigan,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Texas Tech,Big 12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Indiana St.,MVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UT Martin,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Iowa,Big Ten,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+ETSU,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+St. Thomas (MN),Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Penn,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+East Texas A&M,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Manhattan,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Robert Morris,Horizon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Eastern Mich.,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+West Virginia,Big 12,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Gonzaga,WCC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+New Orleans,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Kent St.,MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Southern Utah,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UC Riverside,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Seattle U,WAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Merrimack,NEC,True,0.0002,0.0002,64.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+N.C. Central,MEAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Rhode Island,Atlantic 10,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Nicholls,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Queens (NC),ASUN,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Miami (OH),MAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Morgan St.,MEAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Jacksonville St.,CUSA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Stonehill,NEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Holy Cross,Patriot,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Lamar University,Southland,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Columbia,Ivy League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Cal St. Fullerton,Big West,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Tennessee St.,OVC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Ark.-Pine Bluff,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Idaho,Big Sky,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Oral Roberts,Summit League,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Siena,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Saint Peter's,MAAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+UNC Greensboro,SoCon,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Alcorn,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Syracuse,ACC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+South Carolina St.,MEAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Le Moyne,NEC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Mississippi Val.,SWAC,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
+Hampton,CAA,True,0.0,0.0,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0,False,,power,False
