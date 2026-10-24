@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-10-23T20:05:09.185835+00:00",
+  "built_at": "2026-10-24T13:39:30.255626+00:00",
   "source": "NCAA play-by-play and box scores. 2021-2025 via JeffreyRStevens/ncaavolleyballr; 2026 onward from the ncaa-api mirror (results, play-by-play, player box scores). Player boards for 2021-2025 from jpitel24/volleyball-gis",
   "sport": "women's volleyball",
   "division": "D1",
@@ -20,9 +20,9 @@
     "2026"
   ],
   "seasons_carried_forward": [],
-  "team_match_rows": 52004,
+  "team_match_rows": 52232,
   "team_seasons": 2055,
-  "median_graded_share": 0.9524,
+  "median_graded_share": 0.9545,
   "graded_benchmarks": 7,
   "grade_vs_win_pct_by_season": {
     "2021": 0.9517,
@@ -30,7 +30,7 @@
     "2023": 0.9596,
     "2024": 0.9607,
     "2025": 0.9537,
-    "2026": 0.9498
+    "2026": 0.9418
   },
   "caveats": [
     "Thresholds are calibrated on women's D1; men's and D2/D3 need recalibration.",
