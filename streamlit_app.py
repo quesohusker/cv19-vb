@@ -7,12 +7,15 @@ predictor built on those rankings, with the expected-wins table that follows fro
 """
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
+from app import bracket as BR
 from app import data as D
 from app import llm as L
 from app import png as PNG
@@ -1950,6 +1953,95 @@ def expected_note() -> None:
             "5th-percentile D1 rating.")
 
 
+# ------------------------------------------------------------------- bracket
+BRACKET_HTML = (Path(__file__).resolve().parent / "app" / "bracket_component.html").read_text()
+
+
+def bracket_note(b: dict) -> None:
+    with st.expander("How the bracket is built, simulated and scored"):
+        st.markdown(
+            "**The format** is the one the committee used in 2025: 64 teams, one "
+            f"automatic bid per conference ({b['n_auto']}) and at-large picks for the "
+            "rest. The top 32 are seeded 1-8 inside four regions; the other 32 are "
+            "unseeded. The top 16 seeds host the first two rounds on campus, so the "
+            "host gets the home edge there. Regional rounds and the Final Four are "
+            "played as neutral.\n\n"
+            "**Automatic bids** go to the projected regular-season conference champion: "
+            "conference wins so far plus the win chances of the conference matches left "
+            "on the schedule. Conference tournaments are not modelled, so a league that "
+            "awards its bid in a tournament can send someone else.\n\n"
+            "**At-large picks and seeds** follow the order you choose. *Committee-style* "
+            "uses RPI, computed here from this season's Division I results (25% own "
+            "winning percentage, 50% opponents', 25% opponents' opponents'). The "
+            "committee works from RPI first, so this is the better guess at the bracket "
+            "it will actually publish. It is an approximation, not the NCAA's own figure. "
+            "*Power rating* uses the app's Elo + ridge composite: the better guess at who "
+            "is actually best. Seeds snake across regions; unseeded teams are matched by "
+            "rank, strongest against the weakest seed. The committee places unseeded "
+            "teams mostly by geography, which is not modelled.\n\n"
+            "**Each simulated match** is a weighted coin flip at the Matchup Predictor's "
+            "win probability, so upsets happen as often as the model expects them to. "
+            "Re-rolling replays the last round with fresh draws.\n\n"
+            "**Scoring** is bracket-pool style: a correct pick is worth 1 point in the "
+            "first round, doubling each round to 32 for the final. Each round's maximum "
+            "is 32 points, 192 in all.")
+
+
+def page_bracket(season: str, home: str, away: str) -> None:
+    st.markdown('<h1 class="app">Tournament <span class="accent">Bracket</span></h1>',
+                unsafe_allow_html=True)
+    b = BR.bracket_data(season)
+    if b is None:
+        st.info("The bracket needs the matchup predictor and this season's ratings.")
+        return
+    labels = ["Committee-style (RPI)", "Power rating"]
+    pick = st.radio("Seed the field by", labels, horizontal=True, key="br_basis")
+    basis = "committee" if pick == labels[0] else "power"
+    f = b["fields"][basis]
+    st.markdown(f'<p class="sublabel">A projected 64-team field for {season}, seeded by '
+                f'{pick.lower()}. Rearrange it, lock it, then pick and simulate one round '
+                f'at a time. Changing the seeding above starts a new bracket.</p>',
+                unsafe_allow_html=True)
+    bracket_note(b)
+    teams = {t: dict(v, color=T.team_colors(t)[0]) for t, v in b["teams"].items()}
+    payload = {"basis": basis, "coef": b["coef"], "teams": teams,
+               "slots": f["slots"], "pool": f["pool"], "order": f["order"]}
+    components.html(BRACKET_HTML.replace("/*__DATA__*/null", json.dumps(payload)),
+                    height=980, scrolling=True)
+
+    # the projected field as published, before any rearranging
+    rows = []
+    for i, t in enumerate(f["slots"]):
+        v = b["teams"][t]
+        rows.append({"Region": f"{f['slots'][(i // 16) * 16]}",
+                     "Seed": BR.REGION_SEEDS[i % 16] or "", "Team": t,
+                     "Conference": v["conf"], "Record": v["rec"],
+                     "RPI rank": v["rpi_rank"] or "", "Rating rank": v["comp_rank"],
+                     "Bid": "auto" if v["auto"] else "at-large"})
+    field = pd.DataFrame(rows)
+    PNG.button(st, field, title=f"Projected NCAA field — {season}, {pick.lower()}",
+               subtitle="Region named for its 1 seed. Seeds 1-8 per region; the rest "
+                        "unseeded. Automatic bids are projected conference champions.",
+               filename=f"projected_bracket_{season}_{basis}.png", key="png_br",
+               max_rows=64)
+    ask_panel(
+        f"Projected NCAA tournament field — {season}, {pick.lower()}",
+        "A projected 64-team NCAA women's volleyball field in the 2025 format: 31 "
+        "automatic bids to projected regular-season conference champions, at-large picks "
+        "and seeds by the chosen order (committee-style = an RPI computed from this "
+        "season's Division I results; power = the app's Elo + ridge composite). Seeds "
+        "1-8 per region on an S-curve, unseeded teams matched strongest against weakest "
+        "seed. Simulations use the Matchup Predictor, with the home edge for the top-16 "
+        "campus hosts in the first two rounds.",
+        [("Projected field", field, None)],
+        "br",
+        limits=["Conference tournaments are not modelled.",
+                "Unseeded teams are placed by rank, not geography.",
+                "The RPI here is an approximation of the NCAA's."],
+        examples=["who is the most likely bubble team to miss?",
+                  "which region is toughest?"])
+
+
 # ------------------------------------------------------------------- shell
 st.sidebar.markdown("### 🏐 QuesoHusker's Volleyball")
 season = st.sidebar.selectbox("Season", D.seasons())
@@ -1959,7 +2051,7 @@ st.sidebar.caption(f"NCAA women's D1 · {min(D.seasons())}-{max(D.seasons())} ·
                    f"{D.meta()['team_match_rows']:,} graded team-matches")
 
 tabs = st.tabs(["Stat Comparison", f"The Volleyball {GRADE_MAX}", "Power Rankings",
-                "Matchup Predictor", "Expected Wins", "Strength of Schedule",
+                "Matchup Predictor", "Expected Wins", "Bracket", "Strength of Schedule",
                 "Position Rankings", "How it works"])
 with tabs[0]:
     page_comparison(season, home, away)
@@ -1972,8 +2064,10 @@ with tabs[3]:
 with tabs[4]:
     page_expected(season, home, away)
 with tabs[5]:
-    page_schedule(season, home, away)
+    page_bracket(season, home, away)
 with tabs[6]:
-    page_players(season, home, away)
+    page_schedule(season, home, away)
 with tabs[7]:
+    page_players(season, home, away)
+with tabs[8]:
     page_about()

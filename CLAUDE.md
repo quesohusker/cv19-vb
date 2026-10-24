@@ -144,7 +144,7 @@ as a seventh because it measures something nothing else on the board does.
 
 ## App conventions
 
-- Eight tabs. Every page ends with an **Ask an LLM** panel (a Markdown export of what the
+- Nine tabs. Every page ends with an **Ask an LLM** panel (a Markdown export of what the
   page is showing) and a **Download table (PNG)** button. Both are expected on a new
   page; `ask_panel()` and `app/png.py` are the shared helpers.
 - Tables are hand-built HTML against `table.grid`, not `st.dataframe`. The PNG export
@@ -163,6 +163,14 @@ as a seventh because it measures something nothing else on the board does.
   11 of the pipeline. The predictor uses the published `power_ratings` (ridge + Elo),
   which match the training features exactly; keep it that way, or the coefficients
   stop meaning what they were fitted to mean.
+- The Bracket tab (`app/bracket.py` for the field, `app/bracket_component.html` for the
+  page) runs entirely in the browser once loaded: drag-and-drop, picks, simulation,
+  scoring and odds are JavaScript, using the predictor's three coefficients passed in.
+  Keep that formula identical to `D.predict`, or the bracket and the Matchup Predictor
+  will quote different odds for the same match. Field: 31 auto bids to projected
+  regular-season conference champions (conference tournaments not modelled), the rest
+  at-large by the chosen order (RPI or composite), top 32 seeded 1-8 per region on an
+  S-curve, the 2025 format.
 - `matplotlib` is required for the PNG export. It fails soft — no button rather than a
   broken page — so a missing dependency is silent. Check for the button, not an error.
 

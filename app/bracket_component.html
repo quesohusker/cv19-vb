@@ -1,0 +1,397 @@
+<style>
+  :root { --bg:#0e1117; --panel:#161a23; --input:#262730; --border:rgba(128,128,128,.25);
+          --text:#fafafa; --muted:#9aa0a6; --accent:#e41c38; --good:#22c55e; --miss:#ef4444; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-size:13px;
+         font-family:"Source Sans Pro","Segoe UI",-apple-system,BlinkMacSystemFont,sans-serif; }
+  .bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:2px 0 8px; }
+  .stage { font-weight:700; margin-right:6px; }
+  .help { color:var(--muted); font-size:12px; margin:0 0 8px; }
+  button { background:var(--input); color:var(--text); border:1px solid var(--border);
+           border-radius:6px; padding:5px 11px; cursor:pointer; font:inherit; }
+  button.primary { background:var(--accent); border-color:var(--accent); font-weight:700; }
+  button:disabled { opacity:.35; cursor:default; }
+  .tabs { display:flex; gap:4px; flex-wrap:wrap; margin:4px 0 10px;
+          border-bottom:1px solid var(--border); }
+  .tabs button { border:none; border-bottom:2px solid transparent; border-radius:0;
+                 background:none; padding:6px 10px; color:var(--muted); }
+  .tabs button.on { color:var(--text); border-bottom-color:var(--accent); }
+  .tabs .n { font-size:11px; color:var(--muted); margin-left:4px; }
+  .score { display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--muted);
+           margin:0 0 8px; }
+  .score b { color:var(--text); font-size:14px; }
+  .wrap { display:flex; gap:14px; align-items:flex-start; }
+  .bracket { flex:1; display:grid; grid-template-columns:repeat(4, minmax(150px, 1fr));
+             gap:10px; min-width:0; overflow-x:auto; }
+  .bracket.ff { grid-template-columns:repeat(3, minmax(170px, 1fr)); max-width:720px; }
+  .col { display:flex; flex-direction:column; gap:6px; }
+  .col h4 { margin:0; font-size:11px; color:var(--muted); text-transform:uppercase;
+            letter-spacing:.04em; font-weight:600; }
+  .cb { flex:1; display:flex; flex-direction:column; justify-content:space-around; gap:8px; }
+  .match { background:var(--panel); border:1px solid var(--border); border-radius:6px; }
+  .match.current { border-color:rgba(228,28,56,.65); }
+  .row { display:flex; align-items:center; gap:6px; padding:4px 6px; min-height:26px;
+         border-bottom:1px solid var(--border); user-select:none; }
+  .row:last-child { border-bottom:none; }
+  .seed { width:15px; text-align:right; color:var(--muted); font-size:11px; flex:none; }
+  .sw { width:8px; height:8px; border-radius:2px; flex:none; }
+  .name { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .host { color:var(--muted); font-size:10px; margin-left:3px; }
+  .p { color:var(--muted); font-size:11px; font-variant-numeric:tabular-nums; flex:none; }
+  .mark { font-weight:800; width:12px; text-align:center; flex:none; }
+  .mark.ok { color:var(--good); } .mark.no { color:var(--miss); }
+  .row.tbd .name { color:var(--muted); font-style:italic; }
+  .row.pickable { cursor:pointer; } .row.pickable:hover { background:rgba(128,128,128,.12); }
+  .row.picked { box-shadow:inset 3px 0 0 var(--accent); background:rgba(228,28,56,.14); }
+  .row.won .name { font-weight:700; } .row.lost .name { color:var(--muted); }
+  .row.drag { cursor:grab; }
+  .row.over, .pool.over { outline:2px dashed var(--accent); outline-offset:-2px; }
+  .row.sel { outline:2px solid var(--accent); outline-offset:-2px; }
+  .pool { width:270px; flex:none; background:var(--panel); border:1px solid var(--border);
+          border-radius:6px; padding:8px; }
+  .pool h4 { margin:0 0 6px; font-size:12px; }
+  .pool input { width:100%; background:var(--input); color:var(--text);
+                border:1px solid var(--border); border-radius:5px; padding:4px 6px;
+                margin-bottom:6px; font:inherit; }
+  .pool .list { max-height:520px; overflow-y:auto; }
+  .pool .row { border-bottom:1px solid var(--border); }
+  .pool .meta { color:var(--muted); font-size:11px; flex:none; }
+  table.odds { border-collapse:collapse; width:100%; max-width:900px; font-size:12px; }
+  table.odds th { color:var(--muted); font-weight:600; text-align:right; padding:4px 6px;
+                  border-bottom:1px solid var(--border); position:sticky; top:0;
+                  background:var(--bg); }
+  table.odds th:nth-child(-n+3), table.odds td:nth-child(-n+3) { text-align:left; }
+  table.odds td { padding:3px 6px; border-bottom:1px solid var(--border); text-align:right;
+                  font-variant-numeric:tabular-nums; }
+  .oddswrap { max-height:620px; overflow-y:auto; }
+  .champ { font-size:15px; font-weight:800; margin:6px 0; }
+  @media (max-width:760px) { .wrap { flex-direction:column; } .pool { width:100%; } }
+</style>
+
+<div id="app"></div>
+
+<script>
+const D = /*__DATA__*/null;
+const PTS = [0, 1, 2, 4, 8, 16, 32];
+const RN = ["", "First round", "Second round", "Regional semifinal", "Regional final",
+            "National semifinal", "Final"];
+const SEEDS = [1, null, 8, null, 4, null, 5, null, 2, null, 7, null, 3, null, 6, null];
+const ORDER = {};            // pool order follows the seeding metric
+D.order.forEach((t, i) => ORDER[t] = i);
+let S, OD = null;            // state, and the odds cached against it
+
+function fresh() {
+  S = {slots: D.slots.slice(), pool: D.pool.slice(), round: 0, picks: {}, results: {},
+       view: 0, sel: null, filter: ""};
+  OD = null;
+}
+
+// ------------------------------------------------------------------ the model
+// The app's matchup predictor: three numbers on the two published ratings.
+function prob(a, b, host) {
+  const A = D.teams[a], B = D.teams[b];
+  const v = host === a ? 1 : host === b ? -1 : 0;
+  const z = D.coef[0] * v + D.coef[1] * (A.elo - B.elo) / 100
+          + D.coef[2] * (A.ridge - B.ridge) / 10;
+  return 1 / (1 + Math.exp(-z));
+}
+const nM = r => 64 >> r;                               // matches in round r
+// first two rounds are on the campus of the pod's top seed; later rounds neutral
+function hostOf(r, j, slots) {
+  if (r === 1) return slots[4 * Math.floor(j / 2)];
+  if (r === 2) return slots[4 * j];
+  return null;
+}
+function teamsIn(r, j, slots, res) {
+  if (r === 1) return [slots[2 * j], slots[2 * j + 1]];
+  const w = res[r - 1];
+  if (!w) return [null, null];
+  if (r === 5) return j === 0 ? [w[0], w[3]] : [w[1], w[2]];   // 1 v 4, 2 v 3 regions
+  return [w[2 * j], w[2 * j + 1]];
+}
+const regionOf = (r, j) => r <= 4 ? Math.floor(j / (16 >> r)) : null;
+const seedOf = t => { const i = S.slots.indexOf(t); return i < 0 ? null : SEEDS[i % 16]; };
+
+function simRound(r, slots, res) {
+  const out = [];
+  for (let j = 0; j < nM(r); j++) {
+    const [a, b] = teamsIn(r, j, slots, res);
+    out.push(Math.random() < prob(a, b, hostOf(r, j, slots)) ? a : b);
+  }
+  return out;
+}
+
+// ------------------------------------------------------------------ actions
+function lockField() { S.round = 1; S.sel = null; draw(); }
+function pick(r, j, t) { if (r !== S.round) return; (S.picks[r] ||= {})[j] = t; draw(); }
+function pickFavorites() {
+  const r = S.round; S.picks[r] ||= {};
+  for (let j = 0; j < nM(r); j++) {
+    if (S.picks[r][j]) continue;                        // never overwrite a real pick
+    const [a, b] = teamsIn(r, j, S.slots, S.results);
+    S.picks[r][j] = prob(a, b, hostOf(r, j, S.slots)) >= 0.5 ? a : b;
+  }
+  draw();
+}
+function simulate() {
+  const r = S.round;
+  S.results[r] = simRound(r, S.slots, S.results);
+  S.round = r + 1; OD = null;
+  if (r >= 4 && S.view < 4) S.view = 4;                 // the Final Four is next
+  draw();
+}
+function reroll() {                                     // replay the last round played
+  const r = S.round - 1;
+  if (r < 1) return;
+  delete S.results[r]; delete S.picks[r + 1];
+  S.round = r; simulate();
+}
+function reset() {
+  if (!confirm("Start over from the projected field? Picks and results are cleared.")) return;
+  fresh(); draw();
+}
+
+// field editing: drag and drop, or tap one team then another
+function move(src, dst) {
+  if (S.round !== 0 || !src || !dst) return;
+  if (src.kind === "slot" && dst.kind === "slot") {
+    [S.slots[src.i], S.slots[dst.i]] = [S.slots[dst.i], S.slots[src.i]];
+  } else if (src.kind === "pool" && dst.kind === "slot") {
+    S.pool = S.pool.filter(t => t !== src.t);
+    S.pool.push(S.slots[dst.i]);
+    S.pool.sort((x, y) => ORDER[x] - ORDER[y]);
+    S.slots[dst.i] = src.t;
+  } else if (src.kind === "slot" && dst.kind === "pool") {
+    const out = S.slots[src.i];                         // swap with that pool team
+    S.slots[src.i] = dst.t;
+    S.pool = S.pool.filter(t => t !== dst.t);
+    S.pool.push(out);
+    S.pool.sort((x, y) => ORDER[x] - ORDER[y]);
+  }
+  S.sel = null; OD = null; draw();
+}
+function tap(target) {
+  if (S.round !== 0) return;
+  if (!S.sel) { S.sel = target; draw(); return; }
+  const same = S.sel.kind === target.kind && S.sel.i === target.i && S.sel.t === target.t;
+  if (same) { S.sel = null; draw(); return; }
+  if (S.sel.kind === "pool" && target.kind === "pool") { S.sel = target; draw(); return; }
+  move(S.sel, target);
+}
+
+// ------------------------------------------------------------------ odds
+function odds(n = 4000) {
+  const reach = {};                                     // team -> [r1..r7] counts
+  const field = S.slots;
+  field.forEach(t => reach[t] = [0, 0, 0, 0, 0, 0, 0, 0]);
+  for (let s = 0; s < n; s++) {
+    const res = {};
+    for (let r = 1; r <= 6; r++) {
+      res[r] = S.results[r] ? S.results[r] : simRound(r, field, res);
+      res[r].forEach(t => reach[t][r + 1]++);
+    }
+  }
+  return reach;
+}
+
+// ------------------------------------------------------------------ scoring
+function scoreboard() {
+  let pts = 0, possible = 0, parts = [];
+  for (let r = 1; r <= 6; r++) {
+    if (!S.results[r]) continue;
+    let ok = 0;
+    for (let j = 0; j < nM(r); j++) if ((S.picks[r] || {})[j] === S.results[r][j]) ok++;
+    pts += ok * PTS[r]; possible += nM(r) * PTS[r];
+    parts.push(`${RN[r]}: ${ok}/${nM(r)}`);
+  }
+  return {pts, possible, parts};
+}
+
+// ------------------------------------------------------------------ drawing
+const pct = p => p > 0.995 ? ">99%" : p < 0.005 ? "<1%" : Math.round(p * 100) + "%";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function row(t, opts) {
+  const T = t ? D.teams[t] : null;
+  const cls = ["row"].concat(opts.cls || []);
+  const attrs = opts.attrs || "";
+  if (!t) return `<div class="${cls.concat("tbd").join(" ")}" ${attrs}><span class="seed"></span>
+                  <span class="name">${opts.tbd || "TBD"}</span></div>`;
+  const seed = opts.seed != null ? opts.seed : "";
+  return `<div class="${cls.join(" ")}" ${attrs} title="${esc(t)} · ${esc(T.conf)} · ${T.rec}${T.auto ? " · projected AQ" : ""}">
+    <span class="seed">${seed}</span><span class="sw" style="background:${T.color}"></span>
+    <span class="name">${esc(t)}${opts.host ? '<span class="host">host</span>' : ""}</span>
+    ${opts.p != null ? `<span class="p">${pct(opts.p)}</span>` : ""}
+    ${opts.mark ? `<span class="mark ${opts.mark}">${opts.mark === "ok" ? "&#10003;" : "&#10007;"}</span>` : ""}
+  </div>`;
+}
+
+function matchBox(r, j) {
+  const [a, b] = teamsIn(r, j, S.slots, S.results);
+  const host = hostOf(r, j, S.slots);
+  const done = S.results[r] ? S.results[r][j] : null;
+  const pk = (S.picks[r] || {})[j];
+  const live = S.round === r && a && b;
+  const pa = a && b ? prob(a, b, host) : null;
+  const one = (t, p, slotIdx) => {
+    const cls = [], o = {};
+    if (S.round === 0 && r === 1) {
+      cls.push("drag");
+      if (S.sel && S.sel.kind === "slot" && S.sel.i === slotIdx) cls.push("sel");
+      o.attrs = `draggable="true" data-slot="${slotIdx}"`;
+    } else if (live) {
+      cls.push("pickable");
+      o.attrs = `data-pick="${r},${j}" data-team="${esc(t)}"`;
+    }
+    if (pk === t) cls.push("picked");
+    if (done) cls.push(done === t ? "won" : "lost");
+    if (done && pk === t) o.mark = done === t ? "ok" : "no";
+    o.cls = cls; o.seed = t ? seedOf(t) : ""; o.p = p; o.host = t && t === host;
+    return row(t, o);
+  };
+  const ia = r === 1 ? 2 * j : null;
+  return `<div class="match${live ? " current" : ""}">${one(a, pa, ia)}${one(b, pa == null ? null : 1 - pa, ia == null ? null : ia + 1)}</div>`;
+}
+
+function regionView(g) {
+  let html = `<div class="bracket">`;
+  for (let r = 1; r <= 4; r++) {
+    const per = 16 >> r;
+    html += `<div class="col"><h4>${RN[r]}</h4><div class="cb">`;
+    for (let j = g * per; j < (g + 1) * per; j++) html += matchBox(r, j);
+    html += `</div></div>`;
+  }
+  return html + `</div>`;
+}
+
+function finalFourView() {
+  let html = `<div class="bracket ff"><div class="col"><h4>${RN[5]}</h4><div class="cb">${matchBox(5, 0)}${matchBox(5, 1)}</div></div>
+              <div class="col"><h4>${RN[6]}</h4><div class="cb">${matchBox(6, 0)}</div></div><div class="col"><h4>Champion</h4><div class="cb">`;
+  const c = S.results[6] ? S.results[6][0] : null;
+  html += `<div class="match">${row(c, {seed: c ? seedOf(c) : "", tbd: "TBD", cls: c ? ["won"] : []})}</div></div></div></div>`;
+  return html;
+}
+
+function oddsView() {
+  OD ||= odds();
+  const heads = ["2nd rd", "Reg. semi", "Reg. final", "Final Four", "Final", "Champion"];
+  const rows = S.slots.slice().sort((x, y) => OD[y][7] - OD[x][7] || OD[y][5] - OD[x][5]);
+  const n = 4000;
+  let html = `<p class="help">Each team's chance of reaching each round, from 4,000 simulations of whatever is still unplayed. Rounds already simulated count as settled.</p>
+    <div class="oddswrap"><table class="odds"><thead><tr><th>Seed</th><th>Team</th><th>Conf</th>${heads.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>`;
+  for (const t of rows) {
+    const i = S.slots.indexOf(t), reg = Math.floor(i / 16) + 1, sd = SEEDS[i % 16];
+    html += `<tr><td>R${reg}${sd ? "·" + sd : ""}</td><td><span class="sw" style="display:inline-block;background:${D.teams[t].color}"></span> ${esc(t)}</td><td>${esc(D.teams[t].conf)}</td>`;
+    for (let k = 2; k <= 7; k++) {
+      const v = OD[t][k] / n;
+      html += `<td>${v >= 1 ? "100%" : v <= 0 ? "&ndash;" : pct(v)}</td>`;
+    }
+    html += `</tr>`;
+  }
+  return html + `</tbody></table></div>`;
+}
+
+function poolPanel() {
+  const f = S.filter.toLowerCase();
+  const list = S.pool.filter(t => !f || t.toLowerCase().includes(f) ||
+                                   D.teams[t].conf.toLowerCase().includes(f));
+  let html = `<div class="pool" data-pooldrop="1"><h4>Not in the field (${S.pool.length})</h4>
+    <input id="flt" placeholder="Filter by team or conference" value="${esc(S.filter)}">
+    <div class="list">`;
+  for (const t of list.slice(0, 120)) {
+    const T = D.teams[t];
+    const sel = S.sel && S.sel.kind === "pool" && S.sel.t === t ? " sel" : "";
+    html += `<div class="row drag${sel}" draggable="true" data-pool="${esc(t)}">
+      <span class="sw" style="background:${T.color}"></span><span class="name">${esc(t)}</span>
+      <span class="meta">${D.metric(T)} · ${T.rec}</span></div>`;
+  }
+  if (list.length > 120) html += `<p class="help">${list.length - 120} more; filter to find them.</p>`;
+  return html + `</div></div>`;
+}
+
+function draw() {
+  const sc = scoreboard();
+  const r = S.round;
+  const regionName = g => S.slots[g * 16];
+  const picksIn = (rr, g) => {
+    if (rr > 4) return "";
+    const per = 16 >> rr; let k = 0;
+    for (let j = g * per; j < (g + 1) * per; j++) if ((S.picks[rr] || {})[j]) k++;
+    return `<span class="n">${k}/${per}</span>`;
+  };
+  let bar, help;
+  if (r === 0) {
+    bar = `<span class="stage">Set the field</span>
+      <button class="primary" id="lock">Lock the field and start picking</button>
+      <button id="reset">Reset to projection</button>`;
+    help = `Drag a team onto another slot to swap them, or drag one in from the list on the right to replace a team in the field. On a touch screen, tap one team and then another. Seeds belong to the slot, so a team takes the seed of the slot it lands in.`;
+  } else if (r <= 6) {
+    const done = Object.keys(S.picks[r] || {}).length;
+    bar = `<span class="stage">${RN[r]}</span>
+      <span class="help" style="margin:0">${done} of ${nM(r)} picked</span>
+      <button id="fav">Fill in the favorites</button>
+      <button class="primary" id="sim">Simulate the ${RN[r].toLowerCase()}</button>
+      <button id="reroll" ${r > 1 ? "" : "disabled"}>Re-roll the ${r > 1 ? RN[r - 1].toLowerCase() : "last round"}</button>
+      <button id="reset">Start over</button>`;
+    help = `Click a team in each highlighted match to pick it. The percentages are the predictor's win chances, with the home edge for campus hosts in the first two rounds. Unpicked matches score nothing. Fill in the favorites picks the likelier team in every match you have not picked yourself.`;
+  } else {
+    bar = `<span class="stage">Tournament complete</span>
+      <button id="reroll">Re-roll the final</button><button id="reset">Start over</button>`;
+    help = "";
+  }
+  const tabs = [0, 1, 2, 3].map(g => `<button data-view="${g}" class="${S.view === g ? "on" : ""}">${esc(regionName(g))} region${r >= 1 && r <= 4 ? picksIn(r, g) : ""}</button>`)
+    .concat([`<button data-view="4" class="${S.view === 4 ? "on" : ""}">Final Four</button>`,
+             `<button data-view="5" class="${S.view === 5 ? "on" : ""}">Odds</button>`]).join("");
+  let body;
+  if (S.view <= 3) body = `<div class="wrap">${regionView(S.view)}${r === 0 ? poolPanel() : ""}</div>`;
+  else if (S.view === 4) body = finalFourView();
+  else body = oddsView();
+  const champ = S.results[6] ? `<div class="champ">Champion: ${esc(S.results[6][0])}</div>` : "";
+  document.getElementById("app").innerHTML = `
+    <div class="bar">${bar}</div>${help ? `<p class="help">${help}</p>` : ""}
+    <div class="score"><span>Your score <b>${sc.pts}</b> of ${sc.possible} possible so far</span>
+      ${sc.parts.map(p => `<span>${p}</span>`).join("")}
+      <span>Points per correct pick: 1, 2, 4, 8, 16, 32</span></div>
+    ${champ}<div class="tabs">${tabs}</div>${body}`;
+  wire();
+}
+
+function wire() {
+  const $ = id => document.getElementById(id);
+  $("lock") && ($("lock").onclick = lockField);
+  $("reset") && ($("reset").onclick = reset);
+  $("fav") && ($("fav").onclick = pickFavorites);
+  $("sim") && ($("sim").onclick = simulate);
+  $("reroll") && ($("reroll").onclick = reroll);
+  document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => { S.view = +b.dataset.view; draw(); });
+  document.querySelectorAll("[data-pick]").forEach(el => el.onclick = () => {
+    const [r, j] = el.dataset.pick.split(",").map(Number); pick(r, j, el.dataset.team);
+  });
+  const flt = $("flt");
+  if (flt) flt.oninput = e => {
+    S.filter = e.target.value; const pos = e.target.selectionStart; draw();
+    const f = $("flt"); f.focus(); f.setSelectionRange(pos, pos);
+  };
+  // drag and drop, plus tap-to-swap for touch screens
+  const src = el => el.dataset.slot != null ? {kind: "slot", i: +el.dataset.slot}
+                                             : {kind: "pool", t: el.dataset.pool};
+  document.querySelectorAll("[draggable=true]").forEach(el => {
+    el.ondragstart = e => { e.dataTransfer.setData("text/plain", JSON.stringify(src(el))); };
+    el.onclick = () => tap(src(el));
+  });
+  document.querySelectorAll("[data-slot]").forEach(el => {
+    el.ondragover = e => { e.preventDefault(); el.classList.add("over"); };
+    el.ondragleave = () => el.classList.remove("over");
+    el.ondrop = e => { e.preventDefault(); move(JSON.parse(e.dataTransfer.getData("text/plain")), src(el)); };
+  });
+  document.querySelectorAll("[data-pool]").forEach(el => {
+    el.ondragover = e => { e.preventDefault(); el.classList.add("over"); };
+    el.ondragleave = () => el.classList.remove("over");
+    el.ondrop = e => { e.preventDefault(); move(JSON.parse(e.dataTransfer.getData("text/plain")), src(el)); };
+  });
+}
+
+D.metric = T => D.basis === "committee"
+  ? (T.rpi_rank ? `RPI #${T.rpi_rank}` : "RPI n/a") : `Rating #${T.comp_rank}`;
+fresh(); draw();
+</script>
