@@ -75,7 +75,12 @@ const D = /*__DATA__*/null;
 const PTS = [0, 1, 2, 4, 8, 16, 32];
 const RN = ["", "First round", "Second round", "Regional semifinal", "Regional final",
             "National semifinal", "Final"];
-const SEEDS = [1, null, 8, null, 4, null, 5, null, 2, null, 7, null, 3, null, 6, null];
+// top to bottom in a region: the 1 seed's pod first, the 2 seed's last
+const SEEDS = [1, null, 8, null, 5, null, 4, null, 6, null, 3, null, 7, null, 2, null];
+// the host slot of each pod is its 1-4 seed, found by seed rather than assumed to be
+// the pod's first slot: in the 4/5 pod the 5 sits on top
+const HOSTPOS = [0, 1, 2, 3].map(p => [0, 1, 2, 3].map(o => 4 * p + o)
+                                 .find(i => SEEDS[i] && SEEDS[i] <= 4));
 const ORDER = {};            // pool order follows the seeding metric
 D.order.forEach((t, i) => ORDER[t] = i);
 let S, OD = null;            // state, and the odds cached against it
@@ -98,9 +103,9 @@ function prob(a, b, host) {
 const nM = r => 64 >> r;                               // matches in round r
 // first two rounds are on the campus of the pod's top seed; later rounds neutral
 function hostOf(r, j, slots) {
-  if (r === 1) return slots[4 * Math.floor(j / 2)];
-  if (r === 2) return slots[4 * j];
-  return null;
+  if (r > 2) return null;
+  const pod = r === 1 ? Math.floor(j / 2) : j;          // global pod index, 0-15
+  return slots[16 * Math.floor(pod / 4) + HOSTPOS[pod % 4]];
 }
 function teamsIn(r, j, slots, res) {
   if (r === 1) return [slots[2 * j], slots[2 * j + 1]];

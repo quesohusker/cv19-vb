@@ -42,9 +42,11 @@ from app import data as D
 
 FIELD = 64
 SEEDED = 32
-# slot -> seed inside a region of 16, in bracket order. Pairs (0,1), (2,3), ... meet
-# in the first round; each block of four is one campus pod hosted by its top slot.
-REGION_SEEDS = [1, None, 8, None, 4, None, 5, None, 2, None, 7, None, 3, None, 6, None]
+# slot -> seed inside a region of 16, in bracket order, top to bottom: the 1 seed's pod
+# at the top and the 2 seed's at the bottom, as every printed bracket has it. Pairs
+# (0,1), (2,3), ... meet in the first round; each block of four is one campus pod,
+# hosted by its 1-4 seed, which is not always the first slot (the 5 sits above the 4).
+REGION_SEEDS = [1, None, 8, None, 5, None, 4, None, 6, None, 3, None, 7, None, 2, None]
 
 
 def rpi(season: str) -> pd.DataFrame:
