@@ -170,7 +170,10 @@ as a seventh because it measures something nothing else on the board does.
   will quote different odds for the same match. Field: 31 auto bids to projected
   regular-season conference champions (conference tournaments not modelled), the rest
   at-large by the chosen order (RPI or composite), top 32 seeded 1-8 per region on an
-  S-curve, the 2025 format.
+  S-curve, the 2025 format. "Auto-generate" picks the favorite wherever the reader has
+  not picked and simulates to a champion. "Download PDF" is built in the browser with
+  jsPDF 2.5.2, vendored at `app/vendor/` (MIT) and inlined into the page rather than
+  loaded from a CDN, so it works wherever the app does.
 - `matplotlib` is required for the PNG export. It fails soft — no button rather than a
   broken page — so a missing dependency is silent. Check for the button, not an error.
 

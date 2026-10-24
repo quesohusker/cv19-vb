@@ -69,7 +69,7 @@
 </style>
 
 <div id="app"></div>
-
+<!--__JSPDF__-->
 <script>
 const D = /*__DATA__*/null;
 const PTS = [0, 1, 2, 4, 8, 16, 32];
@@ -151,6 +151,170 @@ function reroll() {                                     // replay the last round
   delete S.results[r]; delete S.picks[r + 1];
   S.round = r; simulate();
 }
+// The computer plays it out: the favorite in every match still unpicked, then every
+// remaining round simulated. Picks already made by hand are kept and scored as usual.
+function autoplay() {
+  if (S.round === 0) S.round = 1;
+  while (S.round <= 6) {
+    const r = S.round; S.picks[r] ||= {};
+    for (let j = 0; j < nM(r); j++) {
+      if (S.picks[r][j]) continue;
+      const [a, b] = teamsIn(r, j, S.slots, S.results);
+      S.picks[r][j] = prob(a, b, hostOf(r, j, S.slots)) >= 0.5 ? a : b;
+    }
+    S.results[r] = simRound(r, S.slots, S.results);
+    S.round = r + 1;
+  }
+  S.sel = null; OD = null; S.view = 4; draw();
+}
+
+// ------------------------------------------------------------------ PDF
+// Page 1 is the whole tournament as a printed bracket: two regions down each side
+// flowing in, the Final Four in the middle. The pages after list every match.
+function makePDF() {
+  const doc = new window.jspdf.jsPDF({orientation: "landscape", unit: "pt", format: "letter"});
+  const W = 792, H = 612, M = 24, colW = 62;
+  const ink = 20, mute = 140, sc = scoreboard();
+  const champ = S.results[6] ? S.results[6][0] : null;
+  const fit = (t, w) => {                       // ellipsize to a width
+    if (doc.getTextWidth(t) <= w) return t;
+    while (t.length > 1 && doc.getTextWidth(t + "...") > w) t = t.slice(0, -1);
+    return t + "...";
+  };
+  const footer = n => {
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.setTextColor(mute);
+    doc.text(`QuesoHusker's Volleyball · simulated with the app's matchup predictor · page ${n}`, M, H - 12);
+  };
+
+  doc.setFont("helvetica", "bold"); doc.setFontSize(15); doc.setTextColor(ink);
+  doc.text(`NCAA Women's Volleyball Tournament ${D.season}: a simulated bracket`, M, M + 8);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(90);
+  doc.text(`Seeded by ${D.basis_label}. Champion: ${champ || "not yet decided"}.  ` +
+           `Your picks: ${sc.pts} of ${sc.possible} points.  Generated ${new Date().toLocaleDateString()}.`,
+           M, M + 22);
+
+  const top = M + 34, bottom = H - M - 16, rowH = (bottom - top) / 34;
+  // one side of the bracket: two regions, top then bottom, as levels 0 (first-round
+  // field) to 4 (the region champion)
+  function levels(regions) {
+    const lv = [[]];
+    regions.forEach(rg => { for (let i = 0; i < 16; i++) lv[0].push({t: S.slots[rg * 16 + i], L: 0, g: rg * 16 + i}); });
+    for (let L = 1; L <= 4; L++) {
+      lv[L] = []; const per = 16 >> L;
+      regions.forEach(rg => { for (let k = 0; k < per; k++) {
+        const g = rg * per + k; lv[L].push({t: S.results[L] ? S.results[L][g] : null, L, g});
+      } });
+    }
+    return lv;
+  }
+  function side(regions, left) {
+    const lv = levels(regions), y = [[]];
+    // a label row above each region, so 34 rows hold 32 teams
+    for (let i = 0; i < 32; i++) y[0].push(top + (i + (i < 16 ? 2 : 3)) * rowH);
+    for (let L = 1; L <= 4; L++) y[L] = lv[L].map((_, k) => (y[L - 1][2 * k] + y[L - 1][2 * k + 1]) / 2);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(7); doc.setTextColor(ink);
+    regions.forEach((rg, h) => {
+      const label = `${S.slots[rg * 16]} region`;
+      const ly = top + (h === 0 ? 1 : 18) * rowH;
+      doc.text(label, left ? M : W - M, ly, {align: left ? "left" : "right"});
+    });
+    for (let L = 0; L <= 4; L++) {
+      const x0 = left ? M + L * colW : W - M - (L + 1) * colW, x1 = x0 + colW;
+      lv[L].forEach((s, k) => {
+        const yy = y[L][k];
+        doc.setDrawColor(150); doc.setLineWidth(0.5); doc.line(x0, yy, x1, yy);
+        if (L > 0) {                            // join the two lines this one came from
+          const xc = left ? x0 : x1;
+          doc.line(xc, y[L - 1][2 * k], xc, y[L - 1][2 * k + 1]);
+        }
+        if (!s.t) return;
+        const next = S.results[L + 1] || null;
+        const out = next && !next.includes(s.t);
+        const seed = seedOf(s.t);
+        doc.setFont("helvetica", L > 0 && !out ? "bold" : "normal");
+        doc.setFontSize(6.4); doc.setTextColor(out ? mute : ink);
+        doc.text(fit(`${seed ? seed + " " : ""}${s.t}`, colW - 9), x0 + 1.5, yy - 1.6);
+        if (L >= 1 && (S.picks[L] || {})[s.g]) {   // was this match picked right?
+          const ok = S.picks[L][s.g] === s.t;
+          doc.setFillColor(ok ? 34 : 220, ok ? 160 : 38, ok ? 80 : 38);
+          doc.circle(x1 - 3.5, yy - 3.4, 1.8, "F");
+        }
+      });
+    }
+    return y[4];
+  }
+  const yl = side([0, 3], true), yr = side([1, 2], false);
+  // the Final Four in the middle
+  const cx0 = M + 5 * colW, cx1 = W - M - 5 * colW, mid = (yl[0] + yl[1]) / 2;
+  doc.setDrawColor(150);
+  doc.line(cx0, yl[0], cx0, yl[1]); doc.line(cx1, yr[0], cx1, yr[1]);
+  const dot = (ok, x, yy) => {
+    doc.setFillColor(ok ? 34 : 220, ok ? 160 : 38, ok ? 80 : 38);
+    doc.circle(x, yy, 1.8, "F");
+  };
+  const finalist = (t, x0, x1, g) => {
+    doc.setDrawColor(150); doc.setLineWidth(0.5); doc.line(x0, mid, x1, mid);
+    if (!t) return;
+    const lost = S.results[6] && S.results[6][0] !== t;
+    doc.setFont("helvetica", lost ? "normal" : "bold"); doc.setFontSize(7);
+    doc.setTextColor(lost ? mute : ink);
+    doc.text(fit(`${seedOf(t) || ""} ${t}`.trim(), x1 - x0 - 9), x0 + 1.5, mid - 1.8);
+    const pk = (S.picks[5] || {})[g];
+    if (pk) dot(pk === t, x1 - 3.5, mid - 3.4);
+  };
+  const half = (cx1 - cx0) / 2 - 3;
+  finalist(S.results[5] ? S.results[5][0] : null, cx0, cx0 + half, 0);
+  finalist(S.results[5] ? S.results[5][1] : null, cx1 - half, cx1, 1);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); doc.setTextColor(mute);
+  doc.text("CHAMPION", W / 2, mid - 46, {align: "center"});
+  doc.setDrawColor(228, 28, 56); doc.setLineWidth(1); doc.roundedRect(cx0 + 4, mid - 40, cx1 - cx0 - 8, 22, 3, 3);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(9.5); doc.setTextColor(ink);
+  doc.text(champ ? fit(champ, cx1 - cx0 - 14) : "TBD", W / 2, mid - 25.5, {align: "center"});
+  const cp = (S.picks[6] || {})[0];
+  if (champ && cp) dot(cp === champ, cx1 - 10, mid - 29);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); doc.setTextColor(mute);
+  doc.text("Final Four: left semifinal joins the two left regions, right the two right", W / 2, mid + 16, {align: "center", maxWidth: cx1 - cx0});
+  doc.text("Dots: your pick was right (green) or wrong (red)", W / 2, bottom + 2, {align: "center"});
+  footer(1);
+
+  // every match, round by round
+  let page = 1, y = 0;
+  const cols = [M, M + 120, M + 230, M + 420, M + 520, M + 640];
+  const newPage = () => {
+    doc.addPage("letter", "landscape"); page++; y = M + 10;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(ink);
+    doc.text(`Every match, ${D.season}`, M, y); y += 16;
+    doc.setFontSize(7.5); doc.setTextColor(mute);
+    ["Round", "Region", "Match (win chance)", "Winner", "Your pick", ""].forEach((h, i) => doc.text(h, cols[i], y));
+    y += 10; footer(page);
+  };
+  newPage();
+  for (let r = 1; r <= 6; r++) {
+    for (let j = 0; j < nM(r); j++) {
+      if (y > H - M - 24) newPage();
+      const [a, b] = teamsIn(r, j, S.slots, S.results);
+      const w = S.results[r] ? S.results[r][j] : null, pk = (S.picks[r] || {})[j];
+      const rg = regionOf(r, j);
+      const p = a && b ? prob(a, b, hostOf(r, j, S.slots)) : null;
+      const nm = t => t ? `${seedOf(t) ? seedOf(t) + " " : ""}${t}` : "TBD";
+      doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(ink);
+      doc.text(RN[r], cols[0], y);
+      doc.text(rg != null ? `${S.slots[rg * 16]} region` : "Final Four", cols[1], y);
+      doc.text(fit(p != null ? `${nm(a)} (${pct(p)}) v ${nm(b)}` : `${nm(a)} v ${nm(b)}`, 185), cols[2], y);
+      doc.setFont("helvetica", "bold"); doc.text(w ? fit(w, 95) : "", cols[3], y);
+      doc.setFont("helvetica", "normal"); doc.text(pk ? fit(pk, 110) : "-", cols[4], y);
+      if (w && pk) {
+        const ok = pk === w;
+        doc.setTextColor(ok ? 34 : 200, ok ? 140 : 38, ok ? 70 : 38);
+        doc.text(ok ? "right" : "wrong", cols[5], y);
+      }
+      y += 10.5;
+    }
+    y += 4;
+  }
+  doc.save(`volleyball_bracket_${D.season}.pdf`);
+}
+
 function reset() {
   if (!confirm("Start over from the projected field? Picks and results are cleared.")) return;
   fresh(); draw();
@@ -328,6 +492,7 @@ function draw() {
   if (r === 0) {
     bar = `<span class="stage">Set the field</span>
       <button class="primary" id="lock">Lock the field and start picking</button>
+      <button id="auto" title="Picks the favorite in every match and simulates the whole tournament">Auto-generate the bracket</button>
       <button id="reset">Reset to projection</button>`;
     help = `Drag a team onto another slot to swap them, or drag one in from the list on the right to replace a team in the field. On a touch screen, tap one team and then another. Seeds belong to the slot, so a team takes the seed of the slot it lands in.`;
   } else if (r <= 6) {
@@ -337,10 +502,13 @@ function draw() {
       <button id="fav">Fill in the favorites</button>
       <button class="primary" id="sim">Simulate the ${RN[r].toLowerCase()}</button>
       <button id="reroll" ${r > 1 ? "" : "disabled"}>Re-roll the ${r > 1 ? RN[r - 1].toLowerCase() : "last round"}</button>
+      <button id="auto" title="Picks the favorite in every match you have not picked and simulates every remaining round">Auto-generate the rest</button>
+      <button id="pdf">Download PDF</button>
       <button id="reset">Start over</button>`;
     help = `Click a team in each highlighted match to pick it. The percentages are the predictor's win chances, with the home edge for campus hosts in the first two rounds. Unpicked matches score nothing. Fill in the favorites picks the likelier team in every match you have not picked yourself.`;
   } else {
     bar = `<span class="stage">Tournament complete</span>
+      <button class="primary" id="pdf">Download PDF</button>
       <button id="reroll">Re-roll the final</button><button id="reset">Start over</button>`;
     help = "";
   }
@@ -368,6 +536,10 @@ function wire() {
   $("fav") && ($("fav").onclick = pickFavorites);
   $("sim") && ($("sim").onclick = simulate);
   $("reroll") && ($("reroll").onclick = reroll);
+  $("auto") && ($("auto").onclick = autoplay);
+  $("pdf") && ($("pdf").onclick = () => {
+    try { makePDF(); } catch (e) { alert("Could not build the PDF: " + e.message); }
+  });
   document.querySelectorAll("[data-view]").forEach(b => b.onclick = () => { S.view = +b.dataset.view; draw(); });
   document.querySelectorAll("[data-pick]").forEach(el => el.onclick = () => {
     const [r, j] = el.dataset.pick.split(",").map(Number); pick(r, j, el.dataset.team);

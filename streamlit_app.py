@@ -1955,6 +1955,9 @@ def expected_note() -> None:
 
 # ------------------------------------------------------------------- bracket
 BRACKET_HTML = (Path(__file__).resolve().parent / "app" / "bracket_component.html").read_text()
+# jsPDF 2.5.2 (MIT, app/vendor/jspdf.LICENSE), inlined rather than fetched from a CDN so
+# the PDF export works wherever the app does and needs nothing at click time.
+JSPDF = (Path(__file__).resolve().parent / "app" / "vendor" / "jspdf.umd.min.js").read_text()
 
 
 def bracket_note(b: dict) -> None:
@@ -2004,9 +2007,11 @@ def page_bracket(season: str, home: str, away: str) -> None:
                 unsafe_allow_html=True)
     bracket_note(b)
     teams = {t: dict(v, color=T.team_colors(t)[0]) for t, v in b["teams"].items()}
-    payload = {"basis": basis, "coef": b["coef"], "teams": teams,
+    payload = {"basis": basis, "basis_label": pick, "season": season,
+               "coef": b["coef"], "teams": teams,
                "slots": f["slots"], "pool": f["pool"], "order": f["order"]}
-    components.html(BRACKET_HTML.replace("/*__DATA__*/null", json.dumps(payload)),
+    components.html(BRACKET_HTML.replace("/*__DATA__*/null", json.dumps(payload))
+                    .replace("<!--__JSPDF__-->", f"<script>{JSPDF}</script>"),
                     height=980, scrolling=True)
 
     # the projected field as published, before any rearranging
