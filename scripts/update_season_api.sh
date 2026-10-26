@@ -87,8 +87,31 @@ step "5/11  team box scores"
   --gis-dir "${PM_DIR}" --results "${RESULTS}"
 
 step "6/11  play-by-play (one request per match -- the long one, resumable)"
-echo "Safe to interrupt: every match is cached and re-running fetches only what is missing."
-"$PY" data_collection/fetch_ncaa_pbp.py "${YEAR}" ${PBP_LIMIT:+--limit "${PBP_LIMIT}"}
+# PBP_MODE: recent (matches from the last PBP_RECENT_DAYS days; the default), all
+# (every match not yet on disk), or skip. Unset, it asks. Either way, matches the feed
+# has answered 502 for are skipped (data/ncaa_api/pbp/failed_<year>.json) unless
+# PBP_RETRY_FAILED=1.
+PBP_MODE="${PBP_MODE:-}"
+PBP_RECENT_DAYS="${PBP_RECENT_DAYS:-7}"
+if [ -z "$PBP_MODE" ] && [ -t 0 ]; then
+  echo "  [r] recent: matches from the last ${PBP_RECENT_DAYS} days (default)"
+  echo "  [a] all: every match not yet on disk, however old"
+  echo "  [s] skip: new matches get no play-by-play and stay out of the stats this run"
+  read -r -p "Stage 6: [R/a/s] " reply
+  case "$reply" in [aA]*) PBP_MODE=all ;; [sS]*) PBP_MODE=skip ;; *) PBP_MODE=recent ;; esac
+fi
+PBP_ARGS=(${PBP_LIMIT:+--limit "${PBP_LIMIT}"})
+[ -n "${PBP_RETRY_FAILED:-}" ] && PBP_ARGS+=(--retry-failed)
+case "${PBP_MODE:-recent}" in
+  skip)
+    echo "Skipped. Matches played since the last run are not in the stats." ;;
+  all)
+    echo "Safe to interrupt: every match is cached and re-running fetches only what is missing."
+    "$PY" data_collection/fetch_ncaa_pbp.py "${YEAR}" ${PBP_ARGS[@]+"${PBP_ARGS[@]}"} ;;
+  *)
+    "$PY" data_collection/fetch_ncaa_pbp.py "${YEAR}" --recent-days "${PBP_RECENT_DAYS}" \
+      ${PBP_ARGS[@]+"${PBP_ARGS[@]}"} ;;
+esac
 
 step "7/11  rally table"
 "$PY" analytics/rally_from_ncaa_api.py "${YEAR}" --serve-attempts "${PLAYERMATCH}"

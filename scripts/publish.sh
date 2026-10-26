@@ -9,6 +9,11 @@ for arg in "$@"; do
   case "$arg" in
     -y|--yes) ASSUME_YES=1 ;;
     --skip-update) SKIP_UPDATE=1 ;;
+    # stage 6 of the update without being asked; see update_season_api.sh
+    --pbp-all) export PBP_MODE=all ;;
+    --pbp-recent) export PBP_MODE=recent ;;
+    --skip-pbp) export PBP_MODE=skip ;;
+    --retry-failed) export PBP_RETRY_FAILED=1 ;;
     [0-9][0-9][0-9][0-9]) YEAR="$arg" ;;
     *) echo "unknown argument: $arg" >&2; exit 2 ;;
   esac

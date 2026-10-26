@@ -16,8 +16,20 @@ point-score % survive anyway because serve order is reconstructible (see
 analytics/rally_from_ncaa_api.py); first-ball side-out does not, which is part of
 why it is no longer a graded benchmark.
 
+MATCHES THE FEED NEVER SERVES. Some matches answer HTTP 502 run after run, and each
+costs three attempts with back-off. Once a match more than GRACE_DAYS old answers
+502, its ID goes in pbp/failed_<year>.json and is never asked for again;
+--retry-failed asks once more and takes any that come back off the list. A match
+inside the grace period is retried normally, because the feed is often just late
+posting it.
+
+--recent-days N fetches only matches from the last N days, which is all a routine
+update needs.
+
 Usage:
     python3 data_collection/fetch_ncaa_pbp.py 2026
+    python3 data_collection/fetch_ncaa_pbp.py 2026 --recent-days 7
+    python3 data_collection/fetch_ncaa_pbp.py 2026 --retry-failed
     python3 data_collection/fetch_ncaa_pbp.py 2026 --limit 50   # try a slice first
 """
 from __future__ import annotations
@@ -29,7 +41,11 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from datetime import date, datetime, timedelta
 from pathlib import Path
+
+GRACE_DAYS = 3           # a 502 younger than this is the feed running late, not absent
+GIVE_UP_ON = {"HTTP 502"}
 
 # NCAA_API_BASE overrides this; see fetch_ncaa_results.py for why you want to.
 BASE = os.environ.get("NCAA_API_BASE", "https://ncaa-api.henrygd.me").rstrip("/")
@@ -96,6 +112,10 @@ def main() -> None:
     ap.add_argument("--delay", type=float, default=0.8)
     ap.add_argument("--timeout", type=int, default=30)
     ap.add_argument("--limit", type=int, help="stop after this many new fetches")
+    ap.add_argument("--recent-days", type=int,
+                    help="only fetch matches played in the last N days")
+    ap.add_argument("--retry-failed", action="store_true",
+                    help="ask again for matches on the never-served list")
     args = ap.parse_args()
 
     results = args.results or Path(
@@ -126,6 +146,24 @@ def main() -> None:
     todo = [g for g in games if not cached(g["game_id"])]
     print(f"{len(games):,} matches in results, {len(games) - len(todo):,} already "
           f"fetched, {len(todo):,} to go")
+
+    played = lambda g: datetime.strptime(g["date"], "%m/%d/%Y").date()  # noqa: E731
+    ledger_path = out_dir.parent / f"failed_{args.year}.json"
+    ledger = json.loads(ledger_path.read_text()) if ledger_path.exists() else {}
+    if ledger and not args.retry_failed:
+        before = len(todo)
+        todo = [g for g in todo if g["game_id"] not in ledger]
+        print(f"  {before - len(todo):,} skipped: the feed never served them "
+              f"(listed in {ledger_path.name}; --retry-failed to try again)")
+    if args.recent_days is not None:
+        since = date.today() - timedelta(days=args.recent_days)
+        # --retry-failed reaches the listed matches however old they are
+        recent = [g for g in todo if played(g) >= since
+                  or (args.retry_failed and g["game_id"] in ledger)]
+        print(f"  recent only: {len(recent):,} since {since:%b %-d}"
+              f"{' or on the never-served list' if args.retry_failed else ''}; "
+              f"{len(todo) - len(recent):,} older ones left for a full run")
+        todo = recent
     if args.limit:
         todo = todo[:args.limit]
         print(f"  limited to {len(todo):,} this run")
@@ -137,7 +175,14 @@ def main() -> None:
         if data is None:
             failed += 1
             print(f"  [{i}/{len(todo)}] {g['game_id']} FAILED ({err})", file=sys.stderr)
+            if err in GIVE_UP_ON and played(g) < date.today() - timedelta(days=GRACE_DAYS):
+                ledger[g["game_id"]] = {"date": g["date"], "away": g["away_team"],
+                                        "home": g["home_team"], "error": err,
+                                        "listed": f"{date.today():%Y-%m-%d}"}
+                write_json(ledger_path, ledger)
         else:
+            if ledger.pop(g["game_id"], None) is not None:
+                write_json(ledger_path, ledger)
             # carry the date and teams through: the pbp payload has neither
             data["_date"] = g["date"]
             data["_away_team"] = g["away_team"]
@@ -161,6 +206,8 @@ def main() -> None:
           f"({have / len(games) * 100:.1f}% of the season)")
     if failed:
         print(f"{failed:,} failed this run -- re-run to retry only those.")
+    if ledger:
+        print(f"{len(ledger):,} on the never-served list ({ledger_path.name}).")
 
 
 if __name__ == "__main__":
