@@ -47,6 +47,11 @@ exact — volleyball-gis ContestIDs are stats.ncaa.org contests and had to be
 matched on (date, unordered team pair), which drops ~6% of team-matches, mostly
 same-day repeat pairings at tournaments.
 
+The volleyball-gis data is used with its author's permission, given on Oct 26, 2026
+in [jpitel24/volleyball-gis#1](https://github.com/jpitel24/volleyball-gis/issues/1).
+The permission covers the raw data, which is all this project takes from it; none of
+that repository's analytics or processed data are used.
+
 **`NCAA_API_BASE`** points all of the above (and the probe scripts) at a
 different instance. The default is the author's public demo host, rate limited to
 5 req/sec and explicitly not meant for sustained use; a full season is ~4,400
