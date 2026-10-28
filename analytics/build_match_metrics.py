@@ -38,7 +38,7 @@ def rally_metrics(parquet: Path) -> pd.DataFrame:
     cols = con.sql(f"SELECT * FROM read_parquet('{parquet}') LIMIT 0").df().columns
     touch_detail = "has_touch_detail" not in cols or bool(
         con.sql(f"SELECT coalesce(bool_or(has_touch_detail), false) "
-                f"FROM read_parquet('{parquet}')").fetchone()[0])
+                f"FROM read_parquet('{parquet}')").fetchall()[0][0])  # duckdb 2 has no fetchone()
     out = con.sql(f"""
         WITH sides AS (
             SELECT date, away_team, home_team, serve_team, recv_team, winner,
