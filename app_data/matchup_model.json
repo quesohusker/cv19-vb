@@ -1,6 +1,6 @@
 {
   "coef": {
-    "home": 0.350602306715215,
+    "home": 0.35060230671521503,
     "elo_per_100": 0.407771715947805,
     "ridge_per_10": 0.6177510244925211
   },
@@ -11,7 +11,7 @@
     },
     "ridge": {
       "home": 0.37465149969784634,
-      "ridge_per_10": 1.7093143144899634
+      "ridge_per_10": 1.7093143144899632
     }
   },
   "elo_config": {
@@ -141,66 +141,66 @@
       "season": "2026",
       "spec": "elo",
       "held_out": true,
-      "n": 3626,
-      "accuracy": 0.7532,
-      "log_loss": 0.5023,
+      "n": 3649,
+      "accuracy": 0.7534,
+      "log_loss": 0.5022,
       "brier": 0.1662
     },
     {
       "season": "2026",
       "spec": "ridge",
       "held_out": true,
-      "n": 3626,
-      "accuracy": 0.7068,
-      "log_loss": 0.5609,
-      "brier": 0.1901
+      "n": 3649,
+      "accuracy": 0.7073,
+      "log_loss": 0.5604,
+      "brier": 0.1899
     },
     {
       "season": "2026",
       "spec": "blend",
       "held_out": true,
-      "n": 3626,
-      "accuracy": 0.7515,
-      "log_loss": 0.4949,
+      "n": 3649,
+      "accuracy": 0.7517,
+      "log_loss": 0.4948,
       "brier": 0.1638
     }
   ],
   "calibration_current": [
     {
       "bin": "50%-60%",
-      "n": 593,
-      "predicted": 0.5476,
-      "actual": 0.5211
+      "n": 598,
+      "predicted": 0.5477,
+      "actual": 0.5217
     },
     {
       "bin": "60%-70%",
-      "n": 621,
+      "n": 623,
       "predicted": 0.6503,
-      "actual": 0.6264
+      "actual": 0.6276
     },
     {
       "bin": "70%-80%",
-      "n": 704,
-      "predicted": 0.7494,
-      "actual": 0.7216
+      "n": 709,
+      "predicted": 0.7493,
+      "actual": 0.7207
     },
     {
       "bin": "80%-90%",
-      "n": 751,
-      "predicted": 0.8519,
-      "actual": 0.8256
+      "n": 759,
+      "predicted": 0.8518,
+      "actual": 0.8261
     },
     {
       "bin": "90%-95%",
-      "n": 487,
+      "n": 489,
       "predicted": 0.926,
-      "actual": 0.9199
+      "actual": 0.9202
     },
     {
       "bin": "95%-100%",
-      "n": 470,
+      "n": 471,
       "predicted": 0.9728,
-      "actual": 0.9596
+      "actual": 0.9597
     }
   ],
   "calibration_fit": [
@@ -345,13 +345,13 @@
   ],
   "persistence": {
     "team_seasons": 1678,
-    "odd_vs_even": -0.034,
-    "first_vs_second_half": -0.081,
+    "odd_vs_even": -0.035,
+    "first_vs_second_half": -0.082,
     "year_over_year": {
       "2022-2023": -0.047,
       "2023-2024": -0.096,
       "2024-2025": -0.127,
-      "2025-2026": -0.235
+      "2025-2026": -0.229
     },
     "z_sd": 0.969,
     "share_beyond_2sd": 0.04,
@@ -360,10 +360,10 @@
   },
   "schedule": {
     "season": "2026",
-    "games": 1172,
-    "first": "2026-10-25",
+    "games": 1148,
+    "first": "2026-10-28",
     "last": "2026-11-28",
-    "read": "2026-10-25",
+    "read": "2026-10-28",
     "fallback_teams": [],
     "fallback_pct": 0.05
   }
