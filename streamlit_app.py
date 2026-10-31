@@ -2051,7 +2051,7 @@ def page_bracket(season: str, home: str, away: str) -> None:
 st.sidebar.markdown("### 🏐 QuesoHusker's Volleyball")
 season = st.sidebar.selectbox("Season", D.seasons())
 home = team_picker(season, "Team", "Nebraska", "home")
-away = team_picker(season, "Opponent", "Wisconsin", "away")
+away = team_picker(season, "Opponent", "Pittsburgh", "away")
 st.sidebar.caption(f"NCAA women's D1 · {min(D.seasons())}-{max(D.seasons())} · "
                    f"{D.meta()['team_match_rows']:,} graded team-matches")
 
