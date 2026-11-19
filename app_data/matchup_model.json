@@ -141,42 +141,42 @@
       "season": "2026",
       "spec": "elo",
       "held_out": true,
-      "n": 4673,
-      "accuracy": 0.7586,
-      "log_loss": 0.493,
+      "n": 4689,
+      "accuracy": 0.7588,
+      "log_loss": 0.4931,
       "brier": 0.1634
     },
     {
       "season": "2026",
       "spec": "ridge",
       "held_out": true,
-      "n": 4673,
-      "accuracy": 0.7237,
-      "log_loss": 0.5378,
-      "brier": 0.1812
+      "n": 4689,
+      "accuracy": 0.724,
+      "log_loss": 0.5375,
+      "brier": 0.1811
     },
     {
       "season": "2026",
       "spec": "blend",
       "held_out": true,
-      "n": 4673,
-      "accuracy": 0.7569,
-      "log_loss": 0.4857,
+      "n": 4689,
+      "accuracy": 0.7571,
+      "log_loss": 0.4858,
       "brier": 0.1609
     }
   ],
   "calibration_current": [
     {
       "bin": "50%-60%",
-      "n": 765,
+      "n": 767,
       "predicted": 0.5482,
-      "actual": 0.5281
+      "actual": 0.528
     },
     {
       "bin": "60%-70%",
-      "n": 762,
-      "predicted": 0.6499,
-      "actual": 0.6286
+      "n": 765,
+      "predicted": 0.65,
+      "actual": 0.6301
     },
     {
       "bin": "70%-80%",
@@ -186,21 +186,21 @@
     },
     {
       "bin": "80%-90%",
-      "n": 972,
+      "n": 976,
       "predicted": 0.8519,
-      "actual": 0.82
+      "actual": 0.8197
     },
     {
       "bin": "90%-95%",
-      "n": 646,
-      "predicted": 0.9261,
-      "actual": 0.9195
+      "n": 651,
+      "predicted": 0.9262,
+      "actual": 0.9186
     },
     {
       "bin": "95%-100%",
-      "n": 641,
+      "n": 643,
       "predicted": 0.9738,
-      "actual": 0.9688
+      "actual": 0.9689
     }
   ],
   "calibration_fit": [
@@ -346,12 +346,12 @@
   "persistence": {
     "team_seasons": 1678,
     "odd_vs_even": -0.056,
-    "first_vs_second_half": -0.098,
+    "first_vs_second_half": -0.099,
     "year_over_year": {
       "2022-2023": -0.047,
       "2023-2024": -0.096,
       "2024-2025": -0.127,
-      "2025-2026": -0.229
+      "2025-2026": -0.233
     },
     "z_sd": 0.96,
     "share_beyond_2sd": 0.038,
@@ -360,10 +360,10 @@
   },
   "schedule": {
     "season": "2026",
-    "games": 217,
-    "first": "2026-11-18",
+    "games": 212,
+    "first": "2026-11-19",
     "last": "2026-11-28",
-    "read": "2026-11-18",
+    "read": "2026-11-19",
     "fallback_teams": [
       "TBA"
     ],
