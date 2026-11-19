@@ -141,66 +141,66 @@
       "season": "2026",
       "spec": "elo",
       "held_out": true,
-      "n": 4410,
-      "accuracy": 0.7565,
-      "log_loss": 0.4973,
-      "brier": 0.1648
+      "n": 4673,
+      "accuracy": 0.7586,
+      "log_loss": 0.493,
+      "brier": 0.1634
     },
     {
       "season": "2026",
       "spec": "ridge",
       "held_out": true,
-      "n": 4410,
-      "accuracy": 0.7181,
-      "log_loss": 0.5439,
-      "brier": 0.1835
+      "n": 4673,
+      "accuracy": 0.7237,
+      "log_loss": 0.5378,
+      "brier": 0.1812
     },
     {
       "season": "2026",
       "spec": "blend",
       "held_out": true,
-      "n": 4410,
-      "accuracy": 0.7549,
-      "log_loss": 0.4898,
-      "brier": 0.1622
+      "n": 4673,
+      "accuracy": 0.7569,
+      "log_loss": 0.4857,
+      "brier": 0.1609
     }
   ],
   "calibration_current": [
     {
       "bin": "50%-60%",
-      "n": 724,
-      "predicted": 0.5481,
-      "actual": 0.5276
+      "n": 765,
+      "predicted": 0.5482,
+      "actual": 0.5281
     },
     {
       "bin": "60%-70%",
-      "n": 731,
-      "predicted": 0.65,
-      "actual": 0.6279
+      "n": 762,
+      "predicted": 0.6499,
+      "actual": 0.6286
     },
     {
       "bin": "70%-80%",
-      "n": 838,
-      "predicted": 0.7498,
-      "actual": 0.7232
+      "n": 887,
+      "predicted": 0.7496,
+      "actual": 0.7238
     },
     {
       "bin": "80%-90%",
-      "n": 918,
+      "n": 972,
       "predicted": 0.8519,
-      "actual": 0.8214
+      "actual": 0.82
     },
     {
       "bin": "90%-95%",
-      "n": 613,
-      "predicted": 0.9259,
-      "actual": 0.9168
+      "n": 646,
+      "predicted": 0.9261,
+      "actual": 0.9195
     },
     {
       "bin": "95%-100%",
-      "n": 586,
-      "predicted": 0.9737,
-      "actual": 0.9659
+      "n": 641,
+      "predicted": 0.9738,
+      "actual": 0.9688
     }
   ],
   "calibration_fit": [
@@ -345,26 +345,28 @@
   ],
   "persistence": {
     "team_seasons": 1678,
-    "odd_vs_even": -0.047,
-    "first_vs_second_half": -0.089,
+    "odd_vs_even": -0.056,
+    "first_vs_second_half": -0.098,
     "year_over_year": {
       "2022-2023": -0.047,
       "2023-2024": -0.096,
       "2024-2025": -0.127,
-      "2025-2026": -0.235
+      "2025-2026": -0.229
     },
-    "z_sd": 0.963,
-    "share_beyond_2sd": 0.04,
+    "z_sd": 0.96,
+    "share_beyond_2sd": 0.038,
     "share_beyond_2sd_if_pure_luck": 0.046,
-    "median_season_sd_wins": 2.06
+    "median_season_sd_wins": 2.07
   },
   "schedule": {
     "season": "2026",
-    "games": 386,
-    "first": "2026-11-13",
+    "games": 217,
+    "first": "2026-11-18",
     "last": "2026-11-28",
-    "read": "2026-11-13",
-    "fallback_teams": [],
+    "read": "2026-11-18",
+    "fallback_teams": [
+      "TBA"
+    ],
     "fallback_pct": 0.05
   }
 }
