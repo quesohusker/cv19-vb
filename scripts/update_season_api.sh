@@ -78,8 +78,18 @@ echo "Safe to interrupt: every match is cached and re-running fetches only what 
 "$PY" data_collection/fetch_ncaa_boxscores.py "${YEAR}" ${BOX_LIMIT:+--limit "${BOX_LIMIT}"}
 
 step "4/11  playermatch CSV (drop-in for the volleyball-gis file)"
+# The NCAA feed carries no conference, so without a map for the season every team keeps
+# last season's league -- which is how 2026 lost the new Pac-12 and the UAC.
+CONF_MAP="data_collection/conferences_${YEAR}.csv"
+CONF_ARGS=()
+if [ -f "$CONF_MAP" ]; then
+  CONF_ARGS=(--conference-map "$CONF_MAP")
+else
+  echo "  WARNING: no ${CONF_MAP}; conferences carry over from last season"
+fi
 "$PY" data_collection/build_playermatch.py "${YEAR}" \
-  --out-dir "${PM_DIR}" --gis-dir "${GIS_DIR}/public/data" --import-historical
+  --out-dir "${PM_DIR}" --gis-dir "${GIS_DIR}/public/data" --import-historical \
+  ${CONF_ARGS[@]+"${CONF_ARGS[@]}"}
 [ -f "${PLAYERMATCH}" ] || { echo "No ${PLAYERMATCH} -- stage 4 produced nothing." >&2; exit 1; }
 
 step "5/11  team box scores"

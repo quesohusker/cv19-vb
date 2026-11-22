@@ -1969,10 +1969,15 @@ def bracket_note(b: dict) -> None:
             "unseeded. The top 16 seeds host the first two rounds on campus, so the "
             "host gets the home edge there. Regional rounds and the Final Four are "
             "played as neutral.\n\n"
-            "**Automatic bids** go to the projected regular-season conference champion: "
-            "conference wins so far plus the win chances of the conference matches left "
-            "on the schedule. Conference tournaments are not modelled, so a league that "
-            "awards its bid in a tournament can send someone else.\n\n"
+            "**Automatic bids** that have been won go to their winners "
+            f"({b['n_clinched']} so far). The rest go to the projected regular-season "
+            "conference champion: conference wins so far plus the win chances of the "
+            "conference matches left on the schedule. Conference tournaments are not "
+            "modelled, so until a league's winner is in, its bid is a regular-season "
+            "guess.\n\n"
+            "**The official bracket**, once the committee publishes it, replaces the "
+            "projection: its seeds, its pairings, its campus hosts, and regional hosts "
+            "where it names them. The national semifinals pair the regions as printed.\n\n"
             "**At-large picks and seeds** follow the order you choose. *Committee-style* "
             "uses RPI, computed here from this season's Division I results (25% own "
             "winning percentage, 50% opponents', 25% opponents' opponents'). The "
@@ -1997,52 +2002,75 @@ def page_bracket(season: str, home: str, away: str) -> None:
     if b is None:
         st.info("The bracket needs the matchup predictor and this season's ratings.")
         return
-    labels = ["Committee-style (RPI)", "Power rating"]
-    pick = st.radio("Seed the field by", labels, horizontal=True, key="br_basis")
-    basis = "committee" if pick == labels[0] else "power"
+    names = {"official": "Official NCAA bracket", "committee": "Committee-style (RPI)",
+             "power": "Power rating"}
+    bases = [k for k in names if k in b["fields"]]
+    pick = st.radio("Bracket" if "official" in bases else "Seed the field by",
+                    [names[k] for k in bases], horizontal=True, key="br_basis")
+    basis = next(k for k in bases if names[k] == pick)
+    official = basis == "official"
+    if b.get("official_error"):
+        st.warning("The official bracket file has problems, so it is not shown:\n\n"
+                   + b["official_error"])
     f = b["fields"][basis]
-    st.markdown(f'<p class="sublabel">A projected 64-team field for {season}, seeded by '
-                f'{pick.lower()}. Rearrange it, lock it, then pick and simulate one round '
-                f'at a time. Changing the seeding above starts a new bracket.</p>',
+    st.markdown(f'<p class="sublabel">'
+                + (f"The committee's {season} bracket. " if official else
+                   f"A projected 64-team field for {season}, seeded by {pick.lower()}. ")
+                + 'Rearrange it, lock it, then pick and simulate one round at a time. '
+                  'Changing the choice above starts a new bracket.</p>',
                 unsafe_allow_html=True)
     bracket_note(b)
     teams = {t: dict(v, color=T.team_colors(t)[0]) for t, v in b["teams"].items()}
     payload = {"basis": basis, "basis_label": pick, "season": season,
                "coef": b["coef"], "teams": teams,
                "slots": f["slots"], "pool": f["pool"], "order": f["order"]}
+    if official:
+        payload.update({k: f[k] for k in ("seeds", "pod_host_pos", "regional_hosts",
+                                           "semis", "region_names")})
     components.html(BRACKET_HTML.replace("/*__DATA__*/null", json.dumps(payload))
                     .replace("<!--__JSPDF__-->", f"<script>{JSPDF}</script>"),
                     height=980, scrolling=True)
 
-    # the projected field as published, before any rearranging
+    # the field as published, before any rearranging
     rows = []
     for i, t in enumerate(f["slots"]):
         v = b["teams"][t]
-        rows.append({"Region": f"{f['slots'][(i // 16) * 16]}",
-                     "Seed": BR.REGION_SEEDS[i % 16] or "", "Team": t,
+        region = f["region_names"][i // 16] if official else f["slots"][(i // 16) * 16]
+        seed = f["seeds"][i] if official else BR.REGION_SEEDS[i % 16]
+        rows.append({"Region": region, "Seed": seed or "", "Team": t,
                      "Conference": v["conf"], "Record": v["rec"],
                      "RPI rank": v["rpi_rank"] or "", "Rating rank": v["comp_rank"],
-                     "Bid": "auto" if v["auto"] else "at-large"})
+                     **({} if official else
+                        {"Bid": "auto" if v["auto"] else "at-large"})})
     field = pd.DataFrame(rows)
-    PNG.button(st, field, title=f"Projected NCAA field — {season}, {pick.lower()}",
-               subtitle="Region named for its 1 seed. Seeds 1-8 per region; the rest "
-                        "unseeded. Automatic bids are projected conference champions.",
-               filename=f"projected_bracket_{season}_{basis}.png", key="png_br",
+    what = "Official NCAA bracket" if official else "Projected NCAA field"
+    PNG.button(st, field, title=f"{what} — {season}" + ("" if official else f", {pick.lower()}"),
+               subtitle=("The committee's bracket, top to bottom as printed." if official else
+                         "Region named for its 1 seed. Seeds 1-8 per region; the rest "
+                         "unseeded. Automatic bids: winners where decided, otherwise "
+                         "projected regular-season champions."),
+               filename=f"{'official' if official else 'projected'}_bracket_{season}"
+                        f"{'' if official else '_' + basis}.png", key="png_br",
                max_rows=64)
     ask_panel(
-        f"Projected NCAA tournament field — {season}, {pick.lower()}",
-        "A projected 64-team NCAA women's volleyball field in the 2025 format: 31 "
-        "automatic bids to projected regular-season conference champions, at-large picks "
-        "and seeds by the chosen order (committee-style = an RPI computed from this "
-        "season's Division I results; power = the app's Elo + ridge composite). Seeds "
-        "1-8 per region on an S-curve, unseeded teams matched strongest against weakest "
-        "seed. Simulations use the Matchup Predictor, with the home edge for the top-16 "
-        "campus hosts in the first two rounds.",
-        [("Projected field", field, None)],
+        f"{what} — {season}" + ("" if official else f", {pick.lower()}"),
+        ("The committee's 64-team NCAA women's volleyball bracket, in printed order. "
+         if official else
+         "A projected 64-team NCAA women's volleyball field: automatic bids to the "
+         "winners where decided and otherwise to projected regular-season conference "
+         "champions, at-large picks and seeds by the chosen order (committee-style = an "
+         "RPI computed from this season's Division I results; power = the app's Elo + "
+         "ridge composite). Seeds 1-8 per region on an S-curve, unseeded teams matched "
+         "strongest against weakest seed. ")
+        + "Simulations use the Matchup Predictor, with the home edge for the campus "
+          "hosts of the first two rounds.",
+        [("Field", field, None)],
         "br",
-        limits=["Conference tournaments are not modelled.",
-                "Unseeded teams are placed by rank, not geography.",
-                "The RPI here is an approximation of the NCAA's."],
+        limits=(["Ratings are the app's; the committee's seeds are its own judgment."]
+                if official else
+                ["Conference tournaments are not modelled.",
+                 "Unseeded teams are placed by rank, not geography.",
+                 "The RPI here is an approximation of the NCAA's."]),
         examples=["who is the most likely bubble team to miss?",
                   "which region is toughest?"])
 

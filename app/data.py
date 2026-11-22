@@ -33,8 +33,10 @@ def refresh_if_changed() -> bool:
     tables it first read until something restarts it. Call once per page load.
     """
     global _STAMP
-    stamp = tuple(sorted((p.name, p.stat().st_mtime_ns, p.stat().st_size)
-                         for p in DATA_DIR.iterdir() if p.is_file()))
+    # tournament/ holds the hand-kept automatic bids and the official bracket
+    watched = [p for d in (DATA_DIR, DATA_DIR.parent / "tournament") if d.is_dir()
+               for p in d.iterdir() if p.is_file()]
+    stamp = tuple(sorted((str(p), p.stat().st_mtime_ns, p.stat().st_size) for p in watched))
     if stamp == _STAMP:
         return False
     for f in list(globals().values()):

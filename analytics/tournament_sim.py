@@ -21,9 +21,18 @@ A real Elo update is scaled by the rally margin, which a simulated match does no
 The margin term is replaced by its average over real matches, ln(margin + 1) ~ 1.47 in
 every season checked; the damping on the favourite's edge is kept as it is.
 
+AUTOMATIC BIDS AND THE OFFICIAL BRACKET
+---------------------------------------
+- A bid already won (tournament/auto_bids_<season>.csv) goes to its winner in every
+  run; the rest go to the regular-season champion.
+- --official skips the season and the field and plays the committee's own bracket
+  (tournament/official_bracket_<season>.csv) with its hosts. Matches already played
+  in the tournament keep their real results, so it can be rerun each round.
+
 LIMITS
 ------
-- Conference tournaments are not modelled; the regular-season champion takes the bid.
+- Conference tournaments are not modelled; until a bid is listed as won, the
+  regular-season champion takes it.
 - Results come from app_data/matches.parquet, which drops the ~6% of matches whose
   play-by-play and box score could not be joined (Louisiana's 2026 home matches among
   them). RPI and standings are computed without those matches.
@@ -31,6 +40,7 @@ LIMITS
 
 Usage:
     python3 analytics/tournament_sim.py --sims 5000 --seed 2026
+    python3 analytics/tournament_sim.py --official      # once the bracket is out
 """
 from __future__ import annotations
 
@@ -97,10 +107,18 @@ def inputs(season: str, matches: pd.DataFrame | None = None,
     if coef is None:
         c = D.matchup_model()["coef"]
         coef = (c["home"], c["elo_per_100"], c["ridge_per_10"])
+    # automatic bids already won; a team or league the data does not know is reported
+    won = {}
+    for c, t in BR.auto_bids(season).items():
+        if t not in ix or conf.get(t) != c:
+            print(f"  auto bid not applied: {t} ({c}) -- data has it in "
+                  f"{conf.get(t, 'no conference')}")
+            continue
+        won[c] = ix[t]
     return {"teams": teams, "ix": ix, "elo0": elo0, "ridge": ridge, "played": played,
             "remain": remain, "is_d1": is_d1, "conf_of": conf_of,
             "rated": np.array([t in set(d1_rated) for t in teams]),
-            "coef": tuple(coef),
+            "coef": tuple(coef), "auto_bids": won,
             "cfg": E.EloConfig(), "through": cur.match_date.max(),
             "sched_last": sched.date.max()}
 
@@ -179,7 +197,8 @@ def rpi_matrix(I: dict, sim_out: np.ndarray) -> np.ndarray:
 
 
 def conference_champions(I: dict, sim_out: np.ndarray, elo_end: np.ndarray) -> np.ndarray:
-    """Regular-season champion per conference per run (team index), ties to higher Elo."""
+    """Automatic bid per conference per run (team index): the real winner where the bid
+    has been won, otherwise the regular-season champion, ties to higher Elo."""
     pl, rm = I["played"], I["remain"]
     conf = I["conf_of"]
     gx = np.concatenate([pl.h.to_numpy(), rm.h.to_numpy()])
@@ -197,7 +216,11 @@ def conference_champions(I: dict, sim_out: np.ndarray, elo_end: np.ndarray) -> n
     confs = sorted({c for c in conf if c and c != INDEPENDENT
                     and ((conf == c) & (G > 0)).any()})
     champs = np.zeros((n, len(confs)), dtype=np.int32)
+    won = I.get("auto_bids", {})
     for k, c in enumerate(confs):
+        if c in won:
+            champs[:, k] = won[c]
+            continue
         members = np.where((conf == c) & (G > 0))[0]
         score = pct[:, members] * 1e4 + elo_end[:, members] / 1e4   # Elo only breaks ties
         champs[:, k] = members[np.argmax(score, axis=1)]
@@ -205,8 +228,17 @@ def conference_champions(I: dict, sim_out: np.ndarray, elo_end: np.ndarray) -> n
 
 
 # ---------------------------------------------------------------- tournament
-def play_bracket(I, slots: list[int], elo: np.ndarray, rng) -> dict[int, int]:
-    """One tournament on one field. Returns team -> furthest round (1-7, 7 = champion)."""
+def play_bracket(I, slots: list[int], elo: np.ndarray, rng, pod_host_pos=None,
+                 regional_hosts=None, semis: str = "scurve", known=None) -> dict[int, int]:
+    """One tournament on one field. Returns team -> furthest round (1-7, 7 = champion).
+
+    The defaults describe a projected field: each pod hosted by its 1-4 seed, regionals
+    neutral, national semifinals pairing regions 1 v 4 and 2 v 3. The official bracket
+    passes its own hosts (pod_host_pos: 16 slot positions, -1 for a neutral pod;
+    regional_hosts: 4 team indices, -1 for neutral) and semis="adjacent" (1 v 2, 3 v 4
+    in printed order). known maps a pair of teams to the real winner of a tournament
+    match already played, so a rerun mid-tournament plays only what is left.
+    """
     coef, ridge, cfg = I["coef"], I["ridge"], I["cfg"]
     elo = elo.copy()
     reached = {t: 1 for t in slots}
@@ -218,10 +250,16 @@ def play_bracket(I, slots: list[int], elo: np.ndarray, rng) -> dict[int, int]:
             host = None
             if r <= 2:
                 pod = j // 2 if r == 1 else j
-                host = slots[16 * (pod // 4) + HOSTPOS[pod % 4]]
+                pos = (16 * (pod // 4) + HOSTPOS[pod % 4] if pod_host_pos is None
+                       else pod_host_pos[pod])
+                host = slots[pos] if pos >= 0 else None
+            elif r <= 4 and regional_hosts is not None:
+                host = regional_hosts[j // (2 if r == 3 else 1)]
             v = 1.0 if host == a else -1.0 if host == b else 0.0
             p = win_prob(coef, elo[a], elo[b], ridge[a], ridge[b], v)
-            aw = 1.0 if rng.random() < p else 0.0
+            real = (known or {}).get(frozenset((a, b)))
+            aw = (1.0 if real == a else 0.0) if real is not None else \
+                (1.0 if rng.random() < p else 0.0)
             # Elo's own update, from a's side; the home edge goes to whichever side hosts
             d = elo[a] - elo[b] + cfg.home_adv * v
             exp = 1.0 / (1.0 + 10.0 ** (-d / 400.0))
@@ -231,7 +269,7 @@ def play_bracket(I, slots: list[int], elo: np.ndarray, rng) -> dict[int, int]:
             w = a if aw else b
             nxt.append(w)
             reached[w] = r + 1
-        if r == 4:                                      # national semis: 1 v 4, 2 v 3
+        if r == 4 and semis == "scurve":                # national semis: 1 v 4, 2 v 3
             nxt = [nxt[0], nxt[3], nxt[1], nxt[2]]
         alive = nxt
     return reached
@@ -296,16 +334,79 @@ def summarise(df: pd.DataFrame, sims: int) -> pd.DataFrame:
     return out.reset_index().sort_values(["basis", "p_champion"], ascending=[True, False])
 
 
+# Selection Sunday by season: a match between two bracket teams after it is a
+# tournament match, and --official takes its real result instead of simulating it.
+SELECTION_SUNDAY = {"2026": "2026-11-29"}
+
+
+def run_official(season: str, sims: int, seed: int) -> tuple[pd.DataFrame, dict]:
+    """Play the committee's bracket (tournament/official_bracket_<season>.csv)."""
+    ob = BR.official_bracket(season)
+    if ob is None:
+        raise SystemExit(f"No tournament/official_bracket_{season}.csv yet; see "
+                         "tournament/README.md.")
+    I = inputs(season)
+    ix, teams = I["ix"], I["teams"]
+    missing = [t for t in ob["slots"] if t not in ix]
+    if missing:
+        raise SystemExit(f"No ratings for {missing}; check the names in the bracket file.")
+    slots = [ix[t] for t in ob["slots"]]
+    regional = [ix[t] if t else -1 for t in ob["regional_hosts"]]
+    known = {}
+    if season in SELECTION_SUNDAY:
+        m = D.matches()
+        m = m[(m.season == season) & (m.match_date > SELECTION_SUNDAY[season])
+              & m.team.isin(ob["slots"]) & m.opponent.isin(ob["slots"])]
+        for t, o, w in zip(m.team, m.opponent, m.won):
+            known[frozenset((ix[t], ix[o]))] = ix[t] if w else ix[o]
+    rng = np.random.default_rng(seed)
+    rows = []
+    for s in range(sims):
+        reached = play_bracket(I, slots, I["elo0"], rng, ob["pod_host_pos"], regional,
+                               ob["semis"], known)
+        rows.extend((s, t, pos // 16 + 1, ob["seeds"][pos] or 0, reached[t], pos)
+                    for pos, t in enumerate(slots))
+    df = pd.DataFrame(rows, columns=["sim", "team", "region", "seed", "reached", "slot"])
+    df["team"] = [teams[t] for t in df.team]
+    meta = {"season": season, "sims": sims, "seed": seed, "mode": "official bracket",
+            "ratings_through": str(I["through"].date()),
+            "tournament_matches_already_played": len(known),
+            "regions": ob["region_names"]}
+    return df, meta
+
+
+def summarise_official(df: pd.DataFrame, sims: int, ob: dict) -> pd.DataFrame:
+    first = df[df.sim == 0].set_index("team")
+    out = pd.DataFrame({"region": [ob["region_names"][r - 1] for r in first.region],
+                        "seed": first.seed.replace(0, pd.NA)}, index=first.index)
+    g = df.groupby("team").reached
+    for k, name in enumerate(ROUNDS[1:], start=2):
+        out[f"p_{name.replace(' ', '_')}"] = g.apply(lambda r, k=k: (r >= k).mean())
+    return out.reset_index().sort_values(["p_champion", "p_final"], ascending=False)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--season", default=None)
     ap.add_argument("--sims", type=int, default=5000)
     ap.add_argument("--seed", type=int, default=2026)
     ap.add_argument("--out-dir", type=Path, default=Path("analysis"))
+    ap.add_argument("--official", action="store_true",
+                    help="play the committee's bracket from tournament/ instead of "
+                         "projecting the field")
     args = ap.parse_args()
     season = args.season or D.matchup_model()["current_season"]
-    df, meta = run(season, args.sims, args.seed)
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    if args.official:
+        df, meta = run_official(season, args.sims, args.seed)
+        summ = summarise_official(df, args.sims, BR.official_bracket(season))
+        summ.to_csv(args.out_dir / f"tournament_official_{season}_summary.csv", index=False)
+        pd.Series(meta).to_json(args.out_dir / f"tournament_official_{season}_meta.json",
+                                indent=1)
+        print(meta)
+        print(summ.head(16).round(3).to_string(index=False))
+        return
+    df, meta = run(season, args.sims, args.seed)
     df.astype({"sim": "int32", "overall": "int16", "region": "int8", "seed": "int8",
                "reached": "int8", "slot": "int8"}).to_parquet(
         args.out_dir / f"tournament_sim_{season}_runs.parquet", compression="zstd", index=False)

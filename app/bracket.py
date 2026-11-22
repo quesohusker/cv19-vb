@@ -9,10 +9,15 @@ two unseeded teams. Regional rounds and the Final Four are treated as neutral fl
 
 WHAT IS PROJECTED, AND HOW
 --------------------------
-Automatic bids go to the projected regular-season conference champion: conference
-wins so far plus the win chances of every conference match left on the schedule, ties
-broken by rating. Conference tournaments are not modelled, so a conference that awards
-its bid in a tournament can produce a different champion.
+An automatic bid that has been won is taken as won: tournament/auto_bids_<season>.csv
+lists them as conferences finish. Every other bid goes to the projected regular-season
+champion: conference wins so far plus the win chances of every conference match left
+on the schedule, ties broken by rating. Conference tournaments are not modelled, so
+until a league's winner is listed its bid is a regular-season guess.
+
+Once the committee publishes the real bracket, tournament/official_bracket_<season>.csv
+replaces all of this: the Bracket tab offers it first, and analytics/tournament_sim.py
+--official plays it out.
 
 At-large bids and seeding follow one of two orderings, the reader's choice:
 
@@ -33,7 +38,9 @@ geography, which is not modelled.
 """
 from __future__ import annotations
 
+import difflib
 from functools import lru_cache
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -42,6 +49,10 @@ from app import data as D
 
 FIELD = 64
 SEEDED = 32
+INDEPENDENT = "DI Independent"
+# Hand-kept tournament facts: automatic bids as they are won, and the official bracket
+# once the committee publishes it. See tournament/README.md.
+TOURNEY_DIR = Path(__file__).resolve().parent.parent / "tournament"
 # slot -> seed inside a region of 16, in bracket order, top to bottom: the 1 seed's pod
 # at the top and the 2 seed's at the bottom, as every printed bracket has it. Pairs
 # (0,1), (2,3), ... meet in the first round; each block of four is one campus pod,
@@ -78,8 +89,106 @@ def rpi(season: str) -> pd.DataFrame:
     return out.reset_index()
 
 
+def auto_bids(season: str) -> dict[str, str]:
+    """Automatic bids already won: conference -> team, from tournament/auto_bids_<season>.csv."""
+    f = TOURNEY_DIR / f"auto_bids_{season}.csv"
+    if not f.exists():
+        return {}
+    d = pd.read_csv(f, dtype=str).dropna(subset=["conference", "team"])
+    return dict(zip(d.conference.str.strip(), d.team.str.strip()))
+
+
+class BracketError(ValueError):
+    """The official bracket file is malformed; the message lists every problem."""
+
+
+def official_bracket(season: str) -> dict | None:
+    """The committee's bracket from tournament/official_bracket_<season>.csv, or None.
+
+    One row per team: region, region_order (1-4 as printed: top left, bottom left, top
+    right, bottom right, so the national semifinals are 1 v 2 and 3 v 4), line (1-16,
+    top to bottom; lines 1-2 meet in the first round, 1-4 form one campus pod), seed,
+    team, pod_host (Y on the team hosting its pod's first two rounds) and regional_host
+    (Y on the team hosting its region's semifinal and final). Returns the 64 teams in
+    bracket order with seeds, host positions and region names.
+    """
+    f = TOURNEY_DIR / f"official_bracket_{season}.csv"
+    if not f.exists():
+        return None
+    d = pd.read_csv(f, dtype=str).fillna("")
+    d.columns = [c.strip().lower() for c in d.columns]
+    problems = []
+    need = {"region", "region_order", "line", "team"}
+    if need - set(d.columns):
+        raise BracketError(f"{f.name}: missing columns {sorted(need - set(d.columns))}")
+    for c in ("seed", "pod_host", "regional_host"):
+        if c not in d.columns:
+            d[c] = ""
+    d = d.apply(lambda s: s.str.strip())
+    d = d[d.team != ""]
+    try:
+        d["region_order"] = d.region_order.astype(int)
+        d["line"] = d.line.astype(int)
+    except ValueError:
+        raise BracketError(f"{f.name}: region_order and line must be whole numbers")
+    if len(d) != FIELD:
+        problems.append(f"{len(d)} teams, not {FIELD}")
+    for r in range(1, 5):
+        g = d[d.region_order == r]
+        if sorted(g.line) != list(range(1, 17)):
+            problems.append(f"region_order {r}: lines must be 1-16 once each "
+                            f"(has {sorted(g.line)})")
+        if g.region.nunique() > 1:
+            problems.append(f"region_order {r}: more than one region name "
+                            f"{sorted(g.region.unique())}")
+        if (g.regional_host.str.upper() == "Y").sum() > 1:
+            problems.append(f"region_order {r}: more than one regional_host")
+        for p in range(4):
+            pod = g[(g.line - 1) // 4 == p]
+            if (pod.pod_host.str.upper() == "Y").sum() > 1:
+                problems.append(f"region_order {r}, lines {4*p+1}-{4*p+4}: more than one pod_host")
+    dup = d.team[d.team.duplicated()].tolist()
+    if dup:
+        problems.append(f"listed twice: {dup}")
+    ts = D.team_seasons()
+    known = set(ts[ts.season == season].team)
+    every = sorted(set(ts.team))
+    for t in d.team:
+        if t not in known:
+            # the NCAA prints "Penn State", "Western Kentucky"; the data says "Penn St."
+            alt = (t.replace(" State", " St.").replace("Saint ", "St. ")
+                   .replace("Kentucky", "Ky.").replace("Carolina", "Caro."))
+            near = list(dict.fromkeys(
+                difflib.get_close_matches(alt, every, n=3, cutoff=0.6)
+                + difflib.get_close_matches(t, every, n=3, cutoff=0.6)))[:3]
+            problems.append(f"unknown team '{t}'" + (f" (did you mean {', '.join(near)}?)"
+                                                       if near else ""))
+    bad_seed = [s for s in d.seed if s and not s.isdigit()]
+    if bad_seed:
+        problems.append(f"seeds must be numbers or blank: {bad_seed}")
+    if problems:
+        raise BracketError(f"{f.name}:\n  " + "\n  ".join(problems))
+
+    d = d.sort_values(["region_order", "line"]).reset_index(drop=True)
+    pod_host = []
+    for p in range(16):
+        rows = d.index[(d.index // 4 == p) & (d.pod_host.str.upper() == "Y")]
+        pod_host.append(int(rows[0]) if len(rows) else -1)
+    regional = []
+    for r in range(4):
+        rows = d[(d.index // 16 == r) & (d.regional_host.str.upper() == "Y")]
+        regional.append(rows.team.iloc[0] if len(rows) else None)
+    return {"slots": d.team.tolist(),
+            "seeds": [int(s) if s else None for s in d.seed],
+            "region_names": [d.region.iloc[16 * r] for r in range(4)],
+            "pod_host_pos": pod_host, "regional_hosts": regional, "semis": "adjacent"}
+
+
 def conference_champions(season: str, teams: pd.DataFrame) -> dict[str, str]:
-    """Projected regular-season champion per conference."""
+    """Each conference's automatic bid: the winner where it has been decided
+    (tournament/auto_bids_<season>.csv), otherwise the projected regular-season
+    champion."""
+    teams = teams[teams.conference != INDEPENDENT]
     conf = teams.set_index("team").conference
     m = D.matches()
     m = m[(m.season == season) & (m.location == "home")]
@@ -104,7 +213,9 @@ def conference_champions(season: str, teams: pd.DataFrame) -> dict[str, str]:
     t["conf_pct"] = [xw.get(x, 0) / games[x] if games.get(x) else np.nan for x in t.team]
     t = t.sort_values(["conference", "conf_pct", "rating_composite"],
                       ascending=[True, False, False])
-    return {c: g.team.iloc[0] for c, g in t.dropna(subset=["conf_pct"]).groupby("conference")}
+    champs = {c: g.team.iloc[0] for c, g in t.dropna(subset=["conf_pct"]).groupby("conference")}
+    champs.update({c: x for c, x in auto_bids(season).items() if x in set(teams.team)})
+    return champs
 
 
 def place(order: list[str]) -> list[str]:
@@ -144,6 +255,15 @@ def bracket_data(season: str) -> dict | None:
         field = [x for x in ranked if x in auto or x in at_large]
         fields[basis] = {"slots": place(field), "order": ranked,
                          "pool": [x for x in ranked if x not in field]}
+    official_error = None
+    try:
+        ob = official_bracket(season)
+    except BracketError as e:
+        ob, official_error = None, str(e)
+    if ob:
+        ranked = t.sort_values("rpi", ascending=False).team.tolist()
+        fields["official"] = dict(ob, order=ranked,
+                                  pool=[x for x in ranked if x not in ob["slots"]])
 
     teams = {
         r.team: {"conf": r.conference,
@@ -158,4 +278,5 @@ def bracket_data(season: str) -> dict | None:
     c = m["coef"]
     return {"season": season, "coef": [c["home"], c["elo_per_100"], c["ridge_per_10"]],
             "teams": teams, "fields": fields, "champions": champs,
-            "n_auto": len(auto)}
+            "n_auto": len(auto), "n_clinched": len(auto_bids(season)),
+            "official_error": official_error}

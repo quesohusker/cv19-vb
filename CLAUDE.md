@@ -167,10 +167,13 @@ as a seventh because it measures something nothing else on the board does.
   page) runs entirely in the browser once loaded: drag-and-drop, picks, simulation,
   scoring and odds are JavaScript, using the predictor's three coefficients passed in.
   Keep that formula identical to `D.predict`, or the bracket and the Matchup Predictor
-  will quote different odds for the same match. Field: 31 auto bids to projected
-  regular-season conference champions (conference tournaments not modelled), the rest
-  at-large by the chosen order (RPI or composite), top 32 seeded 1-8 per region on an
-  S-curve, the 2025 format. "Auto-generate" picks the favorite wherever the reader has
+  will quote different odds for the same match. Field: one auto bid per conference
+  (32 in 2026) to the winner where `tournament/auto_bids_<season>.csv` lists one,
+  otherwise to the projected regular-season champion (conference tournaments not
+  modelled); the rest at-large by the chosen order (RPI or composite), top 32 seeded
+  1-8 per region on an S-curve, the 2025-26 format. Once
+  `tournament/official_bracket_<season>.csv` exists it is offered first, with its own
+  seeds, pod and regional hosts and printed-order semifinals (`tournament/README.md`). "Auto-generate" picks the favorite wherever the reader has
   not picked and simulates to a champion. "Download PDF" is built in the browser with
   jsPDF 2.5.2, vendored at `app/vendor/` (MIT) and inlined into the page rather than
   loaded from a CDN, so it works wherever the app does.
@@ -181,7 +184,15 @@ as a seventh because it measures something nothing else on the board does.
   ncaavolleyballr team-match files. Keep the backtest on `TS.inputs` / `TS.run` rather
   than a copy, or it stops testing what is published. 2025's data is missing the Sun
   Belt and most of the WCC and WAC; the backtest scores those field teams as
-  invisible rather than as misses.
+  invisible rather than as misses. `--official` plays the committee's bracket instead,
+  keeping real results for tournament matches already played.
+- Conferences: the NCAA feed carries none, so each season needs
+  `data_collection/conferences_<year>.csv` (stage 4 passes it to build_playermatch).
+  Without it every team keeps last season's league, which is how 2026 briefly lost the
+  rebuilt Pac-12 and the UAC. Check it each August against the realignment news.
+- `app/data.py` caches every table and clears them when `app_data/` or `tournament/`
+  changes on disk (`refresh_if_changed`, called once per page load); a running
+  Streamlit server otherwise keeps serving the data it first read.
 - `matplotlib` is required for the PNG export. It fails soft — no button rather than a
   broken page — so a missing dependency is silent. Check for the button, not an error.
 
