@@ -22,6 +22,28 @@ def _read(name: str) -> pd.DataFrame:
     return pd.read_parquet(DATA_DIR / name)
 
 
+_STAMP: tuple | None = None
+
+
+def refresh_if_changed() -> bool:
+    """Drop every cached table when app_data/ has changed on disk. True if it had.
+
+    Streamlit keeps this module imported between page loads, and a push that changes
+    only data does not reload it, so without this a running server keeps showing the
+    tables it first read until something restarts it. Call once per page load.
+    """
+    global _STAMP
+    stamp = tuple(sorted((p.name, p.stat().st_mtime_ns, p.stat().st_size)
+                         for p in DATA_DIR.iterdir() if p.is_file()))
+    if stamp == _STAMP:
+        return False
+    for f in list(globals().values()):
+        if callable(getattr(f, "cache_clear", None)):
+            f.cache_clear()
+    changed, _STAMP = _STAMP is not None, stamp
+    return changed
+
+
 @lru_cache(maxsize=1)
 def matches() -> pd.DataFrame:
     """One row per team per match, with the seven flags and the 0-7 grade."""

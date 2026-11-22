@@ -2048,6 +2048,8 @@ def page_bracket(season: str, home: str, away: str) -> None:
 
 
 # ------------------------------------------------------------------- shell
+if D.refresh_if_changed():
+    BR.bracket_data.cache_clear()          # built from the tables just dropped
 st.sidebar.markdown("### 🏐 QuesoHusker's Volleyball")
 season = st.sidebar.selectbox("Season", D.seasons())
 home = team_picker(season, "Team", "Nebraska", "home")
