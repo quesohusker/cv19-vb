@@ -141,66 +141,66 @@
       "season": "2026",
       "spec": "elo",
       "held_out": true,
-      "n": 4689,
-      "accuracy": 0.7588,
-      "log_loss": 0.4931,
+      "n": 4854,
+      "accuracy": 0.7585,
+      "log_loss": 0.4929,
       "brier": 0.1634
     },
     {
       "season": "2026",
       "spec": "ridge",
       "held_out": true,
-      "n": 4689,
-      "accuracy": 0.724,
-      "log_loss": 0.5375,
-      "brier": 0.1811
+      "n": 4854,
+      "accuracy": 0.7254,
+      "log_loss": 0.5356,
+      "brier": 0.1804
     },
     {
       "season": "2026",
       "spec": "blend",
       "held_out": true,
-      "n": 4689,
-      "accuracy": 0.7571,
-      "log_loss": 0.4858,
+      "n": 4854,
+      "accuracy": 0.7569,
+      "log_loss": 0.4856,
       "brier": 0.1609
     }
   ],
   "calibration_current": [
     {
       "bin": "50%-60%",
-      "n": 767,
+      "n": 784,
       "predicted": 0.5482,
-      "actual": 0.528
+      "actual": 0.5268
     },
     {
       "bin": "60%-70%",
-      "n": 765,
-      "predicted": 0.65,
-      "actual": 0.6301
+      "n": 795,
+      "predicted": 0.6502,
+      "actual": 0.6252
     },
     {
       "bin": "70%-80%",
-      "n": 887,
-      "predicted": 0.7496,
-      "actual": 0.7238
+      "n": 917,
+      "predicted": 0.7497,
+      "actual": 0.7252
     },
     {
       "bin": "80%-90%",
-      "n": 976,
-      "predicted": 0.8519,
-      "actual": 0.8197
+      "n": 1019,
+      "predicted": 0.8518,
+      "actual": 0.8194
     },
     {
       "bin": "90%-95%",
-      "n": 651,
+      "n": 675,
       "predicted": 0.9262,
-      "actual": 0.9186
+      "actual": 0.9185
     },
     {
       "bin": "95%-100%",
-      "n": 643,
-      "predicted": 0.9738,
-      "actual": 0.9689
+      "n": 664,
+      "predicted": 0.9739,
+      "actual": 0.9699
     }
   ],
   "calibration_fit": [
@@ -344,26 +344,26 @@
     }
   ],
   "persistence": {
-    "team_seasons": 1678,
+    "team_seasons": 1679,
     "odd_vs_even": -0.056,
-    "first_vs_second_half": -0.099,
+    "first_vs_second_half": -0.093,
     "year_over_year": {
       "2022-2023": -0.047,
       "2023-2024": -0.096,
       "2024-2025": -0.127,
-      "2025-2026": -0.233
+      "2025-2026": -0.246
     },
     "z_sd": 0.96,
-    "share_beyond_2sd": 0.038,
+    "share_beyond_2sd": 0.039,
     "share_beyond_2sd_if_pure_luck": 0.046,
-    "median_season_sd_wins": 2.07
+    "median_season_sd_wins": 2.08
   },
   "schedule": {
     "season": "2026",
-    "games": 212,
-    "first": "2026-11-19",
+    "games": 88,
+    "first": "2026-11-22",
     "last": "2026-11-28",
-    "read": "2026-11-19",
+    "read": "2026-11-22",
     "fallback_teams": [
       "TBA"
     ],
